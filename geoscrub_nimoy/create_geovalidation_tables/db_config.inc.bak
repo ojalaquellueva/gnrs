@@ -1,0 +1,10 @@
+<?php
+
+$HOSTNAME = "NCEAS/BIEN server";
+//$HOST = "nimoy.nceas.ucsb.edu";
+$HOST = "localhost";
+$USER = "admin";
+$PWD = "lae5eiNa";
+$DB = "bien2";
+
+?>

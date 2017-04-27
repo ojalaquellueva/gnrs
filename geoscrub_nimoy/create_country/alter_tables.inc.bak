@@ -1,0 +1,26 @@
+<?php
+// Adds FK constraints
+
+/*
+// ...to synonym table
+echo "Adding FK constraints...";
+$msg_error = "failed to add FK constraint to table `$tbl_syn`!\r\n";
+$sql = "
+	ALTER TABLE `$tbl_syn` 
+	ADD CONSTRAINT `FK_countryID` FOREIGN KEY `FK_countryID`(`countryID`) REFERENCES `country`(`countryID`);
+	";
+	if (sql_execute($sql,$die_on_fail,$echo_on,$msg_success,$msg_error));
+ */
+
+// ...to countryNames_languages table
+echo "Adding FK constraints...";
+$msg_error = "failed to add FK constraint to table `$tbl_lang_syn`!\r\n";
+$sql = "
+	ALTER TABLE `$tbl_lang_syn` 
+	ADD CONSTRAINT `FK_countryNameID` FOREIGN KEY `FK_countryNameID`(`countryNameID`) REFERENCES `$tbl_syn`(`countryNameID`),
+	ADD CONSTRAINT `FK_langCode` FOREIGN KEY `FK_langCode`(`langCode`) REFERENCES `$tbl_lang`(`langCode`) ON UPDATE CASCADE;
+	";
+if (sql_execute($sql,$die_on_fail,$echo_on,$msg_success,$msg_error));
+
+
+?>
