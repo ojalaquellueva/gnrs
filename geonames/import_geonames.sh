@@ -27,14 +27,19 @@
 # geonames.alternatenames to varchar(8000)
 #===============================================================================
 
-source "params.sh"
+source "params.import_geonames.sh"
 
+: <<'COMMENT_BLOCK_1'
+
+# Omitting this next section because WORKPATH is specified in params file.
 if [ -d "$1" ]; then
     WORKPATH="$1"
 fi
 mkdir -p "$WORKPATH"
 RETVAL=$?
 [ $RETVAL -ne 0 ] && echo "Can't create $WORKPATH directory: Aborting." && exit $RETVAL
+
+COMMENT_BLOCK_1
 
 psql -c "CREATE DATABASE geonames WITH TEMPLATE = template0 ENCODING = 'UTF8';"
 RETVAL=$?
@@ -72,7 +77,7 @@ longitude float,
 fclass char(1),
 fcode varchar(10),
 country varchar(2) REFERENCES countryinfo,
-cc2 varchar(60),
+cc2 text,
 admin1 varchar(20),
 admin2 varchar(80),
 admin3 varchar(20),
@@ -134,33 +139,37 @@ RETVAL=$?
 
 echo ",---- STARTING (downloading, unpacking and preparing)"
 cd "$WORKPATH"
-echo "Files will be downloaded in $(pwd) directory"
-for i in $FILES
-do
-    wget -N -q "http://download.geonames.org/export/dump/$i" # get newer files
-    RETVAL=$?
-    [ $RETVAL -ne 0 ] && echo "Cannot download $i file: Aborting. Error="$RETVAL && exit $RETVAL
-    if [ $i -nt "_$i" ] || [ ! -e "_$i" ] ; then
-        cp -p $i "_$i"
-        if [ `expr index zip $i` -eq 1 ]; then
-            unzip -o -u -q $i
-        fi
-        case "$i" in
-            iso-languagecodes.txt)
-                tail -n +2 iso-languagecodes.txt > iso-languagecodes.txt.tmp;
-            ;;
-            countryInfo.txt)
-                grep -v '^#' countryInfo.txt | head -n -2 > countryInfo.txt.tmp;
-            ;;
-            timeZones.txt)
-                tail -n +2 timeZones.txt > timeZones.txt.tmp;
-            ;;
-        esac
-        echo "| $i has been downloaded";
-    else
-        echo "| $i is already the latest version"
-    fi
-done
+if [[ $download == "false" ]]; then
+	echo "Skipping download; using existing files in directory $(pwd)"
+else
+	echo "Files will be downloaded in $(pwd) directory"
+	for i in $FILES
+	do
+		wget -N -q "http://download.geonames.org/export/dump/$i" # get newer files
+		RETVAL=$?
+		[ $RETVAL -ne 0 ] && echo "Cannot download $i file: Aborting. Error="$RETVAL && exit $RETVAL
+		if [ $i -nt "_$i" ] || [ ! -e "_$i" ] ; then
+			cp -p $i "_$i"
+			if [ `expr index zip $i` -eq 1 ]; then
+				unzip -o -u -q $i
+			fi
+			case "$i" in
+				iso-languagecodes.txt)
+					tail -n +2 iso-languagecodes.txt > iso-languagecodes.txt.tmp;
+				;;
+				countryInfo.txt)
+					grep -v '^#' countryInfo.txt | head -n -2 > countryInfo.txt.tmp;
+				;;
+				timeZones.txt)
+					tail -n +2 timeZones.txt > timeZones.txt.tmp;
+				;;
+			esac
+			echo "| $i has been downloaded";
+		else
+			echo "| $i is already the latest version"
+		fi
+	done
+fi
 
 echo "+---- FILL DATABASE"
 PWD=$(pwd)
@@ -168,8 +177,8 @@ psql -e geonames <<EOT
 copy countryinfo (iso_alpha2,iso_alpha3,iso_numeric,fips_code,country,capital,areainsqkm,population,continent,tld,currency_code,currency_name,phone,postal,postalRegex,languages,geonameid,neighbours,equivalent_fips_code) from '${PWD}/countryInfo.txt.tmp' null as '';
 vacuum analyze verbose countryinfo;
 copy geoname (geonameid,name,asciiname,alternatenames,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,moddate) from '${PWD}/allCountries.txt' null as '';
-ALTER TABLE ONLY countryinfo
-ADD CONSTRAINT fk_geonameid FOREIGN KEY (geonameid) REFERENCES geoname(geonameid);
+-- ALTER TABLE ONLY countryinfo
+-- ADD CONSTRAINT fk_geonameid FOREIGN KEY (geonameid) REFERENCES geoname(geonameid);
 vacuum analyze verbose geoname;
 copy timeZones (countrycode,timeZoneId,GMT_offset,DST_offset,raw_offset) from '${PWD}/timeZones.txt.tmp' null as '';
 vacuum analyze verbose timeZones;
@@ -210,8 +219,8 @@ RETVAL=$?
 
 echo "+---- GRANT TO USER '$USER'"
 psql geonames <<EOT
-GRANT ALL ON SELECT TABLES IN SCHEMA public TO $USER;
-GRANT ALL ON SELECT SEQUENCES IN SCHEMA public TO $USER;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $USER;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $USER;
 EOT
 RETVAL=$?
 [ $RETVAL -ne 0 ] && echo "Cannot grant all rights to user '$USER': Aborting." && exit $RETVAL

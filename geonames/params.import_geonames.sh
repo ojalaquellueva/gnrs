@@ -9,3 +9,8 @@ WORKPATH="/home/boyle/bien3/geonames/data"
 
 # Main user that will be accessing geonames
 USER="bien"
+
+# Set to false to skip importing files, else true
+# If false, assumes files have already been downloaded to 
+# directory WORKPATH
+download='true'
