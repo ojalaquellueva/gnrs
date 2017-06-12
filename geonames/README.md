@@ -38,4 +38,4 @@ sudo -u postgres ./geonames.sh
 ### <a name="Notes"></a>Notes
 
 1. Adapted from http://forum.geonames.org/gforum/posts/list/15/926.page
-2. This version does not covert coordinates to geometry
+2. This version does not convert coordinates to geometry
