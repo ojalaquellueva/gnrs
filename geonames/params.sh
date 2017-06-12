@@ -9,13 +9,14 @@
 FILES="allCountries.zip alternateNames.zip userTags.zip admin1CodesASCII.txt admin2Codes.txt countryInfo.txt featureCodes_en.txt iso-languagecodes.txt timeZones.txt"
 
 # Main user that will be accessing geonames
+# This user is assigned all privileges, but ownership remains with postgres
 USER="bien"
 
 # Path to db_config.sh
 # For production, keep outside app working directory & supply
 # absolute path
 # For development, if keep inside working directory, then supply
-# relative path
+# relative path. If in same directory as this file, set to "".
 # Omit trailing slash
 db_config_path="/home/boyle/bien3/gnrs"
 
@@ -35,9 +36,6 @@ functions_path="/home/boyle/functions/sh"
 # Omit trailing slash
 DATADIR="/home/boyle/bien3/geonames/data"
 #DATADIR="data"		 # Relative path
-
-# Some other database to connect to at start, before creating gnrs db
-someotherdb="boyle"
 
 # Destination email for process notifications
 # You must supply a valid email if you used the -m option

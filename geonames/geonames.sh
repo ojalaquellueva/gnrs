@@ -11,10 +11,11 @@
 #	2. Data directory (set in params file) must exist and must be owned
 #		by postgres (e.g., chgrp postgres <data_directory>)
 #
+# Based in part on the following script, with alterations:
+#	http://forum.geonames.org/gforum/posts/list/15/926.page
+#
 # Authors: Brad Boyle (bboyle@email.arizona.edu)
 #########################################################################
-
-
 
 ######################################################
 # Set basic parameters, functions and options
@@ -85,6 +86,8 @@ do
 		if [ `expr index zip $i` -eq 1 ]; then
 			unzip -o -u -q $i
 		fi
+		
+		# Remove headers and comments from selected files
 		case "$i" in
 			iso-languagecodes.txt)
 				tail -n +2 iso-languagecodes.txt > iso-languagecodes.txt.tmp;
@@ -162,23 +165,26 @@ INSERT INTO continentcodes VALUES ('SA', 'South America', 6255151);
 INSERT INTO continentcodes VALUES ('AN', 'Antarctica', 6255152);
 EOT
 
-
 ######################################################
-# Add indexes and constraints
+# Add PKs, indexes and FK constraints
 ######################################################
 
+echoi $e -n "Indexing tables...."
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/index_geonames_tables.sql
+source "$DIR/includes/check_status.sh"
 
 ######################################################
 # Adjust permissions as needed
 ######################################################
 
 : <<'COMMENT_BLOCK_1'
-# Change owner to main user (bien)
-echoi $e -n "Setting owner to '$user'..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE geonames OWNER TO $user" 
-source "$DIR/includes/check_status.sh" 
 COMMENT_BLOCK_1
 
+# Change owner to main user (bien)
+echoi $e -n "Setting owner to user '$USER'..."
+#PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE geonames OWNER TO $user" 
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -v user=$USER -f sql/set_permissions.sql
+source "$DIR/includes/check_status.sh" 
 
 ######################################################
 # Report total elapsed time and exit

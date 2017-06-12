@@ -1,25 +1,41 @@
-# Downloads geonames files and populates database geonames
+# Imports geonames database to postgres
 
-## Source: https://gist.github.com/bbinet/3635232
-## ORIGINAL AUTHOR: Andreas (aka Harpagophyt)
+Author: Brad Boyle (bboyle@email.arizona.edu)  
+Source: http://forum.geonames.org/gforum/posts/list/15/926.page
 
-### Details
+## Table of Contents
 
-Will create database geonames. Aborts if database geonames already exists.
-Files will be downloaded to <data_directory>.
+- [Overview](#Overview)
+- [Requirements](#Requirements)
+- [Schema](#Schema)
+- [Usage](#Usage)
+- [Notes](#Notes)
 
-### Usage
+### Overview
 
-```
-sudo -u postgres ./import_geonames.sh <path/to/data_directory>
+Creates database geonames & populates with most recent data from http://www.geonames.org/. Assigns full privileges to user $USER, while retaining ownership by postgres. Data files are downloaded to $DATADIR.
 
-```
+### Requirements
 
-### Warnings
-* Recommend create <data_directory> in advance, and assign it to group 'postgres', e.g., 
+Postgres role $USER must exist. Directory $DATADIR must exist, and should either be owned by postgres, or belong to group posgres, e.g.,
 
 ```
 $ chgrp postgres <data_directory>
 
 ```
 
+### Schema
+
+See DDL in sql/create_geonames_tables.sql.
+
+### Usage
+
+```
+sudo -u postgres ./geonames.sh
+
+```
+
+### Notes
+
+1. Adapted from http://forum.geonames.org/gforum/posts/list/15/926.page
+2. This version does not covert coordinates to geometry
