@@ -71,7 +71,7 @@ source "$DIR/includes/check_status.sh"
 # Build gnrs tables in geonames database
 ############################################
 
-echoi $e "Building tables in geonames database:"
+echoi $e "Building political division tables in geonames database:"
 
 echoi $e -n "- Country tables...."
 PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/country.sql

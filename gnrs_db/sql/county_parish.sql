@@ -1,3 +1,10 @@
+-- -----------------------------------------------------------------
+-- Creates and populates county_parish tables in gnrs database -----------------------------------------------------------------
+
+-- 
+-- country: one row per county_parish, official name and codes
+--
+
 DROP TABLE IF EXISTS county_parish;
 CREATE TABLE county_parish AS (
 SELECT geonameid,
