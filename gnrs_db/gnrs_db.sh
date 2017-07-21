@@ -73,22 +73,22 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e "Building political division tables in geonames database:"
 
-echoi $e -n "- Country tables...."
+echoi $e -n "- Country...."
 PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/country.sql
 source "$DIR/includes/check_status.sh"
 
-: <<'COMMENT_BLOCK_1'
-echoi $e -n "- State/province tables...."
+echoi $e -n "- State/province...."
 PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/state_province.sql
 source "$DIR/includes/check_status.sh"
 
-echoi $e -n "- County/parish tables...."
+echoi $e -n "- County/parish..."
 PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/county_parish.sql
 source "$DIR/includes/check_status.sh"
 
 ############################################
 # Import geonames tables
 ############################################
+: <<'COMMENT_BLOCK_1'
 
 echoi $e "Copying tables from geonames db:"
 
