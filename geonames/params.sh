@@ -12,6 +12,9 @@ FILES="allCountries.zip alternateNames.zip userTags.zip admin1CodesASCII.txt adm
 # This user is assigned all privileges, but ownership remains with postgres
 USER="bien"
 
+# Read only user, will be able to select tables
+USER_READ="public_bien"
+
 # Path to db_config.sh
 # For production, keep outside app working directory & supply
 # absolute path

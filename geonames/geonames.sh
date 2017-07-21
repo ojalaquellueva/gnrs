@@ -180,10 +180,9 @@ source "$DIR/includes/check_status.sh"
 : <<'COMMENT_BLOCK_1'
 COMMENT_BLOCK_1
 
-# Change owner to main user (bien)
+# Change owner to main user (bien) and assign read-only access to public_bien
 echoi $e -n "Setting owner to user '$USER'..."
-#PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE geonames OWNER TO $user" 
-PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -v user=$USER -f sql/set_permissions.sql
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -v user_adm=$USER -v user_read=$USER_READ -f sql/set_permissions.sql
 source "$DIR/includes/check_status.sh" 
 
 ######################################################
