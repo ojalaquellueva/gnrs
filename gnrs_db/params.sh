@@ -30,6 +30,9 @@ functions_path="/home/boyle/functions/sh"
 data_base_dir="/home/boyle/bien3/gnrs/data"
 #data_base_dir="data"		 # Relative path
 
+# Read only user to add to new tables
+user_read="public_bien"
+
 # Destination email for process notifications
 # You must supply a valid email if you used the -m option
 email="bboyle@email.arizona.edu"
