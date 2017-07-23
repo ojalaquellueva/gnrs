@@ -13,3 +13,19 @@ Batch application for resolving & standardizing political division names. Matche
 
 ## Usage
 
+1. Import geonames database:
+
+```
+sudo -u posgres ./geonames.sh
+
+```
+
+2. Build gnrs database:
+
+```
+sudo -u posgres ./gnrs_db.sh
+
+```
+
+3. GNRS batch application:
+
