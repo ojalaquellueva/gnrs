@@ -5,7 +5,7 @@
 -- country: one row per county_parish, official name and codes
 --
 
-DROP TABLE IF EXISTS county_parish;
+DROP TABLE IF EXISTS county_parish CASCADE;
 CREATE TABLE county_parish AS (
 SELECT geonameid AS county_parish_id,
 CAST(NULL AS TEXT) AS country,
@@ -15,11 +15,7 @@ CAST(NULL AS TEXT) AS state_province_ascii,
 admin1 AS state_province_code,
 name AS county_parish,
 asciiname AS county_parish_ascii,
-admin2 AS county_parish_code,
-fclass,
-fcode,
-latitude,
-longitude
+admin2 AS county_parish_code
 FROM geoname
 WHERE fclass='A' AND fcode='ADM2'
 ORDER BY country, admin1, name

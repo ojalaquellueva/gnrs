@@ -37,35 +37,35 @@ source "$DIR/includes/startup_master.sh"
 # Confirm operation
 source "$DIR/includes/confirm.sh"
 
+# Set local directories to same as main
+data_dir_local=$data_base_dir
+DIR_LOCAL=$DIR
+
+# Psuedo error log, to absorb screen echo during import
+echo "Error log
+" > /tmp/tmplog.txt
+
 #########################################################################
 # Main
 #########################################################################
-
-
+: <<'COMMENT_BLOCK_1'
+COMMENT_BLOCK_1
 ############################################
 # Create database in admin role & reassign
 # to principal non-admin user of database
 ############################################
 
 # Check if db already exists
+# Warn to drop manually. This is safer.
 if psql -lqt | cut -d \| -f 1 | grep -qw "$db_gnrs"; then
 	# Reset confirmation message
-	msg_conf="Replace existing database '$db_gnrs'?"
-	confirm "$msg_conf"
-
-	echoi $e -n "Dropping database '$db_gnrs'..."
-	PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "DROP DATABASE $db_gnrs" 
-	source "$DIR/includes/check_status.sh"  
+	msg="Database '$db_gnrs' already exists! Please drop first."
+	echo $msg; exit 1
 fi
 
 echoi $e -n "Creating database '$db_gnrs'..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE $db_gnrs" 
 source "$DIR/includes/check_status.sh"  
-
-# Change owner to main user (bien)
-echoi $e -n "Setting owner to '$user'..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $db_gnrs OWNER TO $user" 
-source "$DIR/includes/check_status.sh" 
 
 ############################################
 # Build gnrs tables in geonames database
@@ -74,49 +74,44 @@ source "$DIR/includes/check_status.sh"
 echoi $e "Building political division tables in geonames database:"
 
 echoi $e -n "- Country...."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/country.sql
+PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country.sql
 source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- State/province...."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/state_province.sql
+PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province.sql
 source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- County/parish..."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f sql/county_parish.sql
+PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish.sql
 source "$DIR/includes/check_status.sh"
 
 ############################################
 # Import geonames tables
 ############################################
-: <<'COMMENT_BLOCK_1'
 
 echoi $e "Copying tables from geonames db:"
 
 # Dump table from source databse
 echoi $e -n "- Creating dumpfile..."
-dumpfile=$data_dir_local"/gnrs_geonames_extract.sql"
-pg_dump -U $user -t countries -t state_province -t county_parish $db_geoscrub > $dumpfile
-source "$DIR/includes/check_status.sh"	
-
-# Drop the tables in gnrs database if already exist
-echoi $e -n "- Dropping previous tables, if any..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v sch=$prod_schema_adb_public -f $DIR_LOCAL/sql/drop_tables.sql
+dumpfile="/tmp/gnrs_geonames_extract.sql"
+pg_dump -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
 source "$DIR/includes/check_status.sh"	
 
 # Import table from dumpfile to target db & schema
 echoi $e -n "- Importing tables from dumpfile..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -q --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile > /dev/null >> /tmp/tmplog.txt
 source "$DIR/includes/check_status.sh"	
 
 echoi $e -n "- Removing dumpfile..."
 rm $dumpfile
 source "$DIR/includes/check_status.sh"	
 
-
 echoi $e -n "Adjusting permissions..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_public --set ON_ERROR_STOP=1 -q -v sch=$target_sch -f $DIR_LOCAL/sql/permissions.sql
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -f $DIR_LOCAL/sql/set_permissions.sql
 source "$DIR/includes/check_status.sh"	
-COMMENT_BLOCK_1
+
+: <<'COMMENT_BLOCK_2'
+COMMENT_BLOCK_2
 ######################################################
 # Report total elapsed time and exit
 ######################################################

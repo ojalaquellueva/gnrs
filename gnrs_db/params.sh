@@ -30,9 +30,6 @@ functions_path="/home/boyle/functions/sh"
 data_base_dir="/home/boyle/bien3/gnrs/data"
 #data_base_dir="data"		 # Relative path
 
-# Some other database to connect to at start, before creating gnrs db
-someotherdb="boyle"
-
 # Destination email for process notifications
 # You must supply a valid email if you used the -m option
 email="bboyle@email.arizona.edu"
