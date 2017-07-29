@@ -1,9 +1,14 @@
 -- 
--- Assign full db privilege to :user_adm
+-- Assign database ownership to :user_adm while retaining ownership by postgres
+-- Assign read-only access to :user_read
 -- 
 
 -- Full privileges
-GRANT CONNECT ON DATABASE :db TO :user_adm;
-\c :db
 GRANT USAGE ON SCHEMA public TO :user_adm;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO :user_adm;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :user_adm;
+
+-- Read-only access
+GRANT USAGE ON SCHEMA public TO :user_read;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO :user_read;
+
