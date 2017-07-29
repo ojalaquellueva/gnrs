@@ -48,12 +48,12 @@ echo "Error log
 #########################################################################
 # Main
 #########################################################################
-
+: <<'COMMENT_BLOCK_1'
+COMMENT_BLOCK_1
 ############################################
 # Create database in admin role & reassign
 # to principal non-admin user of database
 ############################################
-: <<'COMMENT_BLOCK_2'
 
 # Check if db already exists
 # Warn to drop manually. This is safer.
@@ -66,42 +66,15 @@ fi
 echoi $e -n "Creating database '$db_gnrs'..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE $db_gnrs" 
 source "$DIR/includes/check_status.sh"  
-COMMENT_BLOCK_2
 
 ############################################
-# Importing BIEN2 legacy data
-# Includes HASC codes, among other goodies
+# Build gnrs tables in geonames database
 ############################################
 
-echoi $e "Importing legacy BIEN2 data to geonames database:"
-
-echoi $e -n "- Creating tables...."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_bien2_tables.sql
-source "$DIR/includes/check_status.sh"
-
-# Import metadata file to temp table
-echoi $i -n "- state_province_bien2..."
-sql="
-\COPY state_province_bien2 FROM '${data_dir_local}/${state_province_bien2_file}' DELIMITER ',' CSV HEADER;
-"
-PGOPTIONS='--client-min-messages=warning' psql -d 'geonames' -q << EOF
-\set ON_ERROR_STOP on
-$sql
-EOF
-echoi $i "done"
-
-echoi $i -n "- county_parish_bien2..."
-sql="
-\COPY county_parish_bien2 FROM '${data_dir_local}/${county_parish_bien2_file}' DELIMITER ',' CSV HEADER;
-"
-PGOPTIONS='--client-min-messages=warning' psql -d 'geonames' -q << EOF
-\set ON_ERROR_STOP on
-$sql
-EOF
-echoi $i "done"
+echoi $e "Importing HASC code tables to geonames database:"
 
 
-: <<'COMMENT_BLOCK_1'
+
 
 ############################################
 # Build gnrs tables in geonames database
@@ -122,7 +95,7 @@ PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1
 source "$DIR/includes/check_status.sh"
 
 echoi $e -n "Adjusting permissions for new tables..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions_gnrs_tables.sql
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions_geonames.sql
 source "$DIR/includes/check_status.sh"	
 
 
@@ -150,9 +123,9 @@ source "$DIR/includes/check_status.sh"
 echoi $e -n "Adjusting permissions..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -f $DIR_LOCAL/sql/set_permissions.sql
 source "$DIR/includes/check_status.sh"	
-COMMENT_BLOCK_1
 
-
+: <<'COMMENT_BLOCK_2'
+COMMENT_BLOCK_2
 ######################################################
 # Report total elapsed time and exit
 ######################################################

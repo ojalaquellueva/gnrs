@@ -41,9 +41,20 @@ source "$DIR/includes/startup_master.sh"
 # Confirm operation
 source "$DIR/includes/confirm.sh"
 
+# Set local directories to same as main
+#data_dir_local=$data_base_dir
+DIR_LOCAL=$DIR
+
+# Psuedo error log, to absorb screen echo during import
+echo "Error log
+" > /tmp/tmplog.txt
+
 #########################################################################
 # Main
 #########################################################################
+
+: <<'COMMENT_BLOCK_1'
+COMMENT_BLOCK_1
 
 ############################################
 # Create database & tables
@@ -173,12 +184,31 @@ echoi $e -n "Indexing tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/index_geonames_tables.sql
 source "$DIR/includes/check_status.sh"
 
+############################################
+# Add gnrs-specific tables
+############################################
+
+echoi $e "Adding political division tables:"
+
+echoi $e -n "- Country...."
+PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- State/province...."
+PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- County/parish..."
+PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "Adjusting permissions for new tables..."
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -v user_read=$USER_READ -f $DIR_LOCAL/sql/set_permissions_geonames.sql
+source "$DIR/includes/check_status.sh"	
+
 ######################################################
 # Adjust permissions as needed
 ######################################################
-
-: <<'COMMENT_BLOCK_1'
-COMMENT_BLOCK_1
 
 # Change owner to main user (bien) and assign read-only access to public_bien
 echoi $e -n "Setting owner to user '$USER'..."
