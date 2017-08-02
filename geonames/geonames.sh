@@ -53,12 +53,14 @@ echo "Error log
 # Main
 #########################################################################
 
-: <<'COMMENT_BLOCK_1'
-COMMENT_BLOCK_1
+: <<'COMMENT_BLOCK_x'
+COMMENT_BLOCK_x
 
 ############################################
 # Create database & tables
 ############################################
+
+: <<'COMMENT_BLOCK_1'
 
 # Check if db already exists
 if psql -lqt | cut -d \| -f 1 | grep -qw "geonames"; then
@@ -183,6 +185,7 @@ EOT
 echoi $e -n "Indexing tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/index_geonames_tables.sql
 source "$DIR/includes/check_status.sh"
+COMMENT_BLOCK_1
 
 ############################################
 # Add gnrs-specific tables

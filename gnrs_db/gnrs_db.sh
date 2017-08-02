@@ -50,6 +50,8 @@ echo "Error log
 # Main
 #########################################################################
 : <<'COMMENT_BLOCK_1'
+COMMENT_BLOCK_1
+
 ############################################
 # Create database in admin role & reassign
 # to principal non-admin user of database
@@ -72,7 +74,28 @@ sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_S
 source "$DIR/includes/check_status.sh"  
 
 ############################################
-# Importing BIEN2 legacy data
+# Import geonames tables
+############################################
+
+echoi $e "Copying tables from geonames db:"
+
+# Dump table from source databse
+echoi $e -n "- Creating dumpfile..."
+dumpfile="/tmp/gnrs_geonames_extract.sql"
+pg_dump --no-owner -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
+source "$DIR/includes/check_status.sh"	
+
+# Import table from dumpfile to target db & schema
+echoi $e -n "- Importing tables from dumpfile..."
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile > /dev/null >> $tmplog
+source "$DIR/includes/check_status.sh"	
+
+echoi $e -n "- Removing dumpfile..."
+rm $dumpfile
+source "$DIR/includes/check_status.sh"	
+
+############################################
+# Import BIEN2 legacy data
 # Includes HASC codes, among other goodies
 ############################################
 
@@ -104,42 +127,30 @@ EOF
 echoi $i "done"
 
 ############################################
-# Import geonames tables
-############################################
-
-echoi $e "Copying tables from geonames db:"
-
-# Dump table from source databse
-echoi $e -n "- Creating dumpfile..."
-dumpfile="/tmp/gnrs_geonames_extract.sql"
-pg_dump --no-owner -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
-source "$DIR/includes/check_status.sh"	
-
-# Import table from dumpfile to target db & schema
-echoi $e -n "- Importing tables from dumpfile..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile > /dev/null >> $tmplog
-source "$DIR/includes/check_status.sh"	
-
-echoi $e -n "- Removing dumpfile..."
-rm $dumpfile
-source "$DIR/includes/check_status.sh"	
-
-COMMENT_BLOCK_1
-
-############################################
 # Adjust permissions
 ############################################
+
 echoi $e -n "Adjusting permissions..."
 for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname = 'public';" $db_gnrs` ; do  psql -c "alter table \"$tbl\" owner to bien" $db_gnrs > /dev/null >> $tmplog; done
 source "$DIR/includes/check_status.sh"
 
+############################################
+# Transfer information from bien2 tables
+############################################
 : <<'COMMENT_BLOCK_2'
-
-echoi $e -n "Adjusting permissions..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions.sql
-source "$DIR/includes/check_status.sh"	
-
 COMMENT_BLOCK_2
+
+echoi $e -n "Correcting known issues...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/correct_errors.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "Transferring HASC codes from BIEN2 tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_hasc_codes.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "Dropping BIEN2 tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_bien2_tables.sql
+source "$DIR/includes/check_status.sh"
 
 ######################################################
 # Report total elapsed time and exit

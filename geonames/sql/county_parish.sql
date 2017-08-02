@@ -17,8 +17,8 @@ name AS county_parish,
 asciiname AS county_parish_ascii,
 admin2 AS county_parish_code,
 CAST(NULL AS TEXT) AS county_parish_code_full,
-CAST(NULL AS TEXT) AS hasc,
-CAST(NULL AS TEXT) AS hasc_full
+CAST(NULL AS TEXT) AS hasc_2,
+CAST(NULL AS TEXT) AS hasc_2_full
 FROM geoname
 WHERE fclass='A' AND fcode='ADM2'
 ORDER BY country, admin1, name
@@ -60,8 +60,8 @@ WHERE a.county_parish_id=b.geonameid
 
 -- Add remaining indexes
 CREATE INDEX ON county_parish (county_parish_code_full);
-CREATE INDEX ON county_parish (hasc);
-CREATE INDEX ON county_parish (hasc_full);
+CREATE INDEX ON county_parish (hasc_2);
+CREATE INDEX ON county_parish (hasc_2_full);
 CREATE INDEX ON county_parish (country);
 CREATE INDEX ON county_parish (state_province);
 CREATE INDEX ON county_parish (state_province_ascii);
