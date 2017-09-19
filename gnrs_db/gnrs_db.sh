@@ -41,7 +41,7 @@ source "$DIR/includes/confirm.sh"
 data_dir_local=$data_base_dir
 DIR_LOCAL=$DIR
 
-# Psuedo error log, to absorb screen echo during import
+# Pseudo error log, to absorb screen echo during import
 tmplog=$data_dir_local"/tmplog.txt"
 echo "Error log
 " > $tmplog
@@ -51,7 +51,6 @@ echo "Error log
 #########################################################################
 : <<'COMMENT_BLOCK_1'
 COMMENT_BLOCK_1
-
 ############################################
 # Create database in admin role & reassign
 # to principal non-admin user of database
@@ -74,15 +73,58 @@ sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_S
 source "$DIR/includes/check_status.sh"  
 
 ############################################
+# Add gnrs-specific tables
+############################################
+
+echoi $e "Creating gnrs tables in DB $db_geonames:"
+
+echoi $e -n "- Dropping previous GNRS tables if any..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_gnrs_tables.sql
+source "$DIR/includes/check_status.sh"  
+
+echoi $e -n "- Country..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- State/province..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "-- Adding & populating column state_province_std...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province_std.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "-- Fixing errors..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_state_province.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- County/parish..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish.sql
+source "$DIR/includes/check_status.sh"
+
+#echoi $e -n "-- Fixing errors...."
+#PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_county_parish.sql
+#source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- Adjusting permissions for new tables..."
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -d  $db_geonames -v user_adm=$user_bien -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions_geonames.sql
+source "$DIR/includes/check_status.sh"	
+
+echoi $e -n "- Reassigning ownership to postgres..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/gnrs_tables_change_owner.sql
+source "$DIR/includes/check_status.sh"  
+
+
+############################################
 # Import geonames tables
 ############################################
 
-echoi $e "Copying tables from geonames db:"
+echoi $e "Importing tables from DB $db_geonames to DB $db_gnrs:"
 
 # Dump table from source databse
 echoi $e -n "- Creating dumpfile..."
 dumpfile="/tmp/gnrs_geonames_extract.sql"
-pg_dump --no-owner -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
+sudo -u postgres pg_dump --no-owner -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
 source "$DIR/includes/check_status.sh"	
 
 # Import table from dumpfile to target db & schema

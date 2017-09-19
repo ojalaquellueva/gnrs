@@ -187,34 +187,12 @@ PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q
 source "$DIR/includes/check_status.sh"
 COMMENT_BLOCK_1
 
-############################################
-# Add gnrs-specific tables
-############################################
-
-echoi $e "Adding political division tables:"
-
-echoi $e -n "- Country...."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country.sql
-source "$DIR/includes/check_status.sh"
-
-echoi $e -n "- State/province...."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province.sql
-source "$DIR/includes/check_status.sh"
-
-echoi $e -n "- County/parish..."
-PGOPTIONS='--client-min-messages=warning' psql -d geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish.sql
-source "$DIR/includes/check_status.sh"
-
-echoi $e -n "Adjusting permissions for new tables..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -v db=$db_gnrs -v user_adm=$user -v user_read=$USER_READ -f $DIR_LOCAL/sql/set_permissions_geonames.sql
-source "$DIR/includes/check_status.sh"	
-
 ######################################################
 # Adjust permissions as needed
 ######################################################
 
 # Change owner to main user (bien) and assign read-only access to public_bien
-echoi $e -n "Setting owner to user '$USER'..."
+echoi $e -n "Adding permissions for users '$USER' and '$USER_READ'..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -v user_adm=$USER -v user_read=$USER_READ -f sql/set_permissions.sql
 source "$DIR/includes/check_status.sh" 
 
