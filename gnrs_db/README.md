@@ -12,7 +12,7 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
 
 ### <a name="Overview"></a>Overview
 
-Builds GNRS database in part from selected entities in geonames database (see http://www.geonames.org/).
+Builds GNRS database in part from selected entities in geonames database (see http://www.geonames.org/). Main tables are built inside database geonames them imported into database gnrs. Additional information (principally HASC codes) are imported from BIEN2 database.
 
 ### <a name="Requirements"></a>Requirements
 
