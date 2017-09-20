@@ -73,10 +73,18 @@ sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_S
 source "$DIR/includes/check_status.sh"  
 
 ############################################
-# Add gnrs-specific tables
+# Build core tables
 ############################################
 
-echoi $e "Creating gnrs tables in DB $db_geonames:"
+echoi $e -n "Creating core tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_core_tables.sql
+source "$DIR/includes/check_status.sh"  
+
+############################################
+# Build political division tables
+############################################
+
+echoi $e "Creating poldiv tables in DB $db_geonames:"
 
 echoi $e -n "- Dropping previous GNRS tables if any..."
 sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_gnrs_tables.sql
