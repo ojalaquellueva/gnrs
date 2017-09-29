@@ -49,8 +49,6 @@ DIR_LOCAL=$DIR
 echo "Error log
 " > /tmp/tmplog.txt
 
-PREFIX="_"
-
 #########################################################################
 # Main
 #########################################################################
@@ -120,19 +118,17 @@ do
 	fi
 done
 
-# download the postalcodes. You must know yourself the url
+# Move to data directory 
 pcpath=$DATADIR"/"$PCDIR
 cd $pcpath
-wget -q -N "http://download.geonames.org/export/zip/allCountries.zip"
 
-if [ $pcpath/allCountries.zip -nt $pcpath/allCountries$PREFIX.zip ] || [ ! -e $pcpath/allCountries.zip ]; then
-    echo "Attempt to unzip $pcpath/allCountries.zip file..."
-    unzip -u -q $pcpath/allCountries.zip
-    cp -p $pcpath/allCountries.zip $pcpath/allCountries$PREFIX.zip
-    echo "| ....zip has been downloaded"
-else
-    echo "| ....zip is already the latest version"
-fi
+echoi $e -n "Downloading file 'allCountries.zip'..."
+wget -q -N "http://download.geonames.org/export/zip/allCountries.zip"
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "Unzipping file..."
+unzip -u -q $pcpath/allCountries.zip
+source "$DIR/includes/check_status.sh"
 
 ############################################
 # Insert the data
@@ -144,51 +140,60 @@ cd "$DIR"
 echoi $e "Inserting data to tables:"
 
 echoi $e -n "- geoname..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy geoname (geonameid,name,asciiname,alternatenames,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,moddate) from '${DATADIR}/allCountries.txt' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
-echoi $e -n "- postalcodes..."
-psql geonames <<EOT
-copy postalcodes (countrycode,postalcode,placename,admin1name,admin1code,admin2name,admin2code,admin3name,admin3code,latitude,longitude,accuracy) from '${DATADIR}/${PCDIR}/allCountries.txt' null as '';
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
+copy postalcodes (countrycode,postalcode,placename,admin1name,admin1code,admin2name,admin2code,admin3name,admin3code,latitude,longitude,accuracy) from '${DATADIR}/${PCDIR}/allCountries.txt' WITH CSV DELIMITER E'\t' QUOTE E'\b' NULL AS '';
+EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- timezones..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy timezones (countrycode,timezoneid,gmt_offset,dst_offset,raw_offset) from '${DATADIR}/timeZones.txt.tmp' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- featurecodes..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy featurecodes (code,name,description) from '${DATADIR}/featureCodes_en.txt' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- admin1CodesAscii..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy admin1codesascii (code,name,nameascii,geonameid) from '${DATADIR}/admin1CodesASCII.txt' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- admin2codesascii..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy admin2codesascii (code,name,nameascii,geonameid) from '${DATADIR}/admin2Codes.txt' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- iso_languagecodes..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy iso_languagecodes (iso_639_3,iso_639_2,iso_639_1,language_name) from '${DATADIR}/iso-languagecodes.txt.tmp' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- countryinfo..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy countryinfo (iso_alpha2,iso_alpha3,iso_numeric,fips_code,country,capital,areainsqkm,population,continent,tld,currency_code,currency_name,phone,postal,postalregex,languages,geonameid,neighbours,equivalent_fips_code) from '${DATADIR}/countryInfo.txt.tmp' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- alternatename..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy alternatename (alternatenameid,geonameid,isolanguage,alternatename,ispreferredname, isshortname, iscolloquial, ishistoric) from '${DATADIR}/alternateNames.txt' null as '';
 EOT
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- continentcodes..."
-psql geonames <<EOT
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 INSERT INTO continentcodes VALUES ('AF', 'Africa', 6255146);
 INSERT INTO continentcodes VALUES ('AS', 'Asia', 6255147);
 INSERT INTO continentcodes VALUES ('EU', 'Europe', 6255148);
@@ -197,6 +202,7 @@ INSERT INTO continentcodes VALUES ('OC', 'Oceania', 6255150);
 INSERT INTO continentcodes VALUES ('SA', 'South America', 6255151);
 INSERT INTO continentcodes VALUES ('AN', 'Antarctica', 6255152);
 EOT
+source "$DIR/includes/check_status.sh"
 
 ######################################################
 # Add PKs, indexes and FK constraints

@@ -52,6 +52,7 @@ email="bboyle@email.arizona.edu"
 # Short name for this operation, for screen echo and 
 # notification emails. Number suffix matches script suffix
 pname="Import geonames database"
+pname_postalcodes="Import geonames postalcodes"
 
 # General process name prefix for email notifications
 pname_header_prefix="BIEN notification: process"

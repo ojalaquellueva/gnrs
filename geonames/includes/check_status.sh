@@ -8,7 +8,7 @@
 # (interactive mode only) & resets time elapsed.
 #
 # Parameters needed:
-#	$?				Current exist status code
+#	$?				Current exit status code
 #	$m				Email option; "true"/"false"
 #	$prev			Start time of most recent process
 #	$pname_header	Email header for current process 
@@ -22,8 +22,8 @@
 # pipeline scripts run on their own
 #########################################################################
 
-
-if [[ $? != 0 ]]; then 
+rc=$?
+if [[ ! $rc = 0 ]]; then
 	if [[ "$m" = "true" ]]; then
 		now=`date`
 		subject=$pname_header" FAILED!"
