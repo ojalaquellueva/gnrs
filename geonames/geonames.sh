@@ -60,8 +60,6 @@ COMMENT_BLOCK_x
 # Create database & tables
 ############################################
 
-: <<'COMMENT_BLOCK_1'
-
 # Check if db already exists
 if psql -lqt | cut -d \| -f 1 | grep -qw "geonames"; then
 	# Reset confirmation message
@@ -204,6 +202,11 @@ INSERT INTO continentcodes VALUES ('AN', 'Antarctica', 6255152);
 EOT
 source "$DIR/includes/check_status.sh"
 
+
+echoi $e -n "Fixing postalcodes and admin codes tables...."
+PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/admincodes.sql
+source "$DIR/includes/check_status.sh"
+
 ######################################################
 # Add PKs, indexes and FK constraints
 ######################################################
@@ -211,7 +214,6 @@ source "$DIR/includes/check_status.sh"
 echoi $e -n "Indexing tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/index_geonames_tables.sql
 source "$DIR/includes/check_status.sh"
-COMMENT_BLOCK_1
 
 ######################################################
 # Adjust permissions as needed
