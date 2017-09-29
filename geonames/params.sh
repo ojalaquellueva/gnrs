@@ -40,6 +40,11 @@ functions_path="/home/boyle/functions/sh"
 DATADIR="/home/boyle/bien3/geonames/data"
 #DATADIR="data"		 # Relative path
 
+# Postal code data directory
+# This should be a subdirectory of the data directory
+# Omit slashes
+PCDIR="pcodes"
+
 # Destination email for process notifications
 # You must supply a valid email if you used the -m option
 email="bboyle@email.arizona.edu"

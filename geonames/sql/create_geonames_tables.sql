@@ -106,3 +106,19 @@ CREATE TABLE continentcodes (
     name      VARCHAR(20),
     geonameid INT
 );
+
+DROP TABLE IF EXISTS postalcodes;
+CREATE TABLE postalcodes (
+    countrycode CHAR(2),
+    postalcode  VARCHAR(20),
+    placename   VARCHAR(180),
+    admin1name  VARCHAR(100),
+    admin1code  VARCHAR(20),
+    admin2name  VARCHAR(100),
+    admin2code  VARCHAR(20),
+    admin3name  VARCHAR(100),
+    admin3code  VARCHAR(20),
+    latitude    FLOAT,
+    longitude   FLOAT,
+    accuracy    SMALLINT
+);

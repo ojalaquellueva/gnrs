@@ -49,8 +49,6 @@ DIR_LOCAL=$DIR
 echo "Error log
 " > /tmp/tmplog.txt
 
-PREFIX="_"
-
 #########################################################################
 # Main
 #########################################################################
@@ -120,20 +118,6 @@ do
 	fi
 done
 
-# download the postalcodes. You must know yourself the url
-pcpath=$DATADIR"/"$PCDIR
-cd $pcpath
-wget -q -N "http://download.geonames.org/export/zip/allCountries.zip"
-
-if [ $pcpath/allCountries.zip -nt $pcpath/allCountries$PREFIX.zip ] || [ ! -e $pcpath/allCountries.zip ]; then
-    echo "Attempt to unzip $pcpath/allCountries.zip file..."
-    unzip -u -q $pcpath/allCountries.zip
-    cp -p $pcpath/allCountries.zip $pcpath/allCountries$PREFIX.zip
-    echo "| ....zip has been downloaded"
-else
-    echo "| ....zip is already the latest version"
-fi
-
 ############################################
 # Insert the data
 ############################################
@@ -147,10 +131,6 @@ echoi $e -n "- geoname..."
 psql geonames <<EOT
 copy geoname (geonameid,name,asciiname,alternatenames,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,moddate) from '${DATADIR}/allCountries.txt' null as '';
 EOT
-
-echoi $e -n "- postalcodes..."
-psql geonames <<EOT
-copy postalcodes (countrycode,postalcode,placename,admin1name,admin1code,admin2name,admin2code,admin3name,admin3code,latitude,longitude,accuracy) from '${DATADIR}/${PCDIR}/allCountries.txt' null as '';
 
 echoi $e -n "- timezones..."
 psql geonames <<EOT

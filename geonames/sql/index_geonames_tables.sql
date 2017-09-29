@@ -19,6 +19,8 @@ ALTER TABLE ONLY countryinfo
     ADD CONSTRAINT countryinfo_geonameid_fkey FOREIGN KEY (geonameid) REFERENCES geoname(geonameid);
 ALTER TABLE ONLY alternatename
     ADD CONSTRAINT alternatename_geonameid_fkey FOREIGN KEY (geonameid) REFERENCES geoname(geonameid);
+ALTER TABLE ONLY postalcodes
+    ADD CONSTRAINT postalcodes_countrycode_fkey FOREIGN KEY (countrycode) REFERENCES geoname(country);
     
 -- Remaining indexes
 CREATE INDEX geoname_name_idx ON geoname USING btree (name);
@@ -38,3 +40,12 @@ CREATE INDEX alternatename_ispreferredname_idx ON alternatename USING btree (isp
 CREATE INDEX alternatename_isshortname_idx ON alternatename USING btree (isshortname);
 CREATE INDEX alternatename_iscolloquial_idx ON alternatename USING btree (iscolloquial);
 CREATE INDEX alternatename_ishistoric_idx ON alternatename USING btree (ishistoric);
+
+CREATE INDEX postalcodes_admin1name_idx ON postalcodes USING btree (admin1name);
+CREATE INDEX postalcodes_admin1code_idx ON postalcodes USING btree (admin1code);
+CREATE INDEX postalcodes_admin2name_idx ON postalcodes USING btree (admin2name);
+CREATE INDEX postalcodes_admin2code_idx ON postalcodes USING btree (admin2code);
+CREATE INDEX postalcodes_admin3name_idx ON postalcodes USING btree (admin3name);
+CREATE INDEX postalcodes_admin3code_idx ON postalcodes USING btree (admin3code);
+
+
