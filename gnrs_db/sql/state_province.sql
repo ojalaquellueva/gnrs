@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS state_province CASCADE;
 CREATE TABLE state_province AS (
 SELECT geonameid as state_province_id,
 CAST(NULL AS TEXT) AS country,
+CAST(NULL AS BIGINT) AS country_id,
 country AS country_iso,
 name AS state_province,
 asciiname AS state_province_ascii,
@@ -27,7 +28,8 @@ CREATE INDEX state_province_country_iso_idx ON state_province USING btree (count
 
 -- Populate full plain ascii country name
 UPDATE state_province a
-SET country=b.country
+SET country=b.country,
+country_id=b.country_id
 FROM country b
 WHERE a.country_iso=b.iso
 ;
@@ -41,6 +43,7 @@ WHERE a.state_province_id=b.geonameid
 
 
 -- Add remaining indexes
+CREATE INDEX state_province_country_id_idx ON state_province USING btree (country_id);
 CREATE INDEX state_province_state_province_ascii_idx ON state_province USING btree (state_province_ascii);
 CREATE INDEX state_province_state_province_code_idx ON state_province USING btree (state_province_code);
 CREATE INDEX state_province_state_province_code_full_idx ON state_province USING btree (state_province_code_full);

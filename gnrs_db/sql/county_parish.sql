@@ -10,6 +10,8 @@ CREATE TABLE county_parish AS (
 SELECT geonameid AS county_parish_id,
 CAST(NULL AS TEXT) AS country,
 country AS country_iso,
+CAST(NULL AS BIGINT) AS country_id,
+CAST(NULL AS BIGINT) AS state_province_id,
 CAST(NULL AS TEXT) AS state_province,
 CAST(NULL AS TEXT) AS state_province_ascii,
 admin1 AS state_province_code,
@@ -35,6 +37,8 @@ CREATE INDEX ON county_parish (county_parish_code);
 -- Populate country and state_province names
 UPDATE county_parish a
 SET 
+country_id=b.country_id,
+state_province_id=b.state_province_id,
 state_province=b.state_province,
 state_province_ascii=b.state_province_ascii,
 country=b.country
@@ -59,6 +63,8 @@ WHERE a.county_parish_id=b.geonameid
 ;
 
 -- Add remaining indexes
+CREATE INDEX ON county_parish (country_id);
+CREATE INDEX ON county_parish (state_province_id);
 CREATE INDEX ON county_parish (county_parish_code_full);
 CREATE INDEX ON county_parish (hasc_2);
 CREATE INDEX ON county_parish (hasc_2_full);
