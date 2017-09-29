@@ -20,8 +20,15 @@ ALTER TABLE postalcodes
 ADD COLUMN admin1code_full VARCHAR(50) DEFAULT NULL,
 ADD COLUMN admin2code_full VARCHAR(50) DEFAULT NULL,
 ADD COLUMN admin3code_full VARCHAR(50) DEFAULT NULL,
-ADD COLUMN admin1name_plain TEXT DEFAULT NULL,
-ADD COLUMN admin2name_plain TEXT DEFAULT NULL,
+ADD COLUMN admin1nameascii VARCHAR(50) DEFAULT NULL,
+ADD COLUMN admin2nameascii VARCHAR(50) DEFAULT NULL,
+ADD COLUMN admin3nameascii VARCHAR(50) DEFAULT NULL
+;
+
+UPDATE postalcodes
+SET admin1nameascii=unaccent(admin1name),
+admin2nameascii=unaccent(admin2name),
+admin3nameascii=unaccent(admin3name)
 ;
 
 UPDATE postalcodes
@@ -58,6 +65,10 @@ CREATE INDEX postalcodes_admin3code_idx ON postalcodes USING btree (admin3code);
 CREATE INDEX postalcodes_admin1code_full_idx ON postalcodes USING btree (admin1code_full);
 CREATE INDEX postalcodes_admin2code_full_idx ON postalcodes USING btree (admin2code_full);
 CREATE INDEX postalcodes_admin3code_full_idx ON postalcodes USING btree (admin3code_full);
+
+CREATE INDEX postalcodes_admin1nameascii_idx ON postalcodes USING btree (admin1nameascii);
+CREATE INDEX postalcodes_admin2nameascii_idx ON postalcodes USING btree (admin2nameascii);
+CREATE INDEX postalcodes_admin3nameascii_idx ON postalcodes USING btree (admin3nameascii);
 
 
 --

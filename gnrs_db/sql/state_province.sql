@@ -21,11 +21,6 @@ WHERE fclass='A' AND fcode='ADM1'
 ORDER BY country, admin1
 );
 
-ALTER TABLE state_province
-ADD COLUMN state_province_iso VARCHAR(25) DEFAULT NULL,
-ADD COLUMN state_province_iso_full VARCHAR(25) DEFAULT NULL
-;
-
 ALTER TABLE ONLY state_province ADD CONSTRAINT state_province_pkey PRIMARY KEY (state_province_id);
 CREATE INDEX state_province_country_idx ON state_province USING btree (country);
 CREATE INDEX state_province_country_iso_idx ON state_province USING btree (country_iso);
@@ -45,14 +40,10 @@ WHERE a.state_province_id=b.geonameid
 ;
 
 
-
 -- Add remaining indexes
 CREATE INDEX state_province_state_province_ascii_idx ON state_province USING btree (state_province_ascii);
 CREATE INDEX state_province_state_province_code_idx ON state_province USING btree (state_province_code);
 CREATE INDEX state_province_state_province_code_full_idx ON state_province USING btree (state_province_code_full);
-
-CREATE INDEX state_province_state_province_iso_idx ON state_province USING btree (state_province_iso);
-CREATE INDEX state_province_state_province_iso_full_idx ON state_province USING btree (state_province_iso_full);
 
 -- 
 -- state_province_name: state_province alternate names
@@ -119,7 +110,6 @@ CREATE INDEX state_province_name_state_province_name_idx ON state_province_name 
 CREATE INDEX state_province_name_is_preferred_name_en_idx ON state_province_name USING btree (is_preferred_name_en);
 CREATE INDEX state_province_name_is_official_name_idx ON state_province_name USING btree (is_official_name);
 CREATE INDEX state_province_name_is_official_name_ascii_idx ON state_province_name USING btree (is_official_name_ascii);
-
 
 -- Add FKS
 ALTER TABLE ONLY state_province_name 

@@ -75,6 +75,10 @@ echoi $e -n "Creating database 'geonames'..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE geonames" 
 source "$DIR/includes/check_status.sh"  
 
+echoi $e -n "Adding unaccent extension..."
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE EXTENSION unaccent" 
+source "$DIR/includes/check_status.sh"  
+
 echoi $e -n "Creating geonames tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/create_geonames_tables.sql
 source "$DIR/includes/check_status.sh"
