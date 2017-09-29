@@ -126,6 +126,14 @@ AND a.state_province_id=c.state_province_id
 AND state_province_code2 IS NULL
 ;
 
+-- Custom fixes
+UPDATE state_province a
+SET state_province_code2='VER',
+state_province_code2_full='MX.VER'
+WHERE country_iso='MX' AND state_province_std='Veracruz'
+;
+
+
 -- Fix erroneous codes
 UPDATE state_province
 SET state_province_code2_full=NULL
