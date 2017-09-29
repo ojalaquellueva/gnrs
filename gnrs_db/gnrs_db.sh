@@ -72,6 +72,10 @@ echoi $e -n "Changing owner to 'postgres'..."
 sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $db_gnrs OWNER TO bien" 
 source "$DIR/includes/check_status.sh"  
 
+echoi $e -n "Activiting fuzzy match extension..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE EXTENSION fuzzystrmatch" 
+source "$DIR/includes/check_status.sh"  
+
 ############################################
 # Build core tables
 ############################################
