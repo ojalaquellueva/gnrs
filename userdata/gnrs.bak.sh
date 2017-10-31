@@ -68,22 +68,9 @@ echoi $e -n "Creating database '$db_gnrs'..."
 sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE $db_gnrs" 
 source "$DIR/includes/check_status.sh"  
 
-echoi $e -n "Changing owner to 'bien'..."
+echoi $e -n "Changing owner to 'postgres'..."
 sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $db_gnrs OWNER TO bien" 
 source "$DIR/includes/check_status.sh"  
-
-echoi $e -n "Granting permissions..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -q << EOF
-\set ON_ERROR_STOP on
-REVOKE CONNECT ON DATABASE gnrs FROM PUBLIC;
-GRANT CONNECT ON DATABASE gnrs TO bien;
-GRANT CONNECT ON DATABASE gnrs TO public_bien;
-GRANT ALL PRIVILEGES ON DATABASE gnrs TO bien;
-\c gnrs
-GRANT USAGE ON SCHEMA public TO public_bien;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO public_bien;
-EOF
-echoi $i "done"
 
 echoi $e "Installing extensions:"
 
@@ -220,6 +207,14 @@ EOF
 echoi $i "done"
 
 ############################################
+# Adjust permissions
+############################################
+
+echoi $e -n "Adjusting permissions..."
+for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname = 'public';" $db_gnrs` ; do  psql -c "alter table \"$tbl\" owner to bien" $db_gnrs > /dev/null >> $tmplog; done
+source "$DIR/includes/check_status.sh"
+
+############################################
 # Transfer information from bien2 tables
 ############################################
 : <<'COMMENT_BLOCK_2'
@@ -255,15 +250,6 @@ source "$DIR/includes/check_status.sh"
 echoi $e -n "- county_parish_name...."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_name_add_missing.sql
 source "$DIR/includes/check_status.sh"
-
-############################################
-# Adjust permissions
-############################################
-
-echoi $e -n "Adjusting permissions..."
-for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname = 'public';" $db_gnrs` ; do  psql -c "alter table \"$tbl\" owner to bien" $db_gnrs > /dev/null >> $tmplog; done
-source "$DIR/includes/check_status.sh"
-
 
 ######################################################
 # Report total elapsed time and exit
