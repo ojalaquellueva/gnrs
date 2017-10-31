@@ -1,5 +1,6 @@
 -- -----------------------------------------------------------------
--- Creates and populates country tables in gnrs database -----------------------------------------------------------------
+-- Creates and populates country tables in gnrs database 
+-- ---------------------------------------------------------------
 
 -- 
 -- country: one row per country, official name and codes
@@ -9,10 +10,10 @@ DROP TABLE IF EXISTS country CASCADE;
 CREATE TABLE country AS (
 SELECT 
 geonameid AS country_id,
-country,
-iso_alpha2 AS iso,
-iso_alpha3 AS iso_alpha3,
-fips_code AS fips
+trim(country) AS country,
+trim(iso_alpha2) AS iso,
+trim(iso_alpha3) AS iso_alpha3,
+trim(fips_code) AS fips
 FROM countryinfo
 ORDER BY country
 );

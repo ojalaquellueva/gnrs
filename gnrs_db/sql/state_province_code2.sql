@@ -132,6 +132,16 @@ SET state_province_code2='VER',
 state_province_code2_full='MX.VER'
 WHERE country_iso='MX' AND state_province_std='Veracruz'
 ;
+UPDATE state_province a
+SET state_province_code2='NU',
+state_province_code2_full='CA.NU'
+WHERE country_iso='CA' AND state_province_std='Nunavut'
+;
+UPDATE state_province a
+SET state_province_code2='NT',
+state_province_code2_full='CA.NT'
+WHERE country_iso='CA' AND state_province_std='Northwest Territories'
+;
 
 
 -- Fix erroneous codes

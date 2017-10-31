@@ -72,13 +72,23 @@ echoi $e -n "Changing owner to 'postgres'..."
 sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $db_gnrs OWNER TO bien" 
 source "$DIR/includes/check_status.sh"  
 
-echoi $e -n "Activiting fuzzy match extension..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE EXTENSION fuzzystrmatch" 
-source "$DIR/includes/check_status.sh"  
+echoi $e "Installing extensions:"
 
-echoi $e -n "Activiting trigram extension..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE EXTENSION pg_trgm" 
-source "$DIR/includes/check_status.sh"  
+echoi $e -n "- fuzzystrmatch..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+\set ON_ERROR_STOP on
+DROP EXTENSION IF EXISTS fuzzystrmatch;
+CREATE EXTENSION fuzzystrmatch;
+EOF
+echoi $i "done"
+
+echoi $e -n "- pg_trgm..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+\set ON_ERROR_STOP on
+DROP EXTENSION IF EXISTS pg_trgm;
+CREATE EXTENSION pg_trgm;
+EOF
+echoi $i "done"
 
 ############################################
 # Build core tables
@@ -120,6 +130,10 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- County/parish..."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "-- Adding & populating column county_parish_std...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_std.sql
 source "$DIR/includes/check_status.sh"
 
 #echoi $e -n "-- Fixing errors...."
@@ -216,6 +230,25 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e -n "Dropping BIEN2 tables..."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_bien2_tables.sql
+source "$DIR/includes/check_status.sh"
+
+############################################
+# Add any missing names from main table to
+# name table
+############################################
+
+echoi $e "Adding missing names to table:"
+
+echoi $e -n "- country_name...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country_name_add_missing.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- state_province_name...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province_name_add_missing.sql
+source "$DIR/includes/check_status.sh"
+
+echoi $e -n "- county_parish_name...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_name_add_missing.sql
 source "$DIR/includes/check_status.sh"
 
 ######################################################
