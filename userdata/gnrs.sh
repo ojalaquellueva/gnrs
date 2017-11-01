@@ -101,21 +101,45 @@ PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERR
 source "$DIR/includes/check_status.sh" 
 
 ############################################
-# Resolve country
+# Resolve Political divisiona
 ############################################
 
-echoi $e "Resolving political divisions by exact matching:"
+echoi $e "Exact matching:"
 
-echoi $e -n "- Country..."
+echoi $e -n "- country..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql
 source "$DIR/includes/check_status.sh" 
 
-echoi $e "Resolving remaining political divisions by fuzzy matching:"
+echoi $e -n "- state_province..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql
+source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- Country..."
-#PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
+echoi $e -n "- county_parish..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e "Fuzzy matching:"
+
+echoi $e -n "- country..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- state_province..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- county_parish..."
+#PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
 #source "$DIR/includes/check_status.sh" 
-echo "NOT READY!
+echo "Under construction!"
+
+############################################
+# Summarize results
+############################################
+
+echoi $e -n "Summarizing results..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/summarize.sql
+source "$DIR/includes/check_status.sh" 
 
 
 ######################################################
