@@ -10,8 +10,8 @@ uncertainty_lat text,
 uncertainty_lon text,
 max_uncertainty text,
 country text,
-state text,
-county text,
+state_province text,
+county_parish text,
 units text,
 projection text
 );

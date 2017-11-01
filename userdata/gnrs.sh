@@ -56,25 +56,25 @@ COMMENT_BLOCK_1
 # Import raw data 
 ############################################
 
-
 echoi $e "Importing user data \"$src\":"
 
-echoi $e -n "- Create raw table..."
+echoi $e -n "- Creating raw table..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl=$tbl_raw -f $DIR_LOCAL/sql/create_raw.sql
 source "$DIR/includes/check_status.sh"  
 
 # Data
-tbl=$tbl_raw
 datafile=$data_raw
+
+echoi $e "- Importing raw data:"
 echoi $i -n "-- '$datafile' --> $tbl..."
 
 #use_limit='false'	# For testing
 if [ $use_limit = "true" ]; then 
 	# Import subset of records (development only)
-	head -n $recordlimit $data_dir_local/$datafile | psql -U $user $db_gnrs -q -c "COPY ${dev_schema}.${tbl} FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
+	head -n $recordlimit $data_dir_local/$datafile | psql -U $user $db_gnrs -q -c "COPY ${dev_schema}.${tbl_raw} FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
 else
 	# Import full file
-	sql="\COPY $tbl FROM '${data_dir_local}/${datafile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
+	sql="\COPY $tbl_raw FROM '${data_dir_local}/${datafile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
 	PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs -q << EOF
 	\set ON_ERROR_STOP on
 	$sql
@@ -82,7 +82,40 @@ EOF
 fi
 source "$DIR/includes/check_status.sh"
 
-echo "exiting..."; exit 0
+#echo "exiting..."; exit 0
+
+echoi $e -n "- Altering table $tbl_raw..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl=$tbl_raw -f $DIR_LOCAL/sql/alter_raw.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- Creating table userdata..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_user_data.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- Loading userdata..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -f $DIR_LOCAL/sql/load_user_data.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- Indexing userdata..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/user_data_create_indexes.sql
+source "$DIR/includes/check_status.sh" 
+
+############################################
+# Resolve country
+############################################
+
+echoi $e "Resolving political divisions by exact matching:"
+
+echoi $e -n "- Country..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e "Resolving remaining political divisions by fuzzy matching:"
+
+echoi $e -n "- Country..."
+#PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
+#source "$DIR/includes/check_status.sh" 
+echo "NOT READY!
 
 
 ######################################################
