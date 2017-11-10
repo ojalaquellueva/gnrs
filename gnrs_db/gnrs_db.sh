@@ -125,6 +125,10 @@ echoi $e -n "- Country..."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country.sql
 source "$DIR/includes/check_status.sh"
 
+echoi $e -n "-- Fixing errors..."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_country.sql
+source "$DIR/includes/check_status.sh"
+
 echoi $e -n "- State/province..."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province.sql
 source "$DIR/includes/check_status.sh"

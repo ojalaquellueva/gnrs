@@ -80,7 +80,12 @@ WHEN state_province_std ILIKE 'Union Territory%' THEN regexp_replace(state_provi
 WHEN state_province_std ILIKE 'Wilaya%' THEN regexp_replace(state_province_std, 'Wilaya', '', 'i')
 WHEN state_province_std ILIKE 'Tinh%' THEN regexp_replace(state_province_std, 'Tinh', '', 'i')
 WHEN state_province_std ILIKE 'Changwat%' THEN regexp_replace(state_province_std, 'Changwat', '', 'i')
-WHEN state_province_std ILIKE 'ChanObcinagwat%' THEN regexp_replace(state_province_std, 'Obcina', '', 'i')
+WHEN state_province_std ILIKE 'Obcina%' THEN 
+regexp_replace(state_province_std, 'Obcina', '', 'i')
+WHEN state_province_std ILIKE 'Ile du %' THEN 
+regexp_replace(state_province_std, 'Ile du ', '', 'i')
+WHEN state_province_std ILIKE 'Ile %' THEN 
+regexp_replace(state_province_std, 'Ile ', '', 'i')
 ELSE state_province_std
 END;
 
@@ -94,10 +99,11 @@ WHEN state_province_std ILIKE '% Municipality' THEN regexp_replace(state_provinc
 WHEN state_province_std ILIKE '% Province' THEN regexp_replace(state_province_std, 'Province', '', 'i')
 WHEN state_province_std ILIKE '% Region' THEN regexp_replace(state_province_std, 'Region', '', 'i')
 WHEN state_province_std ILIKE '% Territory' THEN regexp_replace(state_province_std, 'Territory', '', 'i')
+WHEN state_province_std ILIKE '% Island' THEN regexp_replace(state_province_std, 'Island', '', 'i')
+WHEN state_province_std ILIKE '% Islands' THEN regexp_replace(state_province_std, 'Islands', '', 'i')
 ELSE state_province_std
 END;
 
--- Suffixes
 UPDATE state_province
 SET state_province_std=TRIM(state_province_std)
 ;

@@ -104,31 +104,33 @@ source "$DIR/includes/check_status.sh"
 # Resolve Political divisiona
 ############################################
 
-echoi $e "Exact matching:"
+echoi $e "Country:"
 
-echoi $e -n "- country..."
+echoi $e -n "- exact..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql
 source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- state_province..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e -n "- county_parish..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e "Fuzzy matching:"
-
-echoi $e -n "- country..."
+echoi $e -n "- fuzzy..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
 source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- state_province..."
+echoi $e "State/province:"
+
+echoi $e -n "- exact..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- fuzzy..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
 source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- county_parish..."
+echoi $e "County/parish:"
+
+echoi $e -n "- exact..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "- fuzzy..."
 #PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
 #source "$DIR/includes/check_status.sh" 
 echo "Under construction!"
