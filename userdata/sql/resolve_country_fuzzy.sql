@@ -52,7 +52,7 @@ country b
 ) p
 ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
-WHERE q.max_sim>0.75
+WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.country_verbatim=fzy.country_verbatim
 AND a.country IS NULL
@@ -109,7 +109,7 @@ ON a.country_id=b.country_id WHERE name_type='original from geonames') b
 ) p
 ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
-WHERE q.max_sim>0.75
+WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.country_verbatim=fzy.country_verbatim
 AND a.country IS NULL

@@ -59,7 +59,7 @@ WHERE a.country_id=b.country_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.country_id=p.country_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>0.75
+WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
@@ -122,7 +122,7 @@ WHERE a.country_id=b.country_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.country_id=p.country_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>0.75
+WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
@@ -185,7 +185,7 @@ WHERE a.country_id=b.country_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.country_id=p.country_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>0.75
+WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
@@ -249,7 +249,7 @@ WHERE a.country_id=b.country_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.country_id=p.country_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>0.75
+WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id

@@ -5,6 +5,10 @@
 # Check and change as needed
 ##############################################################
 
+# Fuzzy match threshold (trigram similarity score)
+# [0-1], recommend at least 0.65 to avoid false positives
+match_threshold=0.70
+
 # Short unique code for this user or data source
 # Must be same as name of ultimate data subdirectory
 src="centroids"

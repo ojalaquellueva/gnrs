@@ -111,7 +111,7 @@ PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERR
 source "$DIR/includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
 source "$DIR/includes/check_status.sh" 
 
 echoi $e "State/province:"
@@ -121,7 +121,7 @@ PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERR
 source "$DIR/includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
 source "$DIR/includes/check_status.sh" 
 
 echoi $e "County/parish:"
@@ -131,9 +131,8 @@ PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERR
 source "$DIR/includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-#PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
-#source "$DIR/includes/check_status.sh" 
-echo "Under construction!"
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
+source "$DIR/includes/check_status.sh" 
 
 ############################################
 # Summarize results
