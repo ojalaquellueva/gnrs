@@ -153,9 +153,9 @@ echoi $e -n "-- Adding & populating column county_parish_std...."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_std.sql
 source "$DIR/includes/check_status.sh"
 
-#echoi $e -n "-- Fixing errors...."
-#PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_county_parish.sql
-#source "$DIR/includes/check_status.sh"
+echoi $e -n "-- Fixing errors...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_county_parish.sql
+source "$DIR/includes/check_status.sh"
 
 echoi $e -n "-- Adding & populating column county_parish_code2..."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_code2.sql

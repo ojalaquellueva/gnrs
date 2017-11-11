@@ -15,7 +15,6 @@ SELECT
 q.state_province_verbatim,
 p.country_id,
 p.state_province_id,
-p.state_province,
 p.state_province_std,
 p.similarity
 FROM 
@@ -256,4 +255,3 @@ WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province IS NULL
 ;
-
