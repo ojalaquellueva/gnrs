@@ -53,20 +53,20 @@ country_id AS c_id,
 state_province_id AS sp_id,
 county_parish_id as cp_id,
 case 
-when match_method_country ilke '%exact%' then 'exact' 
-when match_method_country ilke '%fuzzy%' then 'fuzzy' 
+when match_method_country ilike '%exact%' then 'exact' 
+when match_method_country ilike '%fuzzy%' then 'fuzzy' 
 else match_method_country
 end
 as mm_c,
 case 
-when match_method_state_province ilke '%exact%' then 'exact' 
-when match_method_state_province ilke '%fuzzy%' then 'fuzzy' 
+when match_method_state_province ilike '%exact%' then 'exact' 
+when match_method_state_province ilike '%fuzzy%' then 'fuzzy' 
 else match_method_state_province
 end
 as mm_sp,
 case 
-when match_method_county_parish ilke '%exact%' then 'exact' 
-when match_method_county_parish ilke '%fuzzy%' then 'fuzzy' 
+when match_method_county_parish ilike '%exact%' then 'exact' 
+when match_method_county_parish ilike '%fuzzy%' then 'fuzzy' 
 else match_method_county_parish
 end
 as mm_cp,
@@ -77,11 +77,55 @@ poldiv_submitted AS submitted,
 poldiv_matched AS matched,
 match_status
 FROM user_data
-ORDER BY
 LIMIT 12
 ;
 
+SELECT
+country_verbatim AS cv, 
+state_province_verbatim AS spv, 
+county_parish_verbatim AS cpv,
+country_id AS c_id,
+state_province_id AS sp_id,
+county_parish_id as cp_id,
+poldiv_submitted AS submitted,
+poldiv_matched AS matched,
+match_status
+FROM user_data
+WHERE match_status='partial match' and poldiv_submitted='state_province'
+order by country_verbatim, state_province_verbatim, county_parish_verbatim
+;
 
+
+-- Count match statuses
+SELECT
+match_status, count(*)
+from user_data
+group by match_status
+;
+
+-- Count match status x match level
+SELECT
+match_status, poldiv_matched, count(*)
+from user_data
+group by match_status, poldiv_matched
+order by match_status, poldiv_matched
+;
+
+SELECT
+match_status, poldiv_submitted, poldiv_matched, count(*)
+from user_data
+group by match_status, poldiv_submitted, poldiv_matched
+order by match_status, poldiv_submitted, poldiv_matched
+;
+
+-- Count types of matches as well
+SELECT
+match_status, poldiv_submitted, poldiv_matched, match_method_state_province, count(*)
+from user_data
+where match_status='partial match' and poldiv_submitted='state_province'
+group by match_status, poldiv_submitted, poldiv_matched, match_method_state_province
+order by match_status, poldiv_submitted, poldiv_matched, match_method_state_province
+;
 
 
 

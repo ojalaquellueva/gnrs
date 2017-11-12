@@ -27,7 +27,7 @@ match_method_state_province='exact ascii name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE a.state_province IS NULL
-AND a.state_province_verbatim=b.state_province_ascii
+AND unaccent(a.state_province_verbatim)=b.state_province_ascii
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
 ;
@@ -41,7 +41,7 @@ match_method_state_province='exact ascii short name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE a.state_province IS NULL
-AND a.state_province_verbatim=b.state_province_std
+AND unaccent(a.state_province_verbatim)=b.state_province_std
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
 ;

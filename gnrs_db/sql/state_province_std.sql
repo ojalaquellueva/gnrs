@@ -93,9 +93,12 @@ END;
 UPDATE state_province
 SET state_province_std=
 CASE
+WHEN state_province_std ILIKE '% Department' THEN regexp_replace(state_province_std, 'Department', '', 'i')
 WHEN state_province_std ILIKE '% District' THEN regexp_replace(state_province_std, 'District', '', 'i')
 WHEN state_province_std ILIKE '% Division' THEN regexp_replace(state_province_std, 'Division', '', 'i')
+WHEN state_province_std ILIKE '% Governorate' THEN regexp_replace(state_province_std, 'Governorate', '', 'i')
 WHEN state_province_std ILIKE '% Municipality' THEN regexp_replace(state_province_std, 'Municipality', '', 'i')
+WHEN state_province_std ILIKE '% Parish' THEN regexp_replace(state_province_std, ' Parish', '', 'i')
 WHEN state_province_std ILIKE '% Province' THEN regexp_replace(state_province_std, 'Province', '', 'i')
 WHEN state_province_std ILIKE '% Region' THEN regexp_replace(state_province_std, 'Region', '', 'i')
 WHEN state_province_std ILIKE '% Territory' THEN regexp_replace(state_province_std, 'Territory', '', 'i')

@@ -13,6 +13,18 @@ FROM country b
 WHERE a.country_verbatim=b.country
 ;
 
+-- standard name
+UPDATE user_data a
+SET 
+country_id=b.country_id,
+country=b.country,
+match_method_country='exact ascii name'
+FROM country b
+WHERE a.country_id IS NULL
+AND unaccent(a.country_verbatim)=b.country
+;
+
+
 -- iso code
 UPDATE user_data a
 SET 

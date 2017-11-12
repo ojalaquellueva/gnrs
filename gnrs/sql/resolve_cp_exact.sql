@@ -33,7 +33,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE a.county_parish_verbatim=b.county_parish_ascii 
+WHERE unaccent(a.county_parish_verbatim)=b.county_parish_ascii 
 AND a.county_parish IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -50,7 +50,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE a.county_parish_verbatim=b.county_parish_std 
+WHERE unaccent(a.county_parish_verbatim)=b.county_parish_std 
 AND a.county_parish IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
