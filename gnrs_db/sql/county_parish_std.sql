@@ -25,6 +25,7 @@ WHEN county_parish_std ILIKE 'Commune de%' THEN regexp_replace(county_parish_std
 WHEN county_parish_std ILIKE 'Concelho do%' THEN regexp_replace(county_parish_std, 'Concelho do', '', 'i')
 WHEN county_parish_std ILIKE 'Concelho da%' THEN regexp_replace(county_parish_std, 'Concelho da', '', 'i')
 WHEN county_parish_std ILIKE 'Concelho de%' THEN regexp_replace(county_parish_std, 'Concelho de', '', 'i')
+WHEN county_parish_std ILIKE 'County %' THEN regexp_replace(county_parish_std, 'County ', '', 'i')
 WHEN county_parish_std ILIKE 'Departamento del%' THEN regexp_replace(county_parish_std, 'Departamento del', '', 'i')
 WHEN county_parish_std ILIKE 'Departamento de%' THEN regexp_replace(county_parish_std, 'Departamento de', '', 'i')
 WHEN county_parish_std ILIKE 'Departament of%' THEN regexp_replace(county_parish_std, 'Departament of', '', 'i')

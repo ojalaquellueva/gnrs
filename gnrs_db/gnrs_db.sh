@@ -103,6 +103,20 @@ CREATE EXTENSION pg_trgm;
 EOF
 echoi $i "done"
 
+# Creates immutable function f_unaccent based on extension accent
+echoi $e -n "- unaccent..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+\set ON_ERROR_STOP on
+DROP EXTENSION IF EXISTS unaccent;
+CREATE EXTENSION unaccent;
+CREATE OR REPLACE FUNCTION f_unaccent(text)
+RETURNS text AS
+$func$
+SELECT public.unaccent('public.unaccent', $1)  -- schema-qualify function and dictionary
+$func$  LANGUAGE sql IMMUTABLE;
+EOF
+echoi $i "done"
+
 ############################################
 # Build core tables
 ############################################
