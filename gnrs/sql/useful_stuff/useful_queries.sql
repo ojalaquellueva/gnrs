@@ -118,7 +118,7 @@ group by match_status, poldiv_submitted, poldiv_matched
 order by match_status, poldiv_submitted, poldiv_matched
 ;
 
--- Count types of matches as well
+-- Count types of matches as well, state_province
 SELECT
 match_status, poldiv_submitted, poldiv_matched, match_method_state_province, count(*)
 from user_data
@@ -127,5 +127,13 @@ group by match_status, poldiv_submitted, poldiv_matched, match_method_state_prov
 order by match_status, poldiv_submitted, poldiv_matched, match_method_state_province
 ;
 
+-- Count types of matches as well, state_province
+SELECT
+match_status, poldiv_submitted, poldiv_matched, match_method_state_province, count(*)
+from user_data
+where match_status='partial match' and poldiv_submitted='county_parish'
+group by match_status, poldiv_submitted, poldiv_matched, match_method_state_province
+order by match_status, poldiv_submitted, poldiv_matched, match_method_state_province
+;
 
 

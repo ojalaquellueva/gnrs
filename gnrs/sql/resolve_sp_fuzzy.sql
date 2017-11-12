@@ -33,6 +33,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT a.country_id, b.state_province FROM country a JOIN state_province b ON a.country_id=b.country_id) b
 WHERE a.country_id=b.country_id
@@ -52,6 +53,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT a.country_id, b.state_province_id, b.state_province, b.state_province_std FROM country a JOIN state_province b ON a.country_id=b.country_id) b
 WHERE a.country_id=b.country_id
@@ -97,6 +99,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT a.country_id, b.state_province_id, b.state_province_ascii FROM country a JOIN state_province b ON a.country_id=b.country_id) b
 WHERE a.country_id=b.country_id
@@ -115,6 +118,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT a.country_id, b.state_province_id, b.state_province_ascii, b.state_province_std FROM country a JOIN state_province b ON a.country_id=b.country_id) b
 WHERE a.country_id=b.country_id
@@ -160,6 +164,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT a.country_id, b.state_province_id, b.state_province_std FROM country a JOIN state_province b ON a.country_id=b.country_id) b
 WHERE a.country_id=b.country_id
@@ -178,6 +183,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT a.country_id, b.state_province_id, b.state_province_std FROM country a JOIN state_province b ON a.country_id=b.country_id) b
 WHERE a.country_id=b.country_id
@@ -224,6 +230,7 @@ FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
 WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT c.country_id, a.state_province_id, state_province_std, state_province_name FROM state_province a JOIN state_province_name b ON a.state_province_id=b.state_province_id JOIN country c ON a.country_id=c.country_id WHERE name_type='original from geonames') b
 WHERE a.country_id=b.country_id
@@ -241,7 +248,8 @@ similarity(a.state_province_verbatim,b.state_province_name) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_verbatim
 FROM user_data
-WHERE country IS NOT NULL AND state_province IS NULL
+WHERE country_id IS NOT NULL AND state_province_id IS NULL
+AND state_province_verbatim<>''
 ) a,
 (SELECT c.country_id, a.state_province_id, state_province_std, state_province_name FROM state_province a JOIN state_province_name b ON a.state_province_id=b.state_province_id JOIN country c ON a.country_id=c.country_id WHERE name_type='original from geonames') b
 WHERE a.country_id=b.country_id
