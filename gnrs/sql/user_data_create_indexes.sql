@@ -14,4 +14,5 @@ CREATE INDEX user_data_match_method_state_province_idx ON user_data (match_metho
 CREATE INDEX user_data_match_method_county_parish_idx ON user_data (match_method_county_parish);
 CREATE INDEX user_data_poldiv_submitted_idx ON user_data (poldiv_submitted);
 CREATE INDEX user_data_poldiv_matched_idx ON user_data (poldiv_matched);
+CREATE INDEX user_data_match_status_idx ON user_data (match_status);
 CREATE INDEX user_data_user_id_idx ON user_data (user_id);

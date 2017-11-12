@@ -12,23 +12,25 @@ ALTER TABLE :tbl
 ADD COLUMN poldiv_full text DEFAULT ''
 ;
 
-
 -- Change NULLs to ''
 UPDATE :tbl
 SET 
 country=
 CASE
 WHEN country IS NULL THEN ''
+WHEN country='<Null>' THEN ''
 ELSE country
 END,
 state_province=
 CASE
 WHEN state_province IS NULL THEN ''
+WHEN state_province='<Null>' THEN ''
 ELSE state_province
 END,
 county_parish=
 CASE
 WHEN county_parish IS NULL THEN ''
+WHEN county_parish='<Null>' THEN ''
 ELSE county_parish
 END
 ;

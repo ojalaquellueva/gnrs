@@ -23,6 +23,7 @@ match_score_state_province NUMERIC(4,2) DEFAULT NULL,
 match_score_county_parish NUMERIC(4,2) DEFAULT NULL,
 poldiv_submitted VARCHAR(50) DEFAULT NULL, 
 poldiv_matched VARCHAR(50) DEFAULT NULL,
+match_status VARCHAR(50) DEFAULT NULL,
 user_id BIGINT DEFAULT NULL
 ) 
 ;
