@@ -53,8 +53,40 @@ echo "Error log
 COMMENT_BLOCK_1
 
 ############################################
-# Load raw data 
+# Import raw data 
 ############################################
+
+echoi $e "Importing user data \"$src\":"
+
+echoi $e -n "- Creating raw table..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl=$tbl_raw -f $DIR_LOCAL/sql/create_raw.sql
+source "$DIR/includes/check_status.sh"  
+
+# Data
+datafile=$data_raw
+
+echoi $e "- Importing raw data:"
+echoi $i -n "-- '$datafile' --> $tbl_raw..."
+
+#use_limit='false'	# For testing
+if [ $use_limit = "true" ]; then 
+	# Import subset of records (development only)
+	head -n $recordlimit $data_dir_local/$datafile | psql -U $user $db_gnrs -q -c "COPY ${dev_schema}.${tbl_raw} FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
+else
+	# Import full file
+	sql="\COPY $tbl_raw FROM '${data_dir_local}/${datafile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
+	PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs -q << EOF
+	\set ON_ERROR_STOP on
+	$sql
+EOF
+fi
+source "$DIR/includes/check_status.sh"
+
+#echo "exiting..."; exit 0
+
+echoi $e -n "- Altering table $tbl_raw..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl=$tbl_raw -f $DIR_LOCAL/sql/alter_raw.sql
+source "$DIR/includes/check_status.sh" 
 
 echoi $e -n "- Creating table userdata..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_user_data.sql

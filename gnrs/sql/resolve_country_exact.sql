@@ -2,6 +2,8 @@
 --  Resolve country
 -- ------------------------------------------------------------
 
+-- Index only as needed
+CREATE INDEX user_data_country_verbatim_idx ON user_data (country_verbatim);
 
 -- standard name
 UPDATE user_data a
@@ -12,6 +14,8 @@ match_method_country='exact standard name'
 FROM country b
 WHERE a.country_verbatim=b.country
 ;
+
+CREATE INDEX user_data_country_id_isnull_idx ON user_data (country_id) WHERE country_id IS NULL;
 
 -- standard name
 UPDATE user_data a

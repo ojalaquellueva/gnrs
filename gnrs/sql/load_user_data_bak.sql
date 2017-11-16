@@ -5,27 +5,24 @@
 
 -- Insert unique values, omitting complete nulls
 INSERT INTO user_data (
-user_id,
+poldiv_full,
 country_verbatim,
 state_province_verbatim,
-county_parish_verbatim
+county_parish_verbatim,
+poldiv_submitted
 )
 SELECT DISTINCT
-user_id,
+poldiv_full,
 country,
 state_province,
-county_parish
-FROM :tbl_raw
-;
-
--- Detect poldiv submitted
-UPDATE user_data
-SET poldiv_submitted=
+county_parish,
 CASE
 WHEN state_province='' THEN 'country'
 WHEN county_parish='' THEN 'state_province'
 ELSE 'county_parish'
 END
+FROM :tbl_raw
+WHERE poldiv_full<>'@@'
 ;
 
 -- Flag unresolvable poldivs with corrupted hierarchies
@@ -35,13 +32,4 @@ WHERE
 (state_province_verbatim<>'' AND country_verbatim='')
 OR 
 (county_parish<>'' AND (state_province_verbatim='' OR country_verbatim=''))
-;
-
--- Construct text FK column
-UPDATE user_data
-SET poldiv_full=CONCAT_WS('@',
-trim(country), 
-trim(state_province), 
-trim(county_parish) 
-)
 ;

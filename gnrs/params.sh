@@ -15,7 +15,11 @@ src="centroids"
 
 # Name of the raw data file to be imported. 
 # Place in the designated data directory
-data_raw="centroid_data_10_19_2017.csv"
+data_raw_basename="centroid_data_10_19_2017" # Minus the extension
+data_raw=$data_raw_basename".csv"		# Name plus extension, if any
+
+# Name of results file
+gnrs_results_filename=$data_raw_basename"_gnrs_results.csv"
 
 # 't' to limit number of records imported (for testing)
 # 'f' to run full import

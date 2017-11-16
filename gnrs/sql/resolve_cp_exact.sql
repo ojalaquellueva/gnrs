@@ -2,6 +2,13 @@
 --  Resolve coounty_parish
 -- ------------------------------------------------------------
 
+-- Index only as needed
+CREATE INDEX user_data_county_parish_verbatim_idx ON user_data (county_parish_verbatim);
+
+-- Not needed, speeds thing up a bit to drop
+DROP INDEX IF EXISTS user_data_state_province_verbatim_idx;
+
+
 --
 -- Standard names
 -- 
@@ -22,6 +29,9 @@ AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
 ;
+
+-- Indexes on country_id and state_province_id should already exist
+CREATE INDEX user_data_county_parish_id_isnull_idx ON user_data (county_parish_id) WHERE county_parish_id IS NULL;
 
 -- standard name ascii
 UPDATE user_data a

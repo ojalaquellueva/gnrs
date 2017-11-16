@@ -30,7 +30,7 @@ similarity(a.country_verbatim,b.country) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE country IS NULL
+WHERE country_id IS NULL
 ) a,
 country b
 ) x
@@ -46,7 +46,7 @@ similarity(a.country_verbatim,b.country) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE country IS NULL
+WHERE country_id IS NULL AND country_verbatim IS NOT NULL
 ) a,
 country b
 ) p
@@ -55,7 +55,7 @@ AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.country_verbatim=fzy.country_verbatim
-AND a.country IS NULL
+AND a.country_id IS NULL
 ;
 
 -- alternate name
@@ -85,7 +85,7 @@ similarity(a.country_verbatim,b.country_name) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE country IS NULL
+WHERE country_id IS NULL AND country_verbatim IS NOT NULL
 ) a,
 (SELECT country, country_name FROM country a JOIN country_name b
 ON a.country_id=b.country_id WHERE name_type='original from geonames') b
@@ -102,7 +102,7 @@ similarity(a.country_verbatim,b.country_name) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE country IS NULL
+WHERE country_id IS NULL AND country_verbatim IS NOT NULL
 ) a,
 (SELECT a.country_id, country, country_name FROM country a JOIN country_name b
 ON a.country_id=b.country_id WHERE name_type='original from geonames') b
@@ -112,5 +112,5 @@ AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.country_verbatim=fzy.country_verbatim
-AND a.country IS NULL
+AND a.country_id IS NULL
 ;
