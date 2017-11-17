@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #########################################################################
-# Purpose: Creates and populates GNRS database 
+# Purpose: Exports GNRS results 
 #
-# Usage:	./gnrs_db.sh
+# Usage:	./gnrs_export.sh
 #
 # Warning: Requires database geonames on local filesystem
 #
@@ -59,47 +59,6 @@ fi
 #########################################################################
 : <<'COMMENT_BLOCK_1'
 COMMENT_BLOCK_1
-
-############################################
-# Import raw data 
-#
-# Import CSV file from data directory to 
-# table user_data_raw in GNRS database
-############################################
-
-echoi $e "Importing user data:"
-
-echoi $e -n "- Clearing raw table..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'truncate user_data_raw'
-source "$DIR/includes/check_status.sh"  
-
-# Data
-datafile=$data_raw
-
-echoi $e "- Importing raw data:"
-echoi $i -n "-- '$submitted_filename' --> user_data_raw..."
-
-#use_limit='false'	# For testing
-if [ $use_limit = "true" ]; then 
-	# Import subset of records (development only)
-	head -n $recordlimit $data_dir_local/$submitted_filename | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
-else
-	# Import full file
-	sql="\COPY user_data_raw FROM '${data_dir_local}/${submitted_filename}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-	PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs -q << EOF
-	\set ON_ERROR_STOP on
-	$sql
-EOF
-fi
-source "$DIR/includes/check_status.sh"
-
-############################################
-# Insert raw data into table user_data and
-# process with GNRS
-############################################
-
-# Run the main GNRS app
-source "$DIR/gnrs.sh"
 
 ############################################
 # Export results from user_data to data 

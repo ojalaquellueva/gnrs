@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #########################################################################
-# Purpose: Creates and populates GNRS database 
+# Purpose: Imports user data for processing with gnrs
 #
-# Usage:	./gnrs_db.sh
+# Usage:	./gnrs_import.sh
 #
 # Warning: Requires database geonames on local filesystem
 #
@@ -92,27 +92,6 @@ else
 EOF
 fi
 source "$DIR/includes/check_status.sh"
-
-############################################
-# Insert raw data into table user_data and
-# process with GNRS
-############################################
-
-# Run the main GNRS app
-source "$DIR/gnrs.sh"
-
-############################################
-# Export results from user_data to data 
-# directory sa CSV file
-############################################
-
-echoi $e -n "Exporting CSV file of results to data directory..."
-gnrs_results_file=$data_dir_local"/"$results_filename
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -q << EOF
-\set ON_ERROR_STOP on
-\copy user_data TO '${gnrs_results_file}' csv header
-EOF
-echoi $i "done"
 
 ######################################################
 # Report total elapsed time and exit if running solo
