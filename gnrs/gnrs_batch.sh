@@ -18,33 +18,41 @@ COMMENT_BLOCK_x
 # Set basic parameters, functions and options
 ######################################################
 
-# Enable the following for strict debugging only:
-#set -e
+# Get local working directory
+DIR_LOCAL="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
 
-# The name of this file. Tells sourced scripts not to reload general  
-# parameters and command line options as they are being called by  
-# another script. Allows component scripts to be called individually  
-# if needed
-master=`basename "$0"`
+# $local = name of this file
+# $local_basename = name of this file minus '.sh' extension
+# $local_basename should be same as containing directory, as  
+# well as local data subdirectory within main data directory, 
+local=`basename "${BASH_SOURCE[0]}"`
+local_basename="${local/.sh/}"
 
-# Get working directory
-DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+# Set parent directory if running independently
+if [ -z ${master+x} ]; then
+	DIR=$DIR_LOCAL
+fi
 
-# Load parameters, functions and get command-line options
-source "$DIR/includes/startup_master.sh"
-
-# Confirm operation
-source "$DIR/includes/confirm.sh"
-
-# Set local directories to same as main
-data_dir_local=$data_base_dir
-DIR_LOCAL=$DIR
+# Load startup script for local files
+# Sets remaining parameters and options, and issues confirmation
+# and startup messages
+source "$DIR/includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
-tmplog=$data_dir_local"/tmplog.txt"
+tmplog="/tmp/tmplog.txt"
 echo "Error log
 " > $tmplog
+
+# Set current script as master if not already source by another file
+# master = name of this file. 
+# Tells sourced scripts not to reload general parameters and command line 
+# options as they are being called by another script. Allows component 
+# scripts to be called individually if needed
+if [ -z ${master+x} ]; then
+	master=`basename "$0"`
+fi
+
 
 #########################################################################
 # Main
@@ -54,27 +62,30 @@ COMMENT_BLOCK_1
 
 ############################################
 # Import raw data 
+#
+# Import CSV file from data directory to 
+# table user_data_raw in GNRS database
 ############################################
 
 echoi $e "Importing user data \"$src\":"
 
-echoi $e -n "- Creating raw table..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl=$tbl_raw -f $DIR_LOCAL/sql/create_raw.sql
+echoi $e -n "- Clearing raw table..."
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'truncate user_data_raw'
 source "$DIR/includes/check_status.sh"  
 
 # Data
 datafile=$data_raw
 
 echoi $e "- Importing raw data:"
-echoi $i -n "-- '$datafile' --> $tbl_raw..."
+echoi $i -n "-- '$submitted_filename' --> user_data_raw..."
 
 #use_limit='false'	# For testing
 if [ $use_limit = "true" ]; then 
 	# Import subset of records (development only)
-	head -n $recordlimit $data_dir_local/$datafile | psql -U $user $db_gnrs -q -c "COPY ${dev_schema}.${tbl_raw} FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
+	head -n $recordlimit $data_dir_local/$submitted_filename | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
 else
 	# Import full file
-	sql="\COPY $tbl_raw FROM '${data_dir_local}/${datafile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
+	sql="\COPY user_data_raw FROM '${data_dir_local}/${submitted_filename}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
 	PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs -q << EOF
 	\set ON_ERROR_STOP on
 	$sql
@@ -82,79 +93,33 @@ EOF
 fi
 source "$DIR/includes/check_status.sh"
 
-#echo "exiting..."; exit 0
-
-echoi $e -n "- Altering table $tbl_raw..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl=$tbl_raw -f $DIR_LOCAL/sql/alter_raw.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e -n "- Creating table userdata..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_user_data.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e -n "- Loading userdata..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -f $DIR_LOCAL/sql/load_user_data.sql
-source "$DIR/includes/check_status.sh" 
-
 ############################################
-# Resolve Political divisiona
+# Insert raw data into table user_data and
+# process with GNRS
 ############################################
 
-echoi $e "Country:"
-
-echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e "State/province:"
-
-echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e "County/parish:"
-
-echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql
-source "$DIR/includes/check_status.sh" 
-
-echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
-source "$DIR/includes/check_status.sh" 
+# Run the main GNRS app
+source "$DIR/gnrs.sh"
 
 ############################################
-# Summarize results
-############################################
-
-echoi $e -n "Summarizing results..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/summarize.sql
-source "$DIR/includes/check_status.sh" 
-
-############################################
-# Export results as CSV file to data directory
+# Export results from user_data to data 
+# directory sa CSV file
 ############################################
 
 echoi $e -n "Exporting CSV file of results to data directory..."
-gnrs_results_file=$data_dir_local"/"$gnrs_results_filename
+gnrs_results_file=$data_dir_local"/"$results_filename
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -q << EOF
 \set ON_ERROR_STOP on
 \copy user_data TO '${gnrs_results_file}' csv header
 EOF
 echoi $i "done"
 
-#PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c "select * from user_data" > $gnrs_results_file
-#source "$DIR/includes/check_status.sh"
-
 ######################################################
-# Report total elapsed time and exit
+# Report total elapsed time and exit if running solo
 ######################################################
 
-source "$DIR/includes/finish.sh"
+if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
+
+######################################################
+# End script
+######################################################

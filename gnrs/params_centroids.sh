@@ -9,18 +9,28 @@
 # [0-1], recommend at least 0.5 to avoid false positives
 match_threshold=0.5
 
-# Default name of the raw data file to be imported. 
-# This name will be used if no file name supplied as command line
-# parameter. Must be located in the user_data directory
-submitted_filename="gnrs_submitted.csv" 
+# Short unique code for this user or data source
+# Must be same as name of ultimate data subdirectory
+src="centroids"
+
+# Name of the raw data file to be imported. 
+# Place in the designated data directory
+data_raw_basename="centroid_data_10_19_2017" # Minus the extension
+data_raw=$data_raw_basename".csv"		# Name plus extension, if any
 
 # Name of results file
-results_filename="gnrs_results.csv"
+gnrs_results_filename=$data_raw_basename"_gnrs_results.csv"
 
 # 't' to limit number of records imported (for testing)
 # 'f' to run full import
 use_limit='f'
 recordlimit=1000
+
+# Names of raw data table(s)
+# Name of first table is automatic
+# If additional tables, recommend _raw2, _raw3, although such
+# naming convention may not be useful if many tables involved
+tbl_raw=$src"_raw"
 
 # Path to db_config.sh
 # For production, keep outside app working directory & supply
@@ -44,7 +54,7 @@ functions_path="/home/boyle/functions/sh"
 # forward slash at start).
 # Recommend keeping outside app directory
 # Omit trailing slash
-data_dir_local_abs="/home/boyle/bien3/gnrs/userdata/"
+data_base_dir="/home/boyle/bien3/gnrs/userdata/"$src
 #data_base_dir="data"		 # Relative path
 
 # Destination email for process notifications
@@ -54,7 +64,6 @@ email="bboyle@email.arizona.edu"
 # Short name for this operation, for screen echo and 
 # notification emails. Number suffix matches script suffix
 pname="GNRS"
-pname_local=$pname
 
 # General process name prefix for email notifications
 pname_header_prefix="BIEN notification: process"

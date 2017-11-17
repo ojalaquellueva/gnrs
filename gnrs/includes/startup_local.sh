@@ -10,7 +10,7 @@
 # Load shared parameters if master script variable has not been set. 
 if [ -z ${master+x} ]; then
 	# reset master directory to parent directory
-	DIR=$DIR_LOCAL"/.."
+	DIR=$DIR_LOCAL
 	
 	# Load shared parameters & options files
 	source "$DIR/includes/get_params.sh"	# Parameters, files and paths

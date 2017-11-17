@@ -65,7 +65,7 @@ WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL
+AND a.state_province IS NULL AND match_status IS NULL
 ;
 
 -- standard ascii name
@@ -130,7 +130,7 @@ WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL
+AND a.state_province IS NULL AND match_status IS NULL
 ;
 
 -- short ascii name
@@ -195,7 +195,7 @@ WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL
+AND a.state_province IS NULL AND match_status IS NULL
 ;
 
 -- alternate name
@@ -261,5 +261,5 @@ WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL
+AND a.state_province IS NULL AND match_status IS NULL
 ;

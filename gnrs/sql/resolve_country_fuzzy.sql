@@ -55,7 +55,7 @@ AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.country_verbatim=fzy.country_verbatim
-AND a.country_id IS NULL
+AND a.country_id IS NULL AND match_status IS NULL
 ;
 
 -- alternate name
@@ -112,5 +112,5 @@ AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
 WHERE a.country_verbatim=fzy.country_verbatim
-AND a.country_id IS NULL
+AND a.country_id IS NULL AND match_status IS NULL
 ;

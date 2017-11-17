@@ -4,6 +4,7 @@
 -- ----------------------------------------------------------
 
 -- Insert unique values, omitting complete nulls
+TRUNCATE user_data;
 INSERT INTO user_data (
 user_id,
 country_verbatim,
@@ -15,7 +16,7 @@ user_id,
 country,
 state_province,
 county_parish
-FROM :tbl_raw
+FROM user_data_raw
 ;
 
 -- Detect poldiv submitted
@@ -40,8 +41,8 @@ OR
 -- Construct text FK column
 UPDATE user_data
 SET poldiv_full=CONCAT_WS('@',
-trim(country), 
-trim(state_province), 
-trim(county_parish) 
+trim(country_verbatim), 
+trim(state_province_verbatim), 
+trim(county_parish_verbatim) 
 )
 ;

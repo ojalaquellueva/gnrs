@@ -74,7 +74,7 @@ WHERE q.max_sim>:match_threshold
 WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 ;
 
 -- standard ascii name
@@ -149,7 +149,7 @@ WHERE q.max_sim>:match_threshold
 WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 ;
 
 -- short ascii name
@@ -222,7 +222,7 @@ WHERE q.max_sim>:match_threshold
 WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 ;
 
 -- alternate name
@@ -298,5 +298,5 @@ WHERE q.max_sim>:match_threshold
 WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 ;

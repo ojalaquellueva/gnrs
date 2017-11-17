@@ -3,11 +3,14 @@
 -- ------------------------------------------------------------
 
 -- Index only as needed
+-- Indexes on country_id and state_province_id should already exist
+DROP INDEX IF EXISTS user_data_county_parish_verbatim_idx;
 CREATE INDEX user_data_county_parish_verbatim_idx ON user_data (county_parish_verbatim);
+DROP INDEX IF EXISTS user_data_county_parish_id_isnull_idx;
+CREATE INDEX user_data_county_parish_id_isnull_idx ON user_data (county_parish_id) WHERE county_parish_id IS NULL;
 
 -- Not needed, speeds thing up a bit to drop
 DROP INDEX IF EXISTS user_data_state_province_verbatim_idx;
-
 
 --
 -- Standard names
@@ -24,14 +27,11 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.county_parish 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
 ;
-
--- Indexes on country_id and state_province_id should already exist
-CREATE INDEX user_data_county_parish_id_isnull_idx ON user_data (county_parish_id) WHERE county_parish_id IS NULL;
 
 -- standard name ascii
 UPDATE user_data a
@@ -44,7 +44,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE unaccent(a.county_parish_verbatim)=b.county_parish_ascii 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -61,7 +61,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE unaccent(a.county_parish_verbatim)=b.county_parish_std 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -82,7 +82,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.county_parish_code_full 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -99,7 +99,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.hasc_2_full 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -116,7 +116,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.county_parish_code2_full 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -133,7 +133,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.county_parish_code 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -150,7 +150,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.hasc_2 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -167,7 +167,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
 WHERE a.county_parish_verbatim=b.county_parish_code2 
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
@@ -189,7 +189,7 @@ ON b.state_province_id=d.state_province_id
 JOIN country e
 ON d.country_id=e.country_id
 WHERE a.county_parish_verbatim=c.county_parish_name
-AND a.county_parish IS NULL
+AND a.county_parish_id IS NULL AND match_status IS NULL
 AND c.name_type='original from geonames'
 AND a.country_id=e.country_id
 AND a.state_province_id=d.state_province_id
