@@ -5,9 +5,9 @@
 DROP TABLE IF EXISTS user_data_raw;
 CREATE TABLE user_data_raw (
 user_id VARCHAR(250) DEFAULT NULL,
-country VARCHAR(250) DEFAULT NULL,
-state_province VARCHAR(250) DEFAULT NULL,
-county_parish VARCHAR(250) DEFAULT NULL
+country text DEFAULT NULL,
+state_province text DEFAULT NULL,
+county_parish text DEFAULT NULL
 );
 
 
@@ -15,9 +15,9 @@ DROP TABLE IF EXISTS user_data;
 CREATE TABLE user_data (
 id BIGSERIAL NOT NULL PRIMARY KEY,
 poldiv_full text DEFAULT NULL,
-country_verbatim VARCHAR(250) DEFAULT '',
-state_province_verbatim VARCHAR(250) DEFAULT '',
-county_parish_verbatim VARCHAR(250) DEFAULT '',
+country_verbatim text DEFAULT '',
+state_province_verbatim text DEFAULT '',
+county_parish_verbatim text DEFAULT '',
 country VARCHAR(250) DEFAULT NULL,
 state_province VARCHAR(250) DEFAULT NULL,
 county_parish VARCHAR(250) DEFAULT NULL,
@@ -41,9 +41,9 @@ DROP TABLE IF EXISTS cache;
 CREATE TABLE cache (
 id BIGSERIAL NOT NULL PRIMARY KEY,
 poldiv_full text DEFAULT NULL,
-country_verbatim VARCHAR(250) DEFAULT '',
-state_province_verbatim VARCHAR(250) DEFAULT '',
-county_parish_verbatim VARCHAR(250) DEFAULT '',
+country_verbatim text DEFAULT '',
+state_province_verbatim text DEFAULT '',
+county_parish_verbatim text DEFAULT '',
 country VARCHAR(250) DEFAULT NULL,
 state_province VARCHAR(250) DEFAULT NULL,
 county_parish VARCHAR(250) DEFAULT NULL,
