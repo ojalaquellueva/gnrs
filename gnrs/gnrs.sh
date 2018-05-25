@@ -130,7 +130,7 @@ source "$DIR/includes/check_status.sh"
 ############################################
 
 # Add new results to cache
-echoi $e -n "- Updating cache..."
+echoi $e -n "Updating cache..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_cache.sql
 source "$DIR/includes/check_status.sh" 
 

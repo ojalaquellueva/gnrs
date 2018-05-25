@@ -9,13 +9,16 @@
 DROP TABLE IF EXISTS country CASCADE;
 CREATE TABLE country AS (
 SELECT 
-geonameid AS country_id,
-trim(country) AS country,
-trim(iso_alpha2) AS iso,
-trim(iso_alpha3) AS iso_alpha3,
-trim(fips_code) AS fips
-FROM countryinfo
-ORDER BY country
+a.geonameid AS country_id,
+trim(a.country) AS country,
+trim(a.iso_alpha2) AS iso,
+trim(a.iso_alpha3) AS iso_alpha3,
+trim(a.fips_code) AS fips,
+b.code AS continent_code,
+b.name AS continent
+FROM countryinfo a LEFT JOIN continentcodes b
+ON a.continent=b.code
+ORDER BY a.country
 );
 
 ALTER TABLE ONLY country ADD CONSTRAINT country_pkey PRIMARY KEY (country_id);
@@ -23,6 +26,8 @@ CREATE INDEX country_country_idx ON country USING btree (country);
 CREATE INDEX country_iso_idx ON country USING btree (iso);
 CREATE INDEX country_iso_alpha3_idx ON country USING btree (iso_alpha3);
 CREATE INDEX country_fips_idx ON country USING btree (fips);
+CREATE INDEX country_continent_code_idx ON country USING btree (continent_code);
+CREATE INDEX country_continent_idx ON country USING btree (continent);
 
 -- 
 -- country_code: all codes for a country, one row per code, duplicates flagged

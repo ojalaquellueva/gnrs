@@ -65,7 +65,7 @@ COMMENT_BLOCK_1
 # directory sa CSV file
 ############################################
 
-echoi $e -n "Exporting CSV file of results to data directory..."
+echoi $e -n "Dumping gnrs results to data directory as file '$gnrs_results_file'..."
 gnrs_results_file=$data_dir_local"/"$results_filename
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -q << EOF
 \set ON_ERROR_STOP on
