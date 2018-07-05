@@ -23,8 +23,8 @@ FROM user_data_raw
 UPDATE user_data
 SET poldiv_submitted=
 CASE
-WHEN state_province='' THEN 'country'
-WHEN county_parish='' THEN 'state_province'
+WHEN state_province='' OR state_province IS NULL THEN 'country'
+WHEN county_parish='' OR county_parish IS NULL THEN 'state_province'
 ELSE 'county_parish'
 END
 ;
