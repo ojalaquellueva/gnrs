@@ -1,3 +1,20 @@
+-- Detect poldiv submitted
+UPDATE user_data
+SET poldiv_submitted=NULL
+;
+UPDATE user_data
+SET poldiv_submitted='country'
+WHERE country_verbatim IS NOT NULL AND TRIM(country_verbatim)<>''
+;
+UPDATE user_data
+SET poldiv_submitted='state_province'
+WHERE state_province_verbatim IS NOT NULL AND TRIM(state_province_verbatim)<>''
+;
+UPDATE user_data
+SET poldiv_submitted='county_parish'
+WHERE county_parish_verbatim IS NOT NULL AND TRIM(county_parish_verbatim)<>''
+;
+
 -- Index for faster updates
 DROP INDEX IF EXISTS user_data_country_idx;
 DROP INDEX IF EXISTS user_data_state_province_idx;

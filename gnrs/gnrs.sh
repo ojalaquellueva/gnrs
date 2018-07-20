@@ -77,7 +77,7 @@ source "$DIR/includes/check_status.sh"
 # Check against existing results in cache
 ############################################
 
-echoi $e -n "- Checking existing results in cach..."
+echoi $e -n "- Checking existing results in cache..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/check_cache.sql
 source "$DIR/includes/check_status.sh" 
 

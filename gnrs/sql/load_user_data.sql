@@ -21,12 +21,19 @@ FROM user_data_raw
 
 -- Detect poldiv submitted
 UPDATE user_data
-SET poldiv_submitted=
-CASE
-WHEN state_province='' OR state_province IS NULL THEN 'country'
-WHEN county_parish='' OR county_parish IS NULL THEN 'state_province'
-ELSE 'county_parish'
-END
+SET poldiv_submitted=NULL
+;
+UPDATE user_data
+SET poldiv_submitted='country'
+WHERE country_verbatim IS NOT NULL AND TRIM(country_verbatim)<>''
+;
+UPDATE user_data
+SET poldiv_submitted='state_province'
+WHERE state_province_verbatim IS NOT NULL AND TRIM(state_province_verbatim)<>''
+;
+UPDATE user_data
+SET poldiv_submitted='county_parish'
+WHERE county_parish_verbatim IS NOT NULL AND TRIM(county_parish_verbatim)<>''
 ;
 
 -- Flag unresolvable poldivs with corrupted hierarchies

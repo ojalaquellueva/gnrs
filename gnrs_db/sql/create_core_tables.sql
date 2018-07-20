@@ -4,7 +4,7 @@
 
 DROP TABLE IF EXISTS user_data_raw;
 CREATE TABLE user_data_raw (
-user_id VARCHAR(250) DEFAULT NULL,
+user_id text DEFAULT NULL,
 country text DEFAULT NULL,
 state_province text DEFAULT NULL,
 county_parish text DEFAULT NULL
@@ -33,7 +33,7 @@ match_score_county_parish NUMERIC(4,2) DEFAULT NULL,
 poldiv_submitted VARCHAR(50) DEFAULT NULL, 
 poldiv_matched VARCHAR(50) DEFAULT NULL,
 match_status VARCHAR(50) DEFAULT NULL,
-user_id VARCHAR(250) DEFAULT NULL
+user_id text DEFAULT NULL
 ) 
 ;
 

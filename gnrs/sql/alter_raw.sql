@@ -1,5 +1,6 @@
 -- ----------------------------------------------------------
 -- Alter raw data table after import
+-- Used only by gnrs_centroids.sh
 -- ----------------------------------------------------------
 
 -- Add artifical PK
