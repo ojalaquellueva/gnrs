@@ -22,16 +22,16 @@ This repository contains three components, each in its own subdirectory:
 
 ### Software
 
-1. Operating system
+**Operating system**
 
 The GNRS runs in the unix environment within the bash shell. The current version was developed on a server with the following attributes:
 
-Ubuntu 14.04.5
-GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)	
+Ubuntu 14.04.5  
+GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)	 
 
 It has not been tested in other environments. 
 
-2. Database
+**Database**
 
 PostgreSQL 9.3 or higher
 

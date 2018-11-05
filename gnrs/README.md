@@ -5,8 +5,8 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
 ## Table of Contents
 
 - [Overview](#overview)
-- [Input Schema](#input-schema)
-- [Output Schema](#output-schema)
+- [Input File](#input-file)
+- [Output File](#output-file)
 - [Preparation](#preparation)
 - [Usage](#usage)
 
@@ -16,7 +16,7 @@ The GNRS is a batch application for resolving & standardizing political division
 
 The results output by the GNRS include the original political division names, the resolved political division names and IDs (from geonames) and additional information on how each name was resolved and the quality of the overal match.
 
-### <a name="input-schema"></a>Input Schema
+### <a name="input-file"></a>Input File
 
 The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitted.csv, with the following fields:
 
@@ -24,12 +24,12 @@ The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitte
 | ----- | ----- | ----- |
 | user_id | No | User-supplied integer id for each row, if desired |
 | country | Yes | Country name |
-| state_province | State/province name |
-| county_parish | County/parish name |
+| state_province | No | State/province name |
+| county_parish | No | County/parish name |
 
 Header "user_id,country,state_province,county_parish" must be included as the first line of the file. This file must be placed in the GNRS userdata directory  (path and directory name set in param file). 
 
-### <a name="output-schema"></a>Output Schema
+### <a name="output-file"></a>Output File
 
 The GNRS output will be saved to the GNRS as a utf-8 CSV file with header named gnrs_results.csv. Fields are as follows:
 
