@@ -36,10 +36,10 @@ master=`basename "$0"`
 DIR="$PWD"
 
 # Load parameters, functions and get command-line options
-source "$DIR/includes/startup_master.sh"
+source "$DIR/../includes/startup_master.sh"
 
 # Confirm operation
-source "$DIR/includes/confirm.sh"
+source "$DIR/../includes/confirm.sh"
 
 # Set local directories to same as main
 #data_dir_local=$data_base_dir
@@ -68,20 +68,20 @@ if psql -lqt | cut -d \| -f 1 | grep -qw "geonames"; then
 
 	echoi $e -n "Dropping database 'geonames'..."
 	PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "DROP DATABASE geonames" 
-	source "$DIR/includes/check_status.sh"  
+	source "$DIR/../includes/check_status.sh"  
 fi
 
 echoi $e -n "Creating database 'geonames'..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE geonames" 
-source "$DIR/includes/check_status.sh"  
+source "$DIR/../includes/check_status.sh"  
 
 echoi $e -n "Adding unaccent extension..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE EXTENSION unaccent" 
-source "$DIR/includes/check_status.sh"  
+source "$DIR/../includes/check_status.sh"  
 
 echoi $e -n "Creating geonames tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/create_geonames_tables.sql
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 ############################################
 # Import geonames files
@@ -126,11 +126,11 @@ cd $pcpath
 
 echoi $e -n "Downloading file 'allCountries.zip'..."
 wget -q -N "http://download.geonames.org/export/zip/allCountries.zip"
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "Unzipping file..."
 unzip -u -q $pcpath/allCountries.zip
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 ############################################
 # Insert the data
@@ -145,54 +145,54 @@ echoi $e -n "- geoname..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy geoname (geonameid,name,asciiname,alternatenames,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,moddate) from '${DATADIR}/allCountries.txt' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy postalcodes (countrycode,postalcode,placename,admin1name,admin1code,admin2name,admin2code,admin3name,admin3code,latitude,longitude,accuracy) from '${DATADIR}/${PCDIR}/allCountries.txt' WITH CSV DELIMITER E'\t' QUOTE E'\b' NULL AS '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- timezones..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy timezones (countrycode,timezoneid,gmt_offset,dst_offset,raw_offset) from '${DATADIR}/timeZones.txt.tmp' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- featurecodes..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy featurecodes (code,name,description) from '${DATADIR}/featureCodes_en.txt' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- admin1CodesAscii..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy admin1codesascii (code,name,nameascii,geonameid) from '${DATADIR}/admin1CodesASCII.txt' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- admin2codesascii..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy admin2codesascii (code,name,nameascii,geonameid) from '${DATADIR}/admin2Codes.txt' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- iso_languagecodes..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy iso_languagecodes (iso_639_3,iso_639_2,iso_639_1,language_name) from '${DATADIR}/iso-languagecodes.txt.tmp' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- countryinfo..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy countryinfo (iso_alpha2,iso_alpha3,iso_numeric,fips_code,country,capital,areainsqkm,population,continent,tld,currency_code,currency_name,phone,postal,postalregex,languages,geonameid,neighbours,equivalent_fips_code) from '${DATADIR}/countryInfo.txt.tmp' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- alternatename..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
 copy alternatename (alternatenameid,geonameid,isolanguage,alternatename,ispreferredname, isshortname, iscolloquial, ishistoric) from '${DATADIR}/alternateNames.txt' null as '';
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 echoi $e -n "- continentcodes..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q <<EOT
@@ -204,12 +204,12 @@ INSERT INTO continentcodes VALUES ('OC', 'Oceania', 6255150);
 INSERT INTO continentcodes VALUES ('SA', 'South America', 6255151);
 INSERT INTO continentcodes VALUES ('AN', 'Antarctica', 6255152);
 EOT
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 
 echoi $e -n "Fixing postalcodes and admin codes tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/admincodes.sql
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 ######################################################
 # Add PKs, indexes and FK constraints
@@ -217,7 +217,7 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e -n "Indexing tables...."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -f sql/index_geonames_tables.sql
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 ######################################################
 # Adjust permissions as needed
@@ -226,10 +226,10 @@ source "$DIR/includes/check_status.sh"
 # Change owner to main user (bien) and assign read-only access to public_bien
 echoi $e -n "Adding permissions for users '$USER' and '$USER_READ'..."
 PGOPTIONS='--client-min-messages=warning' psql geonames --set ON_ERROR_STOP=1 -q -v user_adm=$USER -v user_read=$USER_READ -f sql/set_permissions.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 ######################################################
 # Report total elapsed time and exit
 ######################################################
 
-source "$DIR/includes/finish.sh"
+source "$DIR/../includes/finish.sh"

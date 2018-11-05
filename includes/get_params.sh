@@ -28,4 +28,4 @@ fi
 
 # Main db on which operation will be performed
 # For display in messages and mails only
-db_main=$db
+db_main=$db_private

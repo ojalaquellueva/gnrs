@@ -1,7 +1,7 @@
 # Imports geonames database to postgres
 
 Author: Brad Boyle (bboyle@email.arizona.edu)  
-Source: http://forum.geonames.org/gforum/posts/list/15/926.page
+Based on: http://forum.geonames.org/gforum/posts/list/15/926.page
 
 ## Table of Contents
 
@@ -29,6 +29,10 @@ $ chgrp postgres <data_directory>
 See DDL in sql/create_geonames_tables.sql.
 
 ### <a name="Usage"></a>Usage
+
+1. Set all required parameters in params.example.sh and rename to params.sh
+
+2. Run the master script:
 
 ```
 sudo -u postgres ./geonames_db.sh
