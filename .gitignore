@@ -4,5 +4,5 @@ gnrs_db/params.sh
 geonames_db/params.sh
 gnrs/bak/*
 gnrs_db/bak/*
-geonames_db/bak/*	
+/geonames_db/bak/*	
 
