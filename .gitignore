@@ -1,5 +1,5 @@
 params.sh
-gnrs/params.sh
+/gnrs/params.sh
 gnrs_db/params.sh
 geonames_db/params.sh
 gnrs/bak/*
