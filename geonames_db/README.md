@@ -31,7 +31,7 @@ See DDL in sql/create_geonames_tables.sql.
 ### <a name="Usage"></a>Usage
 
 ```
-sudo -u postgres ./geonames.sh
+sudo -u postgres ./geonames_db.sh
 
 ```
 

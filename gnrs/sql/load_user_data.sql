@@ -48,8 +48,8 @@ OR
 -- Construct text FK column
 UPDATE user_data
 SET poldiv_full=CONCAT_WS('@',
-trim(country_verbatim), 
-trim(state_province_verbatim), 
-trim(county_parish_verbatim) 
+coalesce(trim(country_verbatim),''), 
+coalesce(trim(state_province_verbatim),''), 
+coalesce(trim(county_parish_verbatim),'')
 )
 ;
