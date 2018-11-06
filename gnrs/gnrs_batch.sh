@@ -37,7 +37,7 @@ fi
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
-source "$DIR/includes/startup_local.sh"	
+source "$DIR/../includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
 tmplog="/tmp/tmplog.txt"
@@ -71,7 +71,7 @@ echoi $e "Importing user data:"
 
 echoi $e -n "- Clearing raw table..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'truncate user_data_raw'
-source "$DIR/includes/check_status.sh"  
+source "$DIR/../includes/check_status.sh"  
 
 # Data
 datafile=$data_raw
@@ -91,7 +91,7 @@ else
 	$sql
 EOF
 fi
-source "$DIR/includes/check_status.sh"
+source "$DIR/../includes/check_status.sh"
 
 ############################################
 # Insert raw data into table user_data and
@@ -118,7 +118,7 @@ echoi $i "done"
 # Report total elapsed time and exit if running solo
 ######################################################
 
-if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
+if [ -z ${master+x} ]; then source "$DIR/../includes/finish.sh"; fi
 
 ######################################################
 # End script

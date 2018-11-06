@@ -8,15 +8,18 @@
 # Similar to startup_local, without confirmation. 
 #########################################################################
 
+# Get includes directory
+includes_dir="${BASH_SOURCE%/*}"
+
 # Load shared parameters if master script variable has not been set. 
 if [ -z ${master+x} ]; then
 	# reset master directory to parent directory
 	DIR=$DIR_LOCAL"/.."
 	
 	# Load shared parameters & options files
-	source "$DIR/includes/get_params.sh"	# Parameters, files and paths
-	source "$DIR/includes/get_functions.sh"	# Load functions file(s)
-	source "$DIR/includes/get_options.sh" # Get command line options
+	source "$includes_dir/get_params.sh"	# Parameters, files and paths
+	source "$includes_dir/get_functions.sh"	# Load functions file(s)
+	source "$includes_dir/get_options.sh" # Get command line options
 fi
 
 # Load local parameters, if any

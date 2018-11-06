@@ -27,11 +27,11 @@ The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitte
 | state_province | No | State/province name |
 | county_parish | No | County/parish name |
 
-Header "user_id,country,state_province,county_parish" must be included as the first line of the file. This file must be placed in the GNRS userdata directory  (path and directory name set in param file). 
+Header "user_id,country,state_province,county_parish" must be included as the first line of the file. This file must be placed in the GNRS user data directory  (see path and directory name in param file). 
 
 ### <a name="output-file"></a>Output File
 
-The GNRS output will be saved to the GNRS as a utf-8 CSV file with header named gnrs_results.csv. Fields are as follows:
+GNRS output is saved to the GNRS user data directory as a utf-8 CSV file with header named gnrs_results.csv. Fields are as follows:
 
 | Field name | Meaning |
 | ----- | ----- |
@@ -57,7 +57,6 @@ The GNRS output will be saved to the GNRS as a utf-8 CSV file with header named 
 | match_status | Completeness of overall match |
 | user_id | User id, if supplied |
 
-
 ### <a name="preparation"></a>Preparation
 
 Place your input file in the gnrs user data directory (path and directory name set in param file). input file must be named "gnrs_submitted.csv".
@@ -67,7 +66,7 @@ Place your input file in the gnrs user data directory (path and directory name s
 ** Batch processing.** Import, name resolution and export of the results can be run as a single operation by invoking the following script:
 
 ```
-./gnrs_batch.sh [-options]
+./gnrs_batch.sh [-option1] [-option2] ...
 ```
 
 **Separate import, resolution and export***
@@ -75,25 +74,28 @@ Place your input file in the gnrs user data directory (path and directory name s
 1. Import input file "gnrs_submitted.csv" from user data directory to GNRS database.
 
 ```
-$ ./gnrs_import.sh
+$ ./gnrs_import.sh [-option1] [-option2] ...
 
 ```
 
 2. Resolve the political division names. Assumes user data has already been loaded to table user_data in the GNRS database.
 
 ```
-$ ./gnrs.sh
+$ ./gnrs.sh [-option1] [-option2] ...
 
 ```
 
 3. Export GNRS results from GNRS database to GNRS user data directory as file "gnrs_results.csv":
 
 ```
-$ ./gnrs_export.sh
+$ ./gnrs_export.sh [-option1] [-option2] ...
 
 ```
 
   * Options:  
   	-m: Send notification emails  
-  	-s: Silent mode  
-  * For very large file, recommend running in unix screen with -m switch to generate start, completed and error emails. A valid email must be provided in params file.
+  	-s: Silent mode: suppresses progress messages but not warnings
+  	-n: No warnings: suppresses suppresses warnings but not progress
+  * Each option listed separately preceded by dash
+  * For completely silent operation use "-s -n"
+  * For very large file, recommend running in unix screen with -m switch to generate start, completion and error email notifications. A valid email must be provided in params file.

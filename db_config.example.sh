@@ -9,13 +9,9 @@ host='localhost'
 
 user_admin='<admin-level-user-name>'
 user_read='<read-only-user-name>'
-user_bien='bien'
-user='bien'
+user='<read-only-user-name>' # Can be same as user_read
 
 pwd_user_admin="<admin-level-user-password>"
 
-db_private='vegbien'
-db_public='public_vegbien'
-db_geom="geombien"
 db_geonames="geonames"
 db_gnrs="gnrs"

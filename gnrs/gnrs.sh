@@ -33,11 +33,12 @@ local_basename="${local/.sh/}"
 if [ -z ${master+x} ]; then
 	DIR=$DIR_LOCAL
 fi
+if [[ -z ${DIR+x} ]]; then DIR="$PWD"; fi
 
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
-source "$DIR/includes/startup_local.sh"	
+source "$DIR/../includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
 tmplog="/tmp/tmplog.txt"
@@ -65,13 +66,13 @@ COMMENT_BLOCK_1
 
 echoi $e -n "- Dropping indexes on user_data..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/core_tables_drop_indexes.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 # This deletes any existing data in table user_data
 # Assume user_data_raw has been populated
 echoi $e -n "- Loading user_data..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -f $DIR_LOCAL/sql/load_user_data.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 ############################################
 # Check against existing results in cache
@@ -79,7 +80,7 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- Checking existing results in cache..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/check_cache.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 #echo "EXITING!!!"; exit 0
 
@@ -91,31 +92,31 @@ echoi $e "Country:"
 
 echoi $e -n "- exact..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 echoi $e "State/province:"
 
 echoi $e -n "- exact..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 echoi $e "County/parish:"
 
 echoi $e -n "- exact..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 ############################################
 # Summarize results
@@ -123,7 +124,7 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e -n "Summarizing results..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/summarize.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 ############################################
 # Updating cache
@@ -132,13 +133,13 @@ source "$DIR/includes/check_status.sh"
 # Add new results to cache
 echoi $e -n "Updating cache..."
 PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_cache.sql
-source "$DIR/includes/check_status.sh" 
+source "$DIR/../includes/check_status.sh" 
 
 ######################################################
 # Report total elapsed time and exit if running solo
 ######################################################
 
-if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
+if [ -z ${master+x} ]; then source "$DIR/../includes/finish.sh"; fi
 
 ######################################################
 # End script

@@ -172,7 +172,7 @@ PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_ST
 source "$DIR/includes/check_status.sh"
 
 echoi $e -n "- Adjusting permissions for new tables..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -d  $db_geonames -v user_adm=$user_bien -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions_geonames.sql
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -d  $db_geonames -v user_adm=$user_admin -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions_geonames.sql
 source "$DIR/includes/check_status.sh"	
 
 echoi $e -n "- Reassigning ownership to postgres..."

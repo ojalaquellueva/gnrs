@@ -31,7 +31,7 @@ if [ -z ${master+x} ]; then
 	start=`date +%s%N`; prev=$start		# Get start time
 	pid=$$								# Set process ID
 	if [[ "$m" = "true" ]]; then 
-		source "$DIR/includes/mail_process_start.sh"	# Email notification
+		source "includes_dir/mail_process_start.sh"	# Email notification
 	fi
 	
 	#########################################################################
