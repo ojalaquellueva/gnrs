@@ -19,7 +19,8 @@ COMMENT_BLOCK_x
 ######################################################
 
 # Get local working directory
-DIR_LOCAL="${BASH_SOURCE%/*}"
+#DIR_LOCAL="${BASH_SOURCE%/*}"
+DIR_LOCAL="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
 
 # $local = name of this file

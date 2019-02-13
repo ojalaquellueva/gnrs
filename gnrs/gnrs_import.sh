@@ -19,7 +19,8 @@ COMMENT_BLOCK_x
 ######################################################
 
 # Get local working directory
-DIR_LOCAL="${BASH_SOURCE%/*}"
+#DIR_LOCAL="${BASH_SOURCE%/*}"
+DIR_LOCAL="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
 
 # $local = name of this file
@@ -30,9 +31,9 @@ local=`basename "${BASH_SOURCE[0]}"`
 local_basename="${local/.sh/}"
 
 # Set parent directory if running independently
-if [ -z ${master+x} ]; then
+#if [ -z ${master+x} ]; then
 	DIR=$DIR_LOCAL
-fi
+#fi
 
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
@@ -52,7 +53,6 @@ echo "Error log
 if [ -z ${master+x} ]; then
 	master=`basename "$0"`
 fi
-
 
 #########################################################################
 # Main
