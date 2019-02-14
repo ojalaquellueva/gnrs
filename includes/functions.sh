@@ -18,7 +18,8 @@ checkemail()
 	else 
 		email=$1
 	
-		if [[ "$email" == ?*@?*.?* ]]  ; then
+		#if [[ "$email" == ?*@?*.?* ]]  ; then
+		if is_email_valid "$email" ;then
 			#echo $email": Valid email"
 			return 0
 		else
@@ -27,6 +28,11 @@ checkemail()
 		fi
 	fi
 
+}
+
+function is_email_valid() {
+	regex="^([A-Za-z]+[A-Za-z0-9]*((\.|\-|\_)?[A-Za-z]+[A-Za-z0-9]*){1,})@(([A-Za-z]+[A-Za-z0-9]*)+((\.|\-|\_)?([A-Za-z]+[A-Za-z0-9]*)+){1,})+\.([A-Za-z]{2,})+"
+	[[ "${1}" =~ $regex ]]
 }
 
 confirm()

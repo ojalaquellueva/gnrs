@@ -18,7 +18,9 @@ if [ -z ${master+x} ]; then
 	# Load shared parameters & options files
 	source "$includes_dir/get_params.sh"		# Parameters, files and paths
 	source "$includes_dir/functions.sh"			# Load functions file
-	source "$includes_dir/get_options.sh" 		# Get command line options
+	if [ ! "$custom_opts" == "true" ]; then
+		source "$includes_dir/get_options.sh" 	# Get command line options
+	fi
 fi
 
 # Load local parameters, if any
@@ -50,7 +52,7 @@ if [ -z ${master+x} ]; then
 	# timer & send confirmation email if requested
 	######################################################
 
-	if [[ "$i" = "true" ]]; then 
+	if [[ "$i" == "true" && "$suppress_main" == "false" ]]; then 
 		# Reset confirmation message
 		msg_conf="$(cat <<-EOF
 
