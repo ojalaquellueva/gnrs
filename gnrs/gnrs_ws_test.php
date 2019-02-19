@@ -85,7 +85,7 @@ $lines = "5";
 // Typical formats:
 // 	$api_url = "<server_name>"
 //	$api_url = "<server_name>:port"
-//$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";
+$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";
 
 // Localhost, for testing on same machine only
 // Virtual Host configured as "localhost" or "localhost:<gnrs_port>
@@ -94,7 +94,7 @@ $lines = "5";
 // 	$api_url = "127.0.0.0"
 //	$api_url = "localhost:port"
 //	$api_url = "127.0.0.0:port"
-$api_host = "localhost:9875";
+//$api_host = "localhost:9875";
 
 /////////////////////////////////////////////
 // Functions
@@ -123,11 +123,16 @@ function csvtoarray($file,$delimiter,$lines)
 // Main
 /////////////////////////////////////////////
 
+echo "\r\nTesting GNRS API\r\n";
+
 //
 // Form the API base url
 //
 
 $api_url = $api_host . "/gnrs_ws.php";
+
+// Echo it
+echo "\r\nGNRS API host:\r\n'$api_host'\r\n";
 
 //
 // Load the input file
