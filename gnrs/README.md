@@ -9,6 +9,7 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
 - [Output File](#output-file)
 - [Preparation](#preparation)
 - [Usage](#usage)
+- [API](#api)
 
 ### <a name="Overview"></a>Overview
 
@@ -69,7 +70,19 @@ Place your input file in the gnrs user data directory (path and directory name s
 ./gnrs_batch.sh [-option1] [-option2] ...
 ```
 
-**Separate import, resolution and export***
+Options (listed separately preceded by dash; do not combine):
+  -m: Send notification emails  
+  -s: Silent mode: suppress all (confirmations & progress messages)
+  -a: API call (API only; otherwise omit)
+  
+Example:
+
+```
+./gnrs_batch.sh -f "../data/user_data/test_data.csv"
+
+```
+
+**Component services: import, resolve, export**
 
 1. Import input file "gnrs_submitted.csv" from user data directory to GNRS database.
 
@@ -92,10 +105,15 @@ $ ./gnrs_export.sh [-option1] [-option2] ...
 
 ```
 
-  * Options:  
-  	-m: Send notification emails  
-  	-s: Silent mode: suppresses progress messages but not warnings
-  	-n: No warnings: suppresses suppresses warnings but not progress
-  * Each option listed separately preceded by dash
-  * For completely silent operation use "-s -n"
-  * For very large file, recommend running in unix screen with -m switch to generate start, completion and error email notifications. A valid email must be provided in params file.
+Component service options:
+  -m: Send notification emails  
+  -n: No warnings: suppress confirmations but not progress messages
+  -s: Silent mode: suppress all (confirmations & progress messages)
+
+  
+### <a name="example"></a>Example
+
+
+### <a name="api"></a>API
+
+For API documentation, see http://bien.nceas.ucsb.edu/bien/tools/gnrs/.

@@ -1,14 +1,19 @@
 #!/bin/bash
 
 #########################################################################
-# Purpose: Creates and populates GNRS database 
+# GNRS core application
+#  
+# Purpose: Standardizes spellings of political division names to 
+#	geonames.org 
 #
-# Usage:	./gnrs_db.sh
+# Usage:	./gnrs.sh
 #
-# Warning: Requires database geonames on local filesystem
+# Requires: 
+# 	1. GNRS database (create separately with module gnrs_db.sh)
+#	2. Input data already present in GNRS database. Reads input  
+# 	from table observation and updates results to this same table.
 #
 # Authors: Brad Boyle (bboyle@email.arizona.edu)
-# Date created: 12 June 2017
 #########################################################################
 
 : <<'COMMENT_BLOCK_x'
@@ -39,12 +44,13 @@ if [[ -z ${DIR+x} ]]; then DIR="$PWD"; fi
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
+custom_opts="true"
 source "$DIR/../includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
-tmplog="/tmp/tmplog.txt"
-echo "Error log
-" > $tmplog
+# tmplog="/tmp/tmplog.txt"
+# echo "Error log
+# " > $tmplog
 
 # Set current script as master if not already source by another file
 # master = name of this file. 
@@ -53,6 +59,40 @@ echo "Error log
 # scripts to be called individually if needed
 if [ -z ${master+x} ]; then
 	master=`basename "$0"`
+fi
+
+###########################################################
+# Get custom options
+#   -a	api call=true
+###########################################################
+
+# Set defaults
+api="false"		# Assume not an api call
+pgpassword=""	# Not needed if not an api call
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -a | --api )         	api="true"
+                            	;;
+        -s | --silent )         silent="true"
+                            	;;
+         * )                     echo "invalid option!"; exit 1
+    esac
+    shift
+done
+
+# Set PGPASSWORD for api access
+# Parameter $pgpwd set in config file
+if  [ "$api" == "true" ]; then
+	pgpassword="PGPASSWORD=$pgpwd"
+	
+	# Only set remaining options if api=true
+	# Hence no defaults above
+	if [ "$silent" == "true" ]; then
+		e="false"
+	else
+		e="true"
+	fi
 fi
 
 #########################################################################
@@ -66,13 +106,15 @@ COMMENT_BLOCK_1
 ############################################
 
 echoi $e -n "- Dropping indexes on user_data..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/core_tables_drop_indexes.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/core_tables_drop_indexes.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 # This deletes any existing data in table user_data
 # Assume user_data_raw has been populated
 echoi $e -n "- Loading user_data..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -f $DIR_LOCAL/sql/load_user_data.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -f $DIR_LOCAL/sql/load_user_data.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 ############################################
@@ -80,7 +122,8 @@ source "$DIR/../includes/check_status.sh"
 ############################################
 
 echoi $e -n "- Checking existing results in cache..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/check_cache.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/check_cache.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 #echo "EXITING!!!"; exit 0
@@ -92,31 +135,37 @@ source "$DIR/../includes/check_status.sh"
 echoi $e "Country:"
 
 echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e "State/province:"
 
 echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e "County/parish:"
 
 echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 ############################################
@@ -124,7 +173,8 @@ source "$DIR/../includes/check_status.sh"
 ############################################
 
 echoi $e -n "Summarizing results..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/summarize.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/summarize.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 ############################################
@@ -133,7 +183,8 @@ source "$DIR/../includes/check_status.sh"
 
 # Add new results to cache
 echoi $e -n "Updating cache..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_cache.sql
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_cache.sql"
+eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 ######################################################

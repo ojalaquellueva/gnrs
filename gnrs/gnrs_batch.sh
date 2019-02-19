@@ -1,14 +1,15 @@
 #!/bin/bash
 
 #########################################################################
-# Purpose: Creates and populates GNRS database 
+# GNRS batch application 
+#  
+# Purpose: Submits file of political division names to GNRS core service  
+#	and saves results to same directory as input file.
 #
-# Usage:	./gnrs_db.sh [-s] [-f /absolute/path/inputfilename] [-m me@valid.notification_email]
-#
-# Warning: Requires database gnrs on local filesystem
+# Usage:
+#	./gnrs_db.sh [-s] [-f /absolute/path/inputfilename] [-m me@valid.notification_email]
 #
 # Authors: Brad Boyle (bboyle@email.arizona.edu)
-# Date created: 12 June 2017
 #########################################################################
 
 : <<'COMMENT_BLOCK_x'
@@ -45,9 +46,9 @@ custom_opts="true"
 source "$DIR/../includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
-tmplog="/tmp/tmplog.txt"
-echo "Error log
-" > $tmplog
+# tmplog="/tmp/tmplog.txt"
+# echo "Error log
+# " > $tmplog
 
 # Set current script as master if not already source by another file
 # master = name of this file. 
@@ -68,6 +69,8 @@ fi
 # Set defaults
 e="true"	# Echo/interactive mode on by default
 f_custom="false"	# Use default input/output files and data directory
+api="false"		# Assume not an api call
+pgpassword=""	# Not needed if not an api call
 infile=$data_dir_local"/"$submitted_filename	# Default input file & path
 outfile=$data_dir_local"/"$results_filename	# Default input file & path
 mailme="false"
@@ -75,6 +78,8 @@ mailme="false"
 while [ "$1" != "" ]; do
     case $1 in
         -s | --silent )         e="false"
+                            	;;
+        -a | --api )         	api="true"
                             	;;
         -f | --infile )        	f_custom="true"
         						shift
@@ -101,6 +106,12 @@ fi
 data_dir=$(dirname "${infile}")
 outfile_basename=$(basename ${infile%.*})
 outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
+
+# Set PGPASSWORD for api access
+# Parameter $pgpwd set in config file
+if  [ "$api" == "true" ]; then
+	pgpassword="PGPASSWORD=$pgpwd"
+fi
 
 # Check valid email
 if [[ "$mailme" == "true" ]]; then
@@ -149,28 +160,21 @@ fi
 echoi $e "Importing user data:"
 
 echoi $e -n "- Clearing raw table..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'TRUNCATE user_data_raw'
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'TRUNCATE user_data_raw'"
+eval $cmd
 source "$DIR/../includes/check_status.sh"  
 
-# Data
-datafile=$data_raw
-
 echoi $e "- Importing raw data:"
-echoi $i -n "-- '$submitted_filename' --> user_data_raw..."
+echoi $e -n "-- '$submitted_filename' --> user_data_raw..."
 
-#use_limit='false'	# For testing
 if [ $use_limit = "true" ]; then 
 	# Import subset of records (development only)
-	#head -n $recordlimit $data_dir_local/$submitted_filename | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
 	head -n $recordlimit $infile | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
 else
 	# Import full file
-	#sql="\COPY user_data_raw FROM '${data_dir_local}/${submitted_filename}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-	sql="\COPY user_data_raw FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-	PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs -q << EOF
-	\set ON_ERROR_STOP on
-	$sql
-EOF
+ 	sql="\COPY user_data_raw FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
+	eval $cmd
 fi
 source "$DIR/../includes/check_status.sh"
 
@@ -180,7 +184,11 @@ source "$DIR/../includes/check_status.sh"
 ############################################
 
 # Run the main GNRS app
-source "$DIR/gnrs.sh"
+if  [ "$api" == "true" ]; then
+	$DIR/gnrs.sh -a -s
+else
+	source "$DIR/gnrs.sh"
+fi
 
 ############################################
 # Export results from user_data to data 
@@ -188,12 +196,10 @@ source "$DIR/gnrs.sh"
 ############################################
 
 echoi $e -n "Exporting CSV file of results to data directory..."
-#gnrs_results_file=$data_dir_local"/"$results_filename
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -q << EOF
-\set ON_ERROR_STOP on
-\copy user_data TO '${outfile}' csv header
-EOF
-echoi $i "done"
+sql="\copy user_data TO '${outfile}' csv header"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
+eval $cmd
+echoi $e "done"
 
 ######################################################
 # Report total elapsed time and exit if running solo
