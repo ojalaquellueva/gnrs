@@ -73,7 +73,7 @@ Place your input file in the gnrs user data directory (path and directory name s
 Options (listed separately preceded by dash; do not combine):
   -m: Send notification emails  
   -s: Silent mode: suppress all (confirmations & progress messages)
-  -a: API call (API only; otherwise omit)
+  -p: Use PGPASSWORD authentication (required for API call)
   
 Example:
 

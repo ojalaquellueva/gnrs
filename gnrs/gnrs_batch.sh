@@ -69,7 +69,7 @@ fi
 # Set defaults
 e="true"	# Echo/interactive mode on by default
 f_custom="false"	# Use default input/output files and data directory
-api="false"		# Assume not an api call
+use_pwd="false"		# Assume not an api call
 pgpassword=""	# Not needed if not an api call
 infile=$data_dir_local"/"$submitted_filename	# Default input file & path
 outfile=$data_dir_local"/"$results_filename	# Default input file & path
@@ -79,7 +79,7 @@ while [ "$1" != "" ]; do
     case $1 in
         -s | --silent )         e="false"
                             	;;
-        -a | --api )         	api="true"
+        -p | --use_pwd )        use_pwd="true"
                             	;;
         -f | --infile )        	f_custom="true"
         						shift
@@ -109,7 +109,7 @@ outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
 
 # Set PGPASSWORD for api access
 # Parameter $pgpwd set in config file
-if  [ "$api" == "true" ]; then
+if  [ "$use_pwd" == "true" ]; then
 	pgpassword="PGPASSWORD=$pgpwd"
 fi
 
@@ -184,7 +184,7 @@ source "$DIR/../includes/check_status.sh"
 ############################################
 
 # Run the main GNRS app
-if  [ "$api" == "true" ]; then
+if  [ "$use_pwd" == "true" ]; then
 	$DIR/gnrs.sh -a -s
 else
 	source "$DIR/gnrs.sh"

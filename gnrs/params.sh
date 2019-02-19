@@ -5,22 +5,10 @@
 # Check and change as needed
 ##############################################################
 
-# Fuzzy match threshold (trigram similarity score)
-# [0-1], recommend at least 0.5 to avoid false positives
-match_threshold=0.5
-
-# Default name of the raw data file to be imported. 
-# This name will be used if no file name supplied as command line
-# parameter. Must be located in the user_data directory
-submitted_filename="gnrs_submitted.csv" 
-
-# Name of results file
-results_filename="gnrs_results.csv"
-
-# 't' to limit number of records imported (for testing)
-# 'f' to run full import
-use_limit='f'
-recordlimit=1000
+##########################
+# Paths, adjust according  
+# to your installation
+##########################
 
 # Path to db_config.sh
 # For production, keep outside app directory & supply absolute path
@@ -41,6 +29,28 @@ data_base_dir="../data/user_data"		 # Relative path
 data_dir_local_abs="/home/boyle/bien3/gnrs/user_data"
 #data_dir_local_abs="/home/boyle/bien3/repos/gnrs/data/user_data"
 data_dir_local=$data_dir_local_abs
+
+##########################
+# Normally shouldn't have
+# to change these
+##########################
+
+# Fuzzy match threshold (trigram similarity score)
+# [0-1], recommend at least 0.5 to avoid false positives
+match_threshold=0.5
+
+# Default name of the raw data file to be imported. 
+# This name will be used if no file name supplied as command line
+# parameter. Must be located in the user_data directory
+submitted_filename="gnrs_submitted.csv" 
+
+# Default name of results file
+results_filename="gnrs_results.csv"
+
+# 't' to limit number of records imported (for testing)
+# 'f' to run full import
+use_limit='f'
+recordlimit=1000
 
 # Destination email for process notifications
 # You must supply a valid email if you used the -m option

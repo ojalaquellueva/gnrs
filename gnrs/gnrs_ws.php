@@ -114,7 +114,7 @@ fclose($fp);
 // Process the CSV file in batch mode
 ///////////////////////////////////
 
-$cmd="./gnrs_batch.sh -a -s -f '$file_tmp'";
+$cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
 exec($cmd, $output, $status);
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
 
