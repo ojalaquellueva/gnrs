@@ -1,34 +1,106 @@
 <?php
 
 ///////////////////////////////////////////////////////////////
-// Assembles test batch request and submits to GNRS API
-// Imports names from file on local file sysytem
+// Script for testing GNRS API
+//
+// Usage:
+//	php gnrs_ws_test.php
+//
+// Purpose: 
+//	Use to test GNRS API on command line. Imports CSV test data
+//	file (directory & file of your choice), restructures as json,  
+//	echoes json to screen, sends to GNRS api as POST  
+//	request, echoes response (will see json if successful).
+//
+// Parameters (set in parameters section below, not on command line):
+// 	$ws_data_dir: Directory of test file (utf-8 text CSV with header)
+//	$inputfilename: Name of test file
+// 	$lines: Number of lines of test file to import
+//	$api_host: Host (and port, if applicable) of API
+//  
+// Input file format: see below
+//  
+// Author: Brad Boyle (bboyle@email.arizona.edu)
 ///////////////////////////////////////////////////////////////
 
-/////////////////////
+/*
+
+Input file requirements
+
+Rules:
+* UTF-8 CSV test with header
+* Column country mandatory
+* Column state_province required only if country_parish included
+
+Fields:
+user_id	- user-supplied unique identifier (text; optional)
+country	- country name (text; required)
+state_province - state/province name (text; optional)
+county_parish - next lower political division (text; optional)
+
+Header: 
+user_id,country,state_province,county_parish
+
+Format:
+user_id,country,state_province,county_parish
+row1_user_id,row1_country,row1_state_province,row1_county_parish
+row2_user_id,row2_country,row2_state_province,row2_county_parish
+row3_user_id,row3_country,row3_state_province,row3_county_parish
+...
+
+Example input file (note user_id not used):
+user_id,country,state_province,county_parish
+,United States,Arizona,Pima County
+,Russia,Lipetsk,Dobrovskiy rayon
+,Mexico,"Sonora, Estado de",Huépac
+,Guatemala,Izabal,El Estor
+
+*/
+
+/////////////////////////////////////////////
 // Parameters
-/////////////////////
+//
+// Adjust the following parameters according
+// to your installation and test data
+/////////////////////////////////////////////
 
-// Path and name of file containing input names and political divisions
-$ws_data_dir = "/home/boyle/bien3/gnrs/user_data/";
-$inputfilename = "gnrs_testfile.csv";
+//
+// Test file of political division names
+//
 
-// Desired response format, json or xml
-// NOT USED YET
-$format="json";
+$ws_data_dir = "/home/boyle/bien3/repos/gnrs/data/user_data/";	// Path to file
+$inputfilename = "test_data.csv";		# Test file name (small)
 
-// Number of lines to import
-// Set to large number to impart entire file
-$lines = 100000;
+// Number of lines of test file to import, not counting header
+// Handy for testing a small sample of larger file
+// Set to empty string ("") to impart entire file
+$lines = "5";
 
-// api base url 
-$base_url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_ws.php";
+//
+// api host (+port, as applicable)
+//
 
-/////////////////////
+// Server [+port], for testing from anywhere
+// Virtual Host must be configured appropriately
+// Typical formats:
+// 	$api_url = "<server_name>"
+//	$api_url = "<server_name>:port"
+//$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";
+
+// Localhost, for testing on same machine only
+// Virtual Host configured as "localhost" or "localhost:<gnrs_port>
+// Typical formats:
+// 	$api_url = "localhost"
+// 	$api_url = "127.0.0.0"
+//	$api_url = "localhost:port"
+//	$api_url = "127.0.0.0:port"
+$api_host = "localhost:9875";
+
+/////////////////////////////////////////////
 // Functions
-/////////////////////
+/////////////////////////////////////////////
 
-function csvtojson($file,$delimiter,$lines)
+function csvtoarray($file,$delimiter,$lines)
 {
     if (($handle = fopen($file, "r")) === false) {
     	die("can't open the file.");
@@ -42,28 +114,49 @@ function csvtojson($file,$delimiter,$lines)
     }
 
     fclose($handle);
+    $f_array = array_slice($f_array, 0, $lines); // Get requested subset
     
-    // Get subset of array
-    $f_array = array_slice($f_array, 0, $lines);
-    
-    // Convert and return the JSON
-    return json_encode($f_array);
+    return $f_array;
 }
 
-/////////////////////
+/////////////////////////////////////////////
 // Main
-/////////////////////
+/////////////////////////////////////////////
+
+//
+// Form the API base url
+//
+
+$api_url = $api_host . "/gnrs_ws.php";
 
 //
 // Load the input file
 //
 
-// Import the csv data and convert a sample of it to JSON
-$inputfile = $ws_data_dir.$inputfilename;
-$json_data = csvtojson($inputfile, ",",$lines);
+// Set to very large number to import entire file
+// if $lines parameter blank
+if ($lines=="") $lines=1000000000;
 
-// Echo the input
-echo "\r\nInput data before sending:\r\n";
+// Input file name and path
+$inputfile = $ws_data_dir.$inputfilename;
+if (!file_exists($inputfile)) die("Input file '$inputfile' doesn't exist!\r\n");
+echo "\r\nInput file name:\r\n";
+echo $inputfile . "\r\n";
+
+// Get total lines in file
+$file = new \SplFileObject($inputfile, 'r');
+$file->seek(PHP_INT_MAX);
+$flines = $file->key(); 
+
+// Echo the file
+echo "\r\nInput file contents:\r\n";
+$csv_arr = file($inputfile);
+for ($i=0; $i<min($lines+1,$flines); $i++) echo $csv_arr[$i];
+
+// Convert to JSON & echo
+$csv_arr = csvtoarray($inputfile,',',$lines);
+$json_data = json_encode($csv_arr);
+echo "\r\nJSON data sent:\r\n";
 echo $json_data . "\r\n";
 
 //
@@ -71,7 +164,7 @@ echo $json_data . "\r\n";
 //
 
 // Call the batch api
-$url = $base_url;    
+$url = $api_url;    
 $content = $json_data;
 
 // Initialize curl request
@@ -90,11 +183,15 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);	
 
 //
-// Send the request and process the response
+// Send the request
 //
 
 // Execute the API call
 $response = curl_exec($ch);
+
+//
+// Process the response
+//
 
 // Check status of the response and echo if error
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
