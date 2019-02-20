@@ -1,4 +1,5 @@
-gnrs/bak/*
-gnrs_db/bak/*
-/geonames_db/bak/*	
+bak/
+gnrs/bak/
+gnrs_db/bak/
+geonames_db/bak/	
 
