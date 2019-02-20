@@ -24,16 +24,12 @@ This repository contains three components, each in its own subdirectory:
 
 **Operating system**
 
-The GNRS runs in the unix environment within the bash shell. The current version was developed on a server with the following attributes:
+The GNRS runs in the unix environment within the bash shell, with a PostgreSQL database and an API layer in PHP. The current version was developed on a server with the following attributes. It has not been tested in other environments.
 
 Ubuntu 14.04.5  
 GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)	 
-
-It has not been tested in other environments. 
-
-**Database**
-
-PostgreSQL 9.3 or higher
+PHP 2.5.0
+PostgreSQL 9.3
 
 ### Dependencies
 
