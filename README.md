@@ -14,11 +14,11 @@ The GNRS is a batch application for resolving & standardizing political division
 
 This repository contains three components, each in its own subdirectory:
 
-| Application  | Subdirectory | Purpose | Requires |  
-| ------------- | ------------- | ------------- |  
-| GNRS  | gnrs/  | The GNRS application | GNRS database |  
-| GNRS database  | gnrs_db/  | Builds the GNRS database | Geonames database  |  
-| Geonames database  | geonames_db/  | Builds the Geonames database  | 
+| Application  | Subdirectory | Purpose | 
+| ------------- | ------------- | ------------- | ------------- |    
+| GNRS  | gnrs/  | The GNRS application | 
+| GNRS database  | gnrs_db/  | Builds the GNRS database used by the GNRS | 
+| Geonames database  | geonames_db/  | Builds the Geonames database, required to build the GNRS database  | 
 
 ### Software
 
