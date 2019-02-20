@@ -64,16 +64,16 @@ Place your input file in the gnrs user data directory (path and directory name s
 
 ### <a name="Usage"></a>Usage
 
-** Batch processing.** Import, name resolution and export of the results can be run as a single operation by invoking the following script:
+**Batch processing.** Import, name resolution and export of the results can be run as a single operation by invoking the following script:
 
 ```
 ./gnrs_batch.sh [-option1] [-option2] ...
 ```
 
-Options (listed separately preceded by dash; do not combine):
+Options (listed separately preceded by dash; do not combine):  
   -m: Send notification emails  
-  -s: Silent mode: suppress all (confirmations & progress messages)
-  -p: Use PGPASSWORD authentication (required for API call)
+  -s: Silent mode: suppress all (confirmations & progress messages)  
+  -p: Use PGPASSWORD authentication (required for API call)  
   
 Example:
 
@@ -105,10 +105,10 @@ $ ./gnrs_export.sh [-option1] [-option2] ...
 
 ```
 
-Component service options:
-  -m: Send notification emails  
-  -n: No warnings: suppress confirmations but not progress messages
-  -s: Silent mode: suppress all (confirmations & progress messages)
+Component service options:  
+  -m: Send notification emails    
+  -n: No warnings: suppress confirmations but not progress messages  
+  -s: Silent mode: suppress all (confirmations & progress messages)  
 
   
 ### <a name="example"></a>Example
@@ -116,4 +116,4 @@ Component service options:
 
 ### <a name="api"></a>API
 
-For API documentation, see http://bien.nceas.ucsb.edu/bien/tools/gnrs/.
+For API documentation, see http://bien.nceas.ucsb.edu/bien/tools/gnrs/gnrs-api/
