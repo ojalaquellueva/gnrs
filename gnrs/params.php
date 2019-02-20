@@ -30,30 +30,6 @@ include $utilities_path."sql_functions.inc";
 $timer_on=$utilities_path."timer_on.inc";
 $timer_off=$utilities_path."timer_off.inc";
 
-// Include files for core nsr application
-//$nsr_includes_dir="nsr_includes/";		// include files specific to nsr app
-
-// Include files for batch applicaton
-//$batch_includes_dir="nsr_batch_includes/";	// include files specific to batch app
-
-//////////////////////////////////////////////////
-// Set to ' o.is_in_cache=0 ' to check non-
-// cached observations only. Results for cached
-// observations will be obtained from cache  
-// (faster).
-// Otherwise, set to ' 1 ' to force NSR to look up
-// resolve all observations from scratch (slower)
-//////////////////////////////////////////////////
-//$CACHE_WHERE = " o.is_in_cache=0 ";
-//$CACHE_WHERE_NA = " is_in_cache=0 ";	// no alias version
-
-//////////////////////////////////////////////////
-// Default batch size
-// Recommend 10000
-//////////////////////////////////////////////////
-//$batch_size=10000;
-
-
 //////////////////////////////////////////////////
 // Optional run-time echo variables
 // Only used if running in batch mode and runtime
