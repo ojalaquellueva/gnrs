@@ -19,10 +19,6 @@ COMMENT_BLOCK_x
 # Set basic parameters, functions and options
 ######################################################
 
-# Assign job unique ID
-#job="job_$(date +%Y%m%d_%H%M%S)"	# To nearest second
-job="job_$(date +%Y%m%d_%H%M%N)"	# Nanoseconds
-
 # Get local working directory
 DIR_LOCAL="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
@@ -144,7 +140,6 @@ if [ "$e" = "true" ]; then
         Results file: 	$outfile
         Notify: 	$mailme
         Notify email:	$email
-        Job id:		$job
         "
         read -p "Continue? (Y/N): " -r
         
@@ -190,8 +185,7 @@ source "$DIR/../includes/check_status.sh"
 
 # Run the main GNRS app
 if  [ "$use_pwd" == "true" ]; then
-	# API calls always use this option
-	$DIR/gnrs.sh -a -s -j $job
+	$DIR/gnrs.sh -a -s
 else
 	source "$DIR/gnrs.sh"
 fi
@@ -204,16 +198,6 @@ fi
 echoi $e -n "Exporting CSV file of results to data directory..."
 sql="\copy user_data TO '${outfile}' csv header"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
-eval $cmd
-echoi $e "done"
-
-############################################
-# Export results from user_data to data 
-# directory sa CSV file
-############################################
-
-echoi $e -n "Clearing user data for this job from database..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
 eval $cmd
 echoi $e "done"
 

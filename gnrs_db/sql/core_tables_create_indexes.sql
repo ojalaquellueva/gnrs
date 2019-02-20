@@ -1,4 +1,5 @@
 -- user_data
+CREATE INDEX user_data_job_idx ON user_data (job);
 CREATE INDEX user_data_poldiv_full_idx ON user_data (poldiv_full);
 CREATE INDEX user_data_country_verbatim_idx ON user_data (country_verbatim);
 CREATE INDEX user_data_state_province_verbatim_idx ON user_data (state_province_verbatim);

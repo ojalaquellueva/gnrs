@@ -30,14 +30,21 @@ data_dir_local_abs="/home/boyle/bien3/gnrs/user_data"
 #data_dir_local_abs="/home/boyle/bien3/repos/gnrs/data/user_data"
 data_dir_local=$data_dir_local_abs
 
+#############################################################
+# Normally shouldn't have to change remaining parameters
+#############################################################
+
 ##########################
-# Normally shouldn't have
-# to change these
+# Batch & multi-user
+# parameters
 ##########################
 
-# Fuzzy match threshold (trigram similarity score)
-# [0-1], recommend at least 0.5 to avoid false positives
-match_threshold=0.5
+# Default batch size. Recommend 10000
+batch_size=10000;
+
+##########################
+# Default input/output file names
+##########################
 
 # Default name of the raw data file to be imported. 
 # This name will be used if no file name supplied as command line
@@ -47,10 +54,26 @@ submitted_filename="gnrs_submitted.csv"
 # Default name of results file
 results_filename="gnrs_results.csv"
 
+##########################
+# Fuzzy match parameters
+##########################
+
+# Fuzzy match threshold (trigram similarity score)
+# [0-1], recommend at least 0.5 to avoid false positives
+match_threshold=0.5
+
+##########################
+# Input subsample parameters
+##########################
+
 # 't' to limit number of records imported (for testing)
 # 'f' to run full import
 use_limit='f'
 recordlimit=1000
+
+##########################
+# Display/notification parameters
+##########################
 
 # Destination email for process notifications
 # You must supply a valid email if you used the -m option

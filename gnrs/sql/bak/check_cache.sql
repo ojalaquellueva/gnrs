@@ -2,7 +2,7 @@
 -- Check for existing results in cache
 -- 
 
--- Recreate FK & WHERE indexes
+-- Recreate FK indexes
 DROP INDEX IF EXISTS user_data_poldiv_full_idx;
 DROP INDEX IF EXISTS cache_poldiv_full_idx;
 CREATE INDEX user_data_poldiv_full_idx ON user_data (poldiv_full);
@@ -31,5 +31,4 @@ poldiv_matched=b.poldiv_matched,
 match_status=b.match_status
 FROM cache b
 WHERE a.poldiv_full=b.poldiv_full
-AND job=:'job'
 ;

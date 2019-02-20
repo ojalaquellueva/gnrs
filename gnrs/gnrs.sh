@@ -76,6 +76,9 @@ while [ "$1" != "" ]; do
                             	;;
         -s | --silent )         silent="true"
                             	;;
+        -j | --job )        	shift
+                                job=$1
+                                ;;
          * )                     echo "invalid option!"; exit 1
     esac
     shift
@@ -113,7 +116,7 @@ source "$DIR/../includes/check_status.sh"
 # This deletes any existing data in table user_data
 # Assume user_data_raw has been populated
 echoi $e -n "- Loading user_data..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -f $DIR_LOCAL/sql/load_user_data.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v tbl_raw=$tbl_raw -v job=$job -f $DIR_LOCAL/sql/load_user_data.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
@@ -122,7 +125,7 @@ source "$DIR/../includes/check_status.sh"
 ############################################
 
 echoi $e -n "- Checking existing results in cache..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/check_cache.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/check_cache.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
@@ -135,36 +138,36 @@ source "$DIR/../includes/check_status.sh"
 echoi $e "Country:"
 
 echoi $e -n "- exact..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_country_exact.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_country_exact.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e "State/province:"
 
 echoi $e -n "- exact..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_sp_exact.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_sp_exact.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e "County/parish:"
 
 echoi $e -n "- exact..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/resolve_cp_exact.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_cp_exact.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 echoi $e -n "- fuzzy..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
@@ -173,7 +176,7 @@ source "$DIR/../includes/check_status.sh"
 ############################################
 
 echoi $e -n "Summarizing results..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/summarize.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/summarize.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
@@ -183,7 +186,7 @@ source "$DIR/../includes/check_status.sh"
 
 # Add new results to cache
 echoi $e -n "Updating cache..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_cache.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_cache.sql"
 eval $cmd
 source "$DIR/../includes/check_status.sh" 
 

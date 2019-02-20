@@ -44,7 +44,7 @@ a.match_score_county_parish,
 a.poldiv_submitted,
 a.poldiv_matched,
 a.match_status
-FROM (SELECT * FROM user_data WHERE job=:'job') a LEFT JOIN cache b 
+FROM user_data a LEFT JOIN cache b 
 ON a.poldiv_full=b.poldiv_full
 WHERE b.poldiv_full IS NULL
 ;

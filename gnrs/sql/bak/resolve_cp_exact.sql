@@ -26,8 +26,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.county_parish 
+WHERE a.county_parish_verbatim=b.county_parish 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -44,8 +43,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND unaccent(a.county_parish_verbatim)=b.county_parish_ascii 
+WHERE unaccent(a.county_parish_verbatim)=b.county_parish_ascii 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -62,8 +60,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND unaccent(a.county_parish_verbatim)=b.county_parish_std 
+WHERE unaccent(a.county_parish_verbatim)=b.county_parish_std 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -84,8 +81,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.county_parish_code_full 
+WHERE a.county_parish_verbatim=b.county_parish_code_full 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -102,8 +98,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.hasc_2_full 
+WHERE a.county_parish_verbatim=b.hasc_2_full 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -120,8 +115,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.county_parish_code2_full 
+WHERE a.county_parish_verbatim=b.county_parish_code2_full 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -138,8 +132,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.county_parish_code 
+WHERE a.county_parish_verbatim=b.county_parish_code 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -156,8 +149,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.hasc_2 
+WHERE a.county_parish_verbatim=b.hasc_2 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -174,8 +166,7 @@ FROM county_parish b JOIN state_province c
 ON b.state_province_id=c.state_province_id
 JOIN country d
 ON c.country_id=d.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=b.county_parish_code2 
+WHERE a.county_parish_verbatim=b.county_parish_code2 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id
@@ -197,8 +188,7 @@ JOIN state_province d
 ON b.state_province_id=d.state_province_id
 JOIN country e
 ON d.country_id=e.country_id
-WHERE job=:'job'
-AND a.county_parish_verbatim=c.county_parish_name
+WHERE a.county_parish_verbatim=c.county_parish_name
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND c.name_type='original from geonames'
 AND a.country_id=e.country_id

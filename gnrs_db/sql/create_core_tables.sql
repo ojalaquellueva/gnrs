@@ -14,6 +14,7 @@ county_parish text DEFAULT NULL
 DROP TABLE IF EXISTS user_data;
 CREATE TABLE user_data (
 id BIGSERIAL NOT NULL PRIMARY KEY,
+job text DEFAULT NULL,
 poldiv_full text DEFAULT NULL,
 country_verbatim text DEFAULT '',
 state_province_verbatim text DEFAULT '',

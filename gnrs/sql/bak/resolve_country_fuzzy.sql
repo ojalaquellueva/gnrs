@@ -1,6 +1,7 @@
 -- ------------------------------------------------------------
---  Resolve country, fuzzy matching
+--  Resolve country
 -- ------------------------------------------------------------
+
 
 -- standard name
 UPDATE user_data a
@@ -29,8 +30,7 @@ similarity(a.country_verbatim,b.country) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NULL
+WHERE country_id IS NULL
 ) a,
 country b
 ) x
@@ -46,8 +46,7 @@ similarity(a.country_verbatim,b.country) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NULL AND country_verbatim IS NOT NULL
+WHERE country_id IS NULL AND country_verbatim IS NOT NULL
 ) a,
 country b
 ) p
@@ -55,8 +54,7 @@ ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
-WHERE job=:'job'
-AND a.country_verbatim=fzy.country_verbatim
+WHERE a.country_verbatim=fzy.country_verbatim
 AND a.country_id IS NULL AND match_status IS NULL
 ;
 
@@ -87,8 +85,7 @@ similarity(a.country_verbatim,b.country_name) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NULL AND country_verbatim IS NOT NULL
+WHERE country_id IS NULL AND country_verbatim IS NOT NULL
 ) a,
 (SELECT country, country_name FROM country a JOIN country_name b
 ON a.country_id=b.country_id WHERE name_type='original from geonames') b
@@ -105,8 +102,7 @@ similarity(a.country_verbatim,b.country_name) AS similarity
 FROM (
 SELECT DISTINCT country_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NULL AND country_verbatim IS NOT NULL
+WHERE country_id IS NULL AND country_verbatim IS NOT NULL
 ) a,
 (SELECT a.country_id, country, country_name FROM country a JOIN country_name b
 ON a.country_id=b.country_id WHERE name_type='original from geonames') b
@@ -115,7 +111,6 @@ ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
-WHERE job=:'job'
-AND a.country_verbatim=fzy.country_verbatim
+WHERE a.country_verbatim=fzy.country_verbatim
 AND a.country_id IS NULL AND match_status IS NULL
 ;

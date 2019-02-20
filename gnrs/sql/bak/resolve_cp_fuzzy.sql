@@ -36,8 +36,7 @@ similarity(a.county_parish_verbatim,b.county_parish) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT DISTINCT country_id, state_province_id, county_parish FROM county_parish
@@ -59,8 +58,7 @@ similarity(a.county_parish_verbatim,b.county_parish) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT DISTINCT country_id, state_province_id, county_parish_id, county_parish, county_parish_std FROM county_parish
@@ -73,8 +71,7 @@ AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
-WHERE job=:'job'
-AND a.county_parish_verbatim=fzy.county_parish_verbatim
+WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
 AND a.county_parish_id IS NULL AND match_status IS NULL
@@ -114,8 +111,7 @@ similarity(a.county_parish_verbatim,b.county_parish_ascii) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT DISTINCT country_id, state_province_id, county_parish_ascii FROM county_parish
@@ -137,8 +133,7 @@ similarity(a.county_parish_verbatim,b.county_parish_ascii) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT DISTINCT country_id, state_province_id, county_parish_id, county_parish_ascii, county_parish_std FROM county_parish
@@ -151,8 +146,7 @@ AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
-WHERE job=:'job'
-AND a.county_parish_verbatim=fzy.county_parish_verbatim
+WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
 AND a.county_parish_id IS NULL AND match_status IS NULL
@@ -191,8 +185,7 @@ similarity(a.county_parish_verbatim,b.county_parish_std) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT DISTINCT country_id, state_province_id, county_parish_std FROM county_parish
@@ -213,8 +206,7 @@ similarity(a.county_parish_verbatim,b.county_parish_std) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT DISTINCT country_id, state_province_id, county_parish_id, county_parish_std FROM county_parish
@@ -227,8 +219,7 @@ AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
-WHERE job=:'job'
-AND a.county_parish_verbatim=fzy.county_parish_verbatim
+WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
 AND a.county_parish_id IS NULL AND match_status IS NULL
@@ -269,8 +260,7 @@ similarity(a.county_parish_verbatim,b.county_parish_name) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT a.country_id, a.state_province_id, a.county_parish_id, a.county_parish_std, b.county_parish_name FROM county_parish a JOIN county_parish_name b ON a.county_parish_id=b.county_parish_id WHERE name_type='original from geonames'
@@ -292,8 +282,7 @@ similarity(a.county_parish_verbatim,b.county_parish_name) AS similarity
 FROM (
 SELECT DISTINCT country_id, state_province_id, county_parish_verbatim
 FROM user_data
-WHERE job=:'job'
-AND country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
+WHERE country_id IS NOT NULL AND state_province_id IS NOT NULL AND county_parish_id IS NULL AND county_parish_verbatim IS NOT NULL AND county_parish_verbatim<>''
 ) a,
 (
 SELECT a.country_id, a.state_province_id, a.county_parish_id, a.county_parish_std, b.county_parish_name FROM county_parish a JOIN county_parish_name b ON a.county_parish_id=b.county_parish_id WHERE name_type='original from geonames'
@@ -306,8 +295,7 @@ AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
 WHERE q.max_sim>:match_threshold
 ) AS fzy
-WHERE job=:'job'
-AND a.county_parish_verbatim=fzy.county_parish_verbatim
+WHERE a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
 AND a.county_parish_id IS NULL AND match_status IS NULL

@@ -1,4 +1,5 @@
 -- user_data
+DROP INDEX IF EXISTS user_data_job_idx;
 DROP INDEX IF EXISTS user_data_poldiv_full_idx;
 DROP INDEX IF EXISTS user_data_country_verbatim_idx;
 DROP INDEX IF EXISTS user_data_state_province_verbatim_idx;
