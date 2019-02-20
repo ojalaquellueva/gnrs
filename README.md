@@ -28,8 +28,8 @@ The GNRS runs in the unix environment within the bash shell, with a PostgreSQL d
 
 Ubuntu 14.04.5  
 GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)	 
-PHP 2.5.0
-PostgreSQL 9.3
+PHP 2.5.0  
+PostgreSQL 9.3  
 
 ### Dependencies
 
