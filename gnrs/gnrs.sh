@@ -181,6 +181,15 @@ eval $cmd
 source "$DIR/../includes/check_status.sh" 
 
 ############################################
+# Populate ISO codes (add-on feature)
+############################################
+
+echoi $e -n "Populating ISO codes..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/iso_codes.sql"
+eval $cmd
+source "$DIR/../includes/check_status.sh" 
+
+############################################
 # Updating cache
 ############################################
 
