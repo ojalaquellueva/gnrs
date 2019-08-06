@@ -20,14 +20,14 @@ db_config_path="/home/boyle/bien3/gnrs"
 #functions_path=""
 functions_path="/home/boyle/functions/sh"
 
-# Path to data directory
+# Path to data directory for database build
 # Recommend call this "data"
 # If directory is outside app working directory, supply
 # absolute path, otherwise use relative path (i.e., no 
 # forward slash at start).
 # Recommend keeping outside app directory
 # Omit trailing slash
-data_base_dir="/home/boyle/bien3/gnrs/data"
+data_base_dir="/home/boyle/bien3/gnrs/db_data/"
 #data_base_dir="data"		 # Relative path
 
 # Text file state/province and county/parisgh HASC codes, compiled for bien2
@@ -43,7 +43,7 @@ email="bboyle@email.arizona.edu"
 
 # Short name for this operation, for screen echo and 
 # notification emails. Number suffix matches script suffix
-pname="Build GNRS database"
+pname="Build GNRS database "
 
 # General process name prefix for email notifications
 pname_header_prefix="BIEN notification: process"
