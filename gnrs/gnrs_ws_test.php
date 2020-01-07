@@ -23,6 +23,8 @@
 // Author: Brad Boyle (bboyle@email.arizona.edu)
 ///////////////////////////////////////////////////////////////
 
+// $me=basename(__FILE__); exit("\r\nExiting $me...\r\n");
+
 /*
 
 Input file requirements
@@ -90,11 +92,11 @@ $api_host = "http://vegbiendev.nceas.ucsb.edu:8875";
 // Localhost, for testing on same machine only
 // Virtual Host configured as "localhost" or "localhost:<gnrs_port>
 // Typical formats:
-// 	$api_url = "localhost"
-// 	$api_url = "127.0.0.0"
-//	$api_url = "localhost:port"
-//	$api_url = "127.0.0.0:port"
-//$api_host = "localhost:9875";
+//$api_url = "localhost";
+//$api_url = "127.0.0.0";
+//$api_url = "localhost:port";
+//$api_url = "127.0.0.0:port";
+//$api_host = "localhost:8875";
 
 /////////////////////////////////////////////
 // Functions
