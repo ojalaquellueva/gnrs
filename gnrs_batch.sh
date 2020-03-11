@@ -47,13 +47,7 @@ fi
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
 custom_opts="true"
-#source "$DIR/includes/startup_local.sh"	
-source "includes/startup_local.sh"	
-
-# Pseudo error log, to absorb screen echo during import
-# tmplog="/tmp/tmplog.txt"
-# echo "Error log
-# " > $tmplog
+source "$DIR/includes/startup_local.sh"	
 
 # Set current script as master if not already source by another file
 # master = name of this file. 
