@@ -19,6 +19,10 @@ COMMENT_BLOCK_x
 # Set basic parameters, functions and options
 ######################################################
 
+# Assign job unique ID
+#job="job_$(date +%Y%m%d_%H%M%S)"	# To nearest second
+job="job_$(date +%Y%m%d_%H%M%N)"	# Nanoseconds
+
 # Get local working directory
 DIR_LOCAL="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
@@ -43,7 +47,8 @@ fi
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
 custom_opts="true"
-source "$DIR/../includes/startup_local.sh"	
+#source "$DIR/includes/startup_local.sh"	
+source "includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
 # tmplog="/tmp/tmplog.txt"
@@ -99,7 +104,7 @@ if [ "$f_custom" == "true" ] && [ "$infile" == "" ]; then
     echo "Input file name missing!"; exit 1    	
 fi
 if [ ! -f "$infile" ]; then
-    echo "Input file $infile does not exist!"; exit 1    
+    echo "Input file '$infile' does not exist!"; exit 1    
 fi
 
 # Set results file
@@ -140,6 +145,7 @@ if [ "$e" = "true" ]; then
         Results file: 	$outfile
         Notify: 	$mailme
         Notify email:	$email
+        Job id:		$job
         "
         read -p "Continue? (Y/N): " -r
         
@@ -162,7 +168,7 @@ echoi $e "Importing user data:"
 echoi $e -n "- Clearing raw table..."
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'TRUNCATE user_data_raw'"
 eval $cmd
-source "$DIR/../includes/check_status.sh"  
+source "$DIR/includes/check_status.sh"  
 
 echoi $e "- Importing raw data:"
 echoi $e -n "-- '$submitted_filename' --> user_data_raw..."
@@ -176,7 +182,7 @@ else
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 	eval $cmd
 fi
-source "$DIR/../includes/check_status.sh"
+source "$DIR/includes/check_status.sh"
 
 ############################################
 # Insert raw data into table user_data and
@@ -185,7 +191,8 @@ source "$DIR/../includes/check_status.sh"
 
 # Run the main GNRS app
 if  [ "$use_pwd" == "true" ]; then
-	$DIR/gnrs.sh -a -s
+	# API calls always use this option
+	$DIR/gnrs.sh -a -s -j $job
 else
 	source "$DIR/gnrs.sh"
 fi
@@ -201,11 +208,29 @@ cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_
 eval $cmd
 echoi $e "done"
 
+: <<'COMMENT_BLOCK_1'
+echo "";
+echo "use_pwd: '" . $use_pwd . "'\r\n";
+echo "pgpassword: '" . $pgpassword . "'\r\n";
+echo "user: '" . $user . "'\r\n";
+echo "";
+COMMENT_BLOCK_1
+
+############################################
+# Export results from user_data to data 
+# directory sa CSV file
+############################################
+
+echoi $e -n "Clearing user data for this job from database..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
+eval $cmd
+echoi $e "done"
+
 ######################################################
 # Report total elapsed time and exit if running solo
 ######################################################
 
-if [ -z ${master+x} ]; then source "$DIR/../includes/finish.sh"; fi
+if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
 
 ######################################################
 # End script

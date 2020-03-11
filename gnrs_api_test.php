@@ -66,11 +66,12 @@ user_id,country,state_province,county_parish
 // to your installation and test data
 /////////////////////////////////////////////
 
-//
-// Test file of political division names
-//
+// Data directory
+// Input and output files here
+$ws_data_dir = "../data/user/";					// Relative path
+//$ws_data_dir = "/home/bien/gnrs/data/user/";    // Absolute path
 
-$ws_data_dir = "/home/boyle/bien3/repos/gnrs/data/user_data/";	// Path to file
+// Test file of political division names
 $inputfilename = "test_data.csv";		# Test file name (small)
 
 // Number of lines of test file to import, not counting header
@@ -78,25 +79,19 @@ $inputfilename = "test_data.csv";		# Test file name (small)
 // Set to empty string ("") to impart entire file
 $lines = "5";
 
-//
-// api host (+port, as applicable)
-//
-
-// Server [+port], for testing from anywhere
-// Virtual Host must be configured appropriately
-// Typical formats:
-// 	$api_url = "<server_name>"
-//	$api_url = "<server_name>:port"
-$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";
-
-// Localhost, for testing on same machine only
-// Virtual Host configured as "localhost" or "localhost:<gnrs_port>
-// Typical formats:
-//$api_url = "localhost";
-//$api_url = "127.0.0.0";
-//$api_url = "localhost:port";
-//$api_url = "127.0.0.0:port";
-//$api_host = "localhost:8875";
+// API host (+port, as applicable)
+// Virtual Host and ports must be configured appropriately
+// Examples formats:
+// $api_host = "<server_name>"
+// $api_host = "<server_name>:<port>"
+// $api_host = "<server_ip>"
+// $api_host = "<server_ip>:<port>"
+// $api_host = "localhost";
+// $api_host = "127.0.0.0";
+// $api_host = "localhost:<port>";
+// $api_host = "127.0.0.0:<port>";
+$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
+$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
 
 /////////////////////////////////////////////
 // Functions
@@ -147,7 +142,7 @@ if ($lines=="") $lines=1000000000;
 // Input file name and path
 $inputfile = $ws_data_dir.$inputfilename;
 if (!file_exists($inputfile)) die("Input file '$inputfile' doesn't exist!\r\n");
-echo "\r\nInput file name:\r\n";
+echo "\r\nInput file:\r\n";
 echo $inputfile . "\r\n";
 
 // Get total lines in file

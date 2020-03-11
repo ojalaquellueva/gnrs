@@ -4,15 +4,15 @@
 // Include paths and filenames
 //////////////////////////////////////////////////
 
-$BASE_DIR = "/home/boyle/bien3/";
-$APP_DIR = $BASE_DIR."repos/gnrs/gnrs/";
+$BASE_DIR = "/home/boyle/bien/gnrs/";
+$APP_DIR = $BASE_DIR."src/";
 
 // dir where db user & pwd file kept
 // Should be outside application directory and html directory
-$CONFIG_DIR = $BASE_DIR . "gnrs/"; 
+$CONFIG_DIR = $BASE_DIR . "config/"; 
 
 // Input & output data directory
-$DATADIR = $BASE_DIR."gnrs/user_data/";
+$DATADIR = $BASE_DIR."data/user/";
 
 // Path and name of log file
 $LOGFILE_NAME = "log.txt";
@@ -20,7 +20,7 @@ $LOGFILE_PATH = $APP_DIR;
 $LOGFILE = $LOGFILE_PATH . $LOGFILE_NAME;
 
 // Path to general php funcions and generic include files
-$utilities_path="/home/boyle/includes/php/"; // Master, testing only
+$utilities_path="/home/boyle/includes/php/"; // Master, for testing only
 //$utilities_path=$APP_DIR."includes/php/";	// Local submodule directory
 
 // General php funcions and generic include files
