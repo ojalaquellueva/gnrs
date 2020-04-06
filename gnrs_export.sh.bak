@@ -35,14 +35,10 @@ if [ -z ${master+x} ]; then
 	DIR=$DIR_LOCAL
 fi
 
-# Set includes directory path, relative to $DIR
-includes_dir=$DIR"/includes"
-
-
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
-source "$includes_dir/startup_local.sh"	
+source "$DIR/../includes/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
 tmplog="/tmp/tmplog.txt"
@@ -72,7 +68,7 @@ COMMENT_BLOCK_1
 
 echoi $e -n "Dumping gnrs results to data directory as file '$results_filename'..."
 gnrs_results_file=$data_dir_local"/"$results_filename
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs -q << EOF
+PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -q << EOF
 \set ON_ERROR_STOP on
 \copy user_data TO '${gnrs_results_file}' csv header
 EOF

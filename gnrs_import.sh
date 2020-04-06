@@ -35,10 +35,13 @@ local_basename="${local/.sh/}"
 	DIR=$DIR_LOCAL
 #fi
 
+# Set includes directory path, relative to $DIR
+includes_dir=$DIR"/includes"
+
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
-source "$DIR/../includes/startup_local.sh"	
+source "$includes_dir/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
 tmplog="/tmp/tmplog.txt"
@@ -52,6 +55,32 @@ echo "Error log
 # scripts to be called individually if needed
 if [ -z ${master+x} ]; then
 	master=`basename "$0"`
+fi
+
+###########################################################
+# Get custom parameters
+###########################################################
+
+# Set defaults
+nullval=""
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -n | --nullval )        shift
+        						nullval="$1"
+                            	;;
+        * )                     echo "invalid option!"; exit 1
+    esac
+    shift
+done
+
+# Set final value of "NULL AS '<nullval>'"
+# Note that omitting this parameter removes this component
+# completely from \copy command
+if  [ "nullval" == "" ]; then
+	nullas=""
+else
+	nullas="NULL AS '"$nullval"'"
 fi
 
 #########################################################################
@@ -70,8 +99,8 @@ COMMENT_BLOCK_1
 echoi $e "Importing user data:"
 
 echoi $e -n "- Clearing raw table..."
-PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'truncate user_data_raw'
-source "$DIR/../includes/check_status.sh"  
+PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -c 'truncate user_data_raw'
+source "$includes_dir/check_status.sh"  
 
 # Data
 datafile=$data_raw
@@ -79,25 +108,27 @@ datafile=$data_raw
 echoi $e "- Importing raw data:"
 echoi $i -n "-- '$submitted_filename' --> user_data_raw..."
 
+# Import the raw data
+# Value of $nullas statement set as optional command line parameter
 #use_limit='false'	# For testing
 if [ $use_limit = "true" ]; then 
 	# Import subset of records (development only)
-	head -n $recordlimit $data_dir_local/$submitted_filename | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
+	head -n $recordlimit $data_dir_local/$submitted_filename | psql -d gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV $nullas HEADER"
 else
 	# Import full file
-	sql="\COPY user_data_raw FROM '${data_dir_local}/${submitted_filename}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-	PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs -q << EOF
+	sql="\COPY user_data_raw FROM '${data_dir_local}/${submitted_filename}' DELIMITER ',' CSV $nullas HEADER;"
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs -q << EOF
 	\set ON_ERROR_STOP on
 	$sql
 EOF
 fi
-source "$DIR/../includes/check_status.sh"
+source "$includes_dir/check_status.sh"
 
 ######################################################
 # Report total elapsed time and exit if running solo
 ######################################################
 
-if [ -z ${master+x} ]; then source "$DIR/../includes/finish.sh"; fi
+if [ -z ${master+x} ]; then source "$includes_dir/finish.sh"; fi
 
 ######################################################
 # End script
