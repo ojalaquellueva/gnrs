@@ -66,7 +66,7 @@ nullval=""
 
 while [ "$1" != "" ]; do
     case $1 in
-        -n | --nullval )        shift
+        -v | --nullval )        shift
         						nullval="$1"
                             	;;
         * )                     echo "invalid option!"; exit 1
