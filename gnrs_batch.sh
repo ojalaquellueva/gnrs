@@ -184,9 +184,11 @@ source "$DIR/includes/check_status.sh"
 ############################################
 
 # Run the main GNRS app
+# Not use of NA as preset NULL value (concession to R users)
+# Will offer as option later...
 if  [ "$use_pwd" == "true" ]; then
 	# API calls always use this option
-	$DIR/gnrs.sh -a -s -j $job
+	$DIR/gnrs.sh -a -s -v NA -j $job
 else
 	source "$DIR/gnrs.sh"
 fi
