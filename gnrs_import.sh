@@ -41,6 +41,7 @@ includes_dir=$DIR"/includes"
 # Load startup script for local files
 # Sets remaining parameters and options, and issues confirmation
 # and startup messages
+custom_opts="true"
 source "$includes_dir/startup_local.sh"	
 
 # Pseudo error log, to absorb screen echo during import
@@ -58,7 +59,7 @@ if [ -z ${master+x} ]; then
 fi
 
 ###########################################################
-# Get custom parameters
+# Get and set custom parameters
 ###########################################################
 
 # Set defaults
@@ -66,6 +67,10 @@ nullval=""
 
 while [ "$1" != "" ]; do
     case $1 in
+        -s | --silent )         silent="true"
+                            	;;
+        -n | --nowarnings )		i="false"
+        						;;
         -v | --nullval )        shift
         						nullval="$1"
                             	;;

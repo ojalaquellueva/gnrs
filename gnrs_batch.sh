@@ -14,6 +14,7 @@
 
 : <<'COMMENT_BLOCK_x'
 COMMENT_BLOCK_x
+#echo "EXITING script `basename "$BASH_SOURCE"`"; exit 0
 
 ######################################################
 # Set basic parameters, functions and options
@@ -124,8 +125,6 @@ fi
 #########################################################################
 # Main
 #########################################################################
-: <<'COMMENT_BLOCK_1'
-COMMENT_BLOCK_1
 
 ############################################
 # Confirmation message
@@ -159,7 +158,7 @@ fi
 
 echoi $e "Importing user data:"
 
-echoi $e -n "- Clearing raw table..."
+echoi $e -n "- Clearing table user_data_raw..."
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'TRUNCATE user_data_raw'"
 eval $cmd
 source "$DIR/includes/check_status.sh"  
@@ -203,14 +202,6 @@ sql="\copy user_data TO '${outfile}' csv header"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 eval $cmd
 echoi $e "done"
-
-: <<'COMMENT_BLOCK_1'
-echo "";
-echo "use_pwd: '" . $use_pwd . "'\r\n";
-echo "pgpassword: '" . $pgpassword . "'\r\n";
-echo "user: '" . $user . "'\r\n";
-echo "";
-COMMENT_BLOCK_1
 
 ############################################
 # Export results from user_data to data 

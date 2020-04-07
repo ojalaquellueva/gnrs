@@ -78,7 +78,7 @@ Options (listed separately preceded by dash; do not combine):
 Example:
 
 ```
-./gnrs_batch.sh -f "../data/user_data/test_data.csv"
+./gnrs_batch.sh -f "data/user/test_data.csv"
 
 ```
 
