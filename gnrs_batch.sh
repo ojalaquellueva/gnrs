@@ -21,8 +21,8 @@ COMMENT_BLOCK_x
 ######################################################
 
 # Assign job unique ID
-#job="job_$(date +%Y%m%d_%H%M%S)"	# To nearest second
-job="job_$(date +%Y%m%d_%H%M%N)"	# Nanoseconds
+# Date in nanoseconds plus random integer for good measure
+job="job_$(date +%Y%m%d_%H%M%N)_${RANDOM}"	
 
 # Get local working directory
 DIR_LOCAL="${BASH_SOURCE%/*}"
@@ -159,13 +159,18 @@ fi
 echoi $e "Importing user data:"
 
 echoi $e -n "- Clearing table user_data_raw..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'TRUNCATE user_data_raw'"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data_raw' WHERE job='$job'"
 eval $cmd
 source "$DIR/includes/check_status.sh"  
 
 echoi $e "- Importing raw data:"
-echoi $e -n "-- '$submitted_filename' --> user_data_raw..."
+#echoi $e -n "-- '$submitted_filename' --> user_data_raw..."
+echoi $e "-- '$submitted_filename' --> user_data_raw"
 
+
+: <<'COMMENT_BLOCK_1'
+# The development limit/testing option below need to be updated
+# to accommodate use of job # with all raw data
 if [ $use_limit = "true" ]; then 
 	# Import subset of records (development only)
 	head -n $recordlimit $infile | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
@@ -175,6 +180,29 @@ else
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 	eval $cmd
 fi
+
+COMMENT_BLOCK_1
+
+# Compose name of temporary, job-specific raw data table
+raw_data_tbl_temp="user_data_raw_${job}"
+
+# Create job-specific temp table to hold raw data
+echoi $e -n "-- Creating table $raw_data_tbl_temp..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/create_raw_data_temp.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh"
+
+# Import the raw data
+echoi $e -n "-- Importing raw data to temp table..."
+metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
+eval $cmd
+source "$DIR/includes/check_status.sh"
+
+# Import the raw data
+echoi $e -n "-- Loading to raw data table with job..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/import_user_data.sql"
+eval $cmd
 source "$DIR/includes/check_status.sh"
 
 ############################################
@@ -204,8 +232,7 @@ eval $cmd
 echoi $e "done"
 
 ############################################
-# Export results from user_data to data 
-# directory sa CSV file
+# Clear user data tables
 ############################################
 
 echoi $e -n "Clearing user data for this job from database..."

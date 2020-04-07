@@ -31,5 +31,5 @@ poldiv_matched=b.poldiv_matched,
 match_status=b.match_status
 FROM cache b
 WHERE a.poldiv_full=b.poldiv_full
-AND job=:'job'
+AND a.job=:'job'
 ;

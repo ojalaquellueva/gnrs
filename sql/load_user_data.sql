@@ -13,12 +13,13 @@ state_province_verbatim,
 county_parish_verbatim
 )
 SELECT DISTINCT
-:'job',
+job,
 user_id,
 country,
 state_province,
 county_parish
 FROM user_data_raw
+WHERE job=:'job'
 ;
 
 -- Index job

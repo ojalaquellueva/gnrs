@@ -4,6 +4,7 @@
 
 DROP TABLE IF EXISTS user_data_raw;
 CREATE TABLE user_data_raw (
+job text NOT NULL,
 user_id text DEFAULT NULL,
 country text DEFAULT NULL,
 state_province text DEFAULT NULL,

@@ -58,7 +58,6 @@ if [ -z ${master+x} ]; then
 	master=`basename "$0"`
 fi
 
-
 #########################################################################
 # Main
 #########################################################################
@@ -77,6 +76,14 @@ PGOPTIONS='--client-min-messages=warning' psql -d gnrs -q << EOF
 \copy user_data TO '${gnrs_results_file}' csv header
 EOF
 echoi $i "done"
+
+############################################
+# Clear user data tables
+############################################
+
+echoi $e -n "Clearing user data for this job from database..."
+PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql
+echoi $e "done"
 
 ######################################################
 # Report total elapsed time and exit if running solo
