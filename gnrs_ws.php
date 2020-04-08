@@ -33,8 +33,6 @@ function csvtojson($file,$delimiter,$lines) {
 	$filename = basename($file);
     
     if (($handle = fopen($file, "r")) === false) {
-    	//$err_msg = "ERROR: Can't open file '" . basename($file) . 
-    	//	"' (script: '" . basename(__FILE__) . "')";
     	$err_msg = "ERROR: Can't open file '" . $file . 
     		"' (script: '" . basename(__FILE__) . "')";
     	die($err_msg);
@@ -93,14 +91,13 @@ if (!is_array($input_array)) {
 // directory as CSV file
 ///////////////////////////////////
 
-// Make temporary data directory & file in /tmp 
+// Make temporary data directory if not already exists
 $cmd="mkdir -p $data_dir_tmp";
 exec($cmd, $output, $status);
 if ($status) die("ERROR: Unable to create temp data directory");
 
+// Convert input array to CSV file & save to data directory
 $file_tmp = $data_dir_tmp . "/" . $filename_tmp;
-
-// Convert array to CSV input file & save to data directory
 $fp = fopen($file_tmp, "w");
 $i = 0;
 foreach ($input_array as $row) {
@@ -115,8 +112,17 @@ fclose($fp);
 ///////////////////////////////////
 
 $cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
+#die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
+
 exec($cmd, $output, $status);
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
+#die("/r/nStopping after gnrs_batch call/r/n");
+
+/* For testing (confirm current user)
+$cmd="whoami";
+exec($cmd, $output, $status);
+die("\r\nwhoami: $output[0]\r\n");
+*/
 
 ///////////////////////////////////
 // Retrieve the tab-delimited results

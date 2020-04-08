@@ -80,7 +80,7 @@ while [ "$1" != "" ]; do
         -j | --job )        	shift
                                 job=$1
                                 ;;
-         * )                     echo "invalid option!"; exit 1
+         * )                     echo "invalid option: $1 ($local)"; exit 1
     esac
     shift
 done

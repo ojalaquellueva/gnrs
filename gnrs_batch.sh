@@ -89,7 +89,7 @@ while [ "$1" != "" ]; do
         						shift
         						email=$1
                                 ;;
-        * )                     echo "invalid option!"; exit 1
+        * )                     echo "invalid option: $1 ($local)"; exit 1
     esac
     shift
 done
@@ -126,10 +126,13 @@ fi
 # Main
 #########################################################################
 
+# For testing
+#curruser=$(whoami)
+#echo "whoami ($local): $curruser" > curruser.txt
+
 ############################################
 # Confirmation message
 ############################################
-
 
 if [ "$e" = "true" ]; then
         echo "Execute GNRS batch with the following settings?
@@ -189,6 +192,8 @@ eval $cmd
 source "$DIR/includes/check_status.sh"
 
 # Import the raw data
+# Not "NULL AS NA": concession to R users
+# Will make this a parameter at some point, with NULL AS NA as the default
 echoi $e -n "-- Importing '$submitted_filename' to temp table..."
 metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
@@ -207,11 +212,9 @@ source "$DIR/includes/check_status.sh"
 ############################################
 
 # Run the main GNRS app
-# Not use of NA as preset NULL value (concession to R users)
-# Will offer as option later...
 if  [ "$use_pwd" == "true" ]; then
 	# API calls always use this option
-	$DIR/gnrs.sh -a -s -v NA -j $job
+	DIR/gnrs.sh -a -s -j $job
 else
 	source "$DIR/gnrs.sh"
 fi

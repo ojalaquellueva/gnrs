@@ -62,6 +62,26 @@ GNRS output is saved to the GNRS user data directory as a utf-8 CSV file with he
 
 Place your input file in the gnrs user data directory (path and directory name set in param file). input file must be named "gnrs_submitted.csv".
 
+### <a name="maintenance"></a>Maintenance
+
+To avoid filling up the gnrs temp directory, consider adding a crontab entry to delete files older than a certain number of days. For example, the following cron job find and deletes all files older than 7 days, every day at 4:02 am:
+
+```
+02 4 * * * find /tmp/gnrs/* -type f -mtime +7 -print0 | xargs -0 rm
+``` 
+
+Another version for systems that don't support -print0:
+
+```
+02 4 * * * find /tmp/gnrs/* -type f -mtime +7 -exec rm {} \;
+```
+
+Whichever you use, be sure to test first to verify that the list of files makes sense:
+
+```
+find /tmp/gnrs/* -type f -mtime +7 
+```
+
 ### <a name="Usage"></a>Usage
 
 **Batch processing.** Import, name resolution and export of the results can be run as a single operation by invoking the following script:

@@ -10,6 +10,9 @@
 # to your installation
 ##########################
 
+# Absolute path to base directory for this application
+# Install the application code (from repo) inside a 
+# subdirectory of the base directory
 BASEDIR="/home/boyle/bien/gnrs"
 
 # Path to db_config.sh

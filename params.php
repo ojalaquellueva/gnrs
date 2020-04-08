@@ -4,7 +4,12 @@
 // Include paths and filenames
 //////////////////////////////////////////////////
 
+# Absolute path to base directory for this application
+# Install the application code (from repo) inside a 
+# subdirectory of the base directory
 $BASE_DIR = "/home/boyle/bien/gnrs/";
+
+// Application code from repo goes here
 $APP_DIR = $BASE_DIR."src/";
 
 // dir where db user & pwd file kept

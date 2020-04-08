@@ -68,16 +68,16 @@ user_id,country,state_province,county_parish
 
 // Data directory
 // Input and output files here
-$ws_data_dir = "../data/user/";					// Relative path
-//$ws_data_dir = "/home/bien/gnrs/data/user/";    // Absolute path
+// Can user relative path or absolute path
+$ws_data_dir = "data/user/";
 
 // Test file of political division names
-$inputfilename = "test_data.csv";		# Test file name (small)
+$inputfilename = "test_data.csv";
 
 // Number of lines of test file to import, not counting header
 // Handy for testing a small sample of larger file
 // Set to empty string ("") to impart entire file
-$lines = "5";
+$lines = "2";
 
 // API host (+port, as applicable)
 // Virtual Host and ports must be configured appropriately
@@ -150,6 +150,12 @@ $file = new \SplFileObject($inputfile, 'r');
 $file->seek(PHP_INT_MAX);
 $flines = $file->key(); 
 
+/*
+$cmd="whoami";
+exec($cmd, $output, $status);
+die("\r\nwhoami: $output[0]\r\n");
+*/
+
 // Echo the file
 echo "\r\nInput file contents:\r\n";
 $csv_arr = file($inputfile);
@@ -175,6 +181,9 @@ $ch = curl_init($url);
 // Option: return response (CRITICAL!)
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+// Set to catch all errors, incluing http errors
+curl_setopt($ch, CURLOPT_FAILONERROR, true);
+
 // Option: POST request
 curl_setopt($ch, CURLOPT_POST, 1);	
 
@@ -198,6 +207,7 @@ $response = curl_exec($ch);
 // Check status of the response and echo if error
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+// Echo fatal errors if any
 if ( $status != 201 && $status != 200 ) {
     die("Error: call to URL $url failed with status $status, response $response, curl_error " . curl_error($ch) . ", curl_errno " . curl_errno($ch) . "\r\n");
 }
@@ -205,11 +215,8 @@ if ( $status != 201 && $status != 200 ) {
 // Close curl
 curl_close($ch);
 
-//
 // Echo the response
-//
-
 echo "\r\nThe response:\r\n";
-var_dump($response);
+print_r($response);
 
 ?>
