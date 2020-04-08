@@ -34,7 +34,6 @@ AND a.country_id IS NULL AND match_status IS NULL
 AND unaccent(a.country_verbatim)=b.country
 ;
 
-
 -- iso code
 UPDATE user_data a
 SET 

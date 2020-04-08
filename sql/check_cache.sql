@@ -3,10 +3,11 @@
 -- 
 
 -- Recreate FK & WHERE indexes
-DROP INDEX IF EXISTS user_data_poldiv_full_idx;
-DROP INDEX IF EXISTS cache_poldiv_full_idx;
-CREATE INDEX user_data_poldiv_full_idx ON user_data (poldiv_full);
-CREATE INDEX cache_poldiv_full_idx ON cache (poldiv_full);
+CREATE INDEX IF NOT EXISTS user_data_poldiv_full_idx ON user_data (poldiv_full);
+CREATE INDEX IF NOT EXISTS user_data_job_idx ON user_data (job);
+
+-- DROP INDEX IF EXISTS cache_poldiv_full_idx;
+-- CREATE INDEX cache_poldiv_full_idx ON cache (poldiv_full);
 
 -- JOIN on FK
 UPDATE user_data a 

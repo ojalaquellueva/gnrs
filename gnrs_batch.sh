@@ -164,9 +164,6 @@ eval $cmd
 source "$DIR/includes/check_status.sh"  
 
 echoi $e "- Importing raw data:"
-#echoi $e -n "-- '$submitted_filename' --> user_data_raw..."
-echoi $e "-- '$submitted_filename' --> user_data_raw"
-
 
 : <<'COMMENT_BLOCK_1'
 # The development limit/testing option below need to be updated
@@ -180,27 +177,26 @@ else
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 	eval $cmd
 fi
-
 COMMENT_BLOCK_1
 
 # Compose name of temporary, job-specific raw data table
 raw_data_tbl_temp="user_data_raw_${job}"
 
 # Create job-specific temp table to hold raw data
-echoi $e -n "-- Creating table $raw_data_tbl_temp..."
+echoi $e -n "-- Creating temp table $raw_data_tbl_temp..."
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/create_raw_data_temp.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
 # Import the raw data
-echoi $e -n "-- Importing raw data to temp table..."
+echoi $e -n "-- Importing '$submitted_filename' to temp table..."
 metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
 # Import the raw data
-echoi $e -n "-- Loading to raw data table with job..."
+echoi $e -n "-- Inserting from temp table to user_data_raw..."
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/import_user_data.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh"

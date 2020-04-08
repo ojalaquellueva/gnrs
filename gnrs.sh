@@ -102,20 +102,18 @@ fi
 #########################################################################
 # Main
 #########################################################################
-: <<'COMMENT_BLOCK_1'
-COMMENT_BLOCK_1
 
 ############################################
 # Load raw data to table user_data
 ############################################
 
-echoi $e -n "- Dropping indexes on user_data..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -f "$DIR_LOCAL/sql/core_tables_drop_indexes.sql"
+echoi $e -n "- Dropping indexes on table user_data..."
+PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -f "$DIR_LOCAL/sql/drop_indexes_user_data.sql"
 source "$DIR/includes/check_status.sh" 
 
 # This deletes any existing data in table user_data
 # Assume user_data_raw has been populated
-echoi $e -n "- Loading user_data..."
+echoi $e -n "- Loading table user_data..."
 PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/load_user_data.sql"
 source "$DIR/includes/check_status.sh" 
 
@@ -123,51 +121,55 @@ source "$DIR/includes/check_status.sh"
 # Check against existing results in cache
 ############################################
 
-echoi $e -n "- Checking existing results in cache..."
+echoi $e -n "Checking for existing results in cache..."
 PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/check_cache.sql"
 source "$DIR/includes/check_status.sh" 
 
-############################################
-# Resolve Political divisions
-############################################
+# If all records already in cache, skip resolution
+sql_not_cached="SELECT EXISTS ( SELECT id FROM user_data WHERE job='$job' AND match_status IS NULL) AS a"
+not_cached=`psql -d gnrs -qt -c "$sql_not_cached" | tr -d '[[:space:]]'`
 
-echoi $e "Country:"
+if [ "$not_cached" == "t" ]; then 
+	############################################
+	# Resolve political divisions & summarize
+	############################################
 
-echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_country_exact.sql"
-source "$DIR/includes/check_status.sh" 
+	echoi $e "Resolving political divisions:"
 
-echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_country_fuzzy.sql"
-source "$DIR/includes/check_status.sh" 
+	echoi $e "- Country:"
+	echoi $e -n "-- exact..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_country_exact.sql"
+	source "$DIR/includes/check_status.sh" 
 
-echoi $e "State/province:"
+	echoi $e -n "-- fuzzy..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+	source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_exact.sql"
-source "$DIR/includes/check_status.sh" 
+	echoi $e "- State/province:"
+	echoi $e -n "-- exact..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_exact.sql"
+	source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
-source "$DIR/includes/check_status.sh" 
+	echoi $e -n "-- fuzzy..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+	source "$DIR/includes/check_status.sh" 
 
-echoi $e "County/parish:"
+	echoi $e "- County/parish:"
+	echoi $e -n "-- exact..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_exact.sql"
+	source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- exact..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_exact.sql"
-source "$DIR/includes/check_status.sh" 
+	echoi $e -n "-- fuzzy..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+	source "$DIR/includes/check_status.sh" 
 
-echoi $e -n "- fuzzy..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
-source "$DIR/includes/check_status.sh" 
+	echoi $e -n "- Summarizing results..."
+	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/summarize.sql"
+	source "$DIR/includes/check_status.sh" 
 
-############################################
-# Summarize results
-############################################
-
-echoi $e -n "Summarizing results..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/summarize.sql"
-source "$DIR/includes/check_status.sh" 
+else
+	echoi $e "- All political divisions already in cache!"
+fi
 
 ############################################
 # Populate ISO codes (add-on feature)
