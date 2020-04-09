@@ -115,8 +115,10 @@ $cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
 #die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
 
 exec($cmd, $output, $status);
+
+var_dump($output);
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
-#die("/r/nStopping after gnrs_batch call/r/n");
+//die("\r\nStopping after gnrs_batch call\r\n");
 
 /*
 // For testing (confirm current user)

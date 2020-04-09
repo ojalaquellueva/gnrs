@@ -214,8 +214,8 @@ source "$DIR/includes/check_status.sh"
 # Run the main GNRS app
 if  [ "$use_pwd" == "true" ]; then
 	# API calls always use this option
-	#$DIR/gnrs.sh -a -s -j $job
-	$DIR/gnrs.sh -a -j $job
+	$DIR/gnrs.sh -a -s -j $job
+	#$DIR/gnrs.sh -a -j $job
 else
 	source "$DIR/gnrs.sh"
 fi
@@ -225,11 +225,20 @@ fi
 # directory sa CSV file
 ############################################
 
+
+
 echoi $e -n "Exporting CSV file of results to data directory..."
-sql="\copy (SELECT * FROM user_data WHERE job='${job}') TO '${outfile}' csv header"
+sql="\copy (SELECT * FROM user_data WHERE job='$job') TO '$outfile' csv header"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 eval $cmd
 echoi $e "done"
+
+# echo "$sql" > /tmp/gnrs/zz_sql.txt
+# echo "$cmd" > /tmp/gnrs/zz_cmd.txt
+# curruser=$(whoami)
+# echo "Current user: $curruser ($local)" > /tmp/gnrs/zz_curruser.txt
+# echo ""; echo "Stopping after \copy command"; exit 0
+
 
 ############################################
 # Clear user data tables

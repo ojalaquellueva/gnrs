@@ -1,17 +1,27 @@
 #!/bin/bash
 
-### Set parameters and rename to db_config.sh ###
-
+#########################################################
 # Database connection parameters
-# For production, keep these parameters outside script working directory
-# Edit db_config_path in params.sh accordingly
+# 
+# After setting parameters rename this file to db_config.sh
+# For security, recommend keeping this file outside main
+# application directory. After move, change db_config_path 
+# in params.sh accordingly
+#########################################################
+
+
+# Host
 host='localhost'
 
-user_admin='<admin-level-user-name>'
-user_read='<read-only-user-name>'
-user='<read-only-user-name>' # Can be same as user_read
+# Databases
+db_gnrs="gnrs"	# Name of main gnrs database
+db_geonames="geonames" # Geonames, needed for building gnrs DB
 
-pwd_user_admin="<admin-level-user-password>"
+# Users
+user_admin='<admin-level-user-name>'	# For building GNRS DB only
+user='<read-only-user-name>' 	# Main admin level user of GNRS
+user_read='<read-only-user-name>'	# Read-only user
 
-db_geonames="geonames"
-db_gnrs="gnrs"
+# Passwords
+pwd_user_admin=$(cat /path/to/pwddir/user_admin_pwd_file)	# Pwd for user_admin
+pgpwd=$(cat /path/to/pwddir/user_pwd_file)		# Pwd for $user
