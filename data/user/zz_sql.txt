@@ -1,0 +1,1 @@
+\copy (SELECT * FROM user_data WHERE job='job_20200409_1414859886737_386') TO 'data/user/test_data_gnrs_results.csv' csv header

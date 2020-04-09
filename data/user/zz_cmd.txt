@@ -1,0 +1,1 @@
+ PGOPTIONS='--client-min-messages=warning' psql -U bien -d gnrs_dev --set ON_ERROR_STOP=1 -q -c "\copy (SELECT * FROM user_data WHERE job='job_20200409_1414859886737_386') TO 'data/user/test_data_gnrs_results.csv' csv header"

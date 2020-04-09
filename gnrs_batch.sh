@@ -228,16 +228,20 @@ fi
 
 
 echoi $e -n "Exporting CSV file of results to data directory..."
+# "set -f" turns off globbing to prevent expansion of asterisk to unix wildcard
+set -f
 sql="\copy (SELECT * FROM user_data WHERE job='$job') TO '$outfile' csv header"
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
 eval $cmd
+set +f
 echoi $e "done"
 
-# echo "$sql" > /tmp/gnrs/zz_sql.txt
-# echo "$cmd" > /tmp/gnrs/zz_cmd.txt
-# curruser=$(whoami)
-# echo "Current user: $curruser ($local)" > /tmp/gnrs/zz_curruser.txt
-# echo ""; echo "Stopping after \copy command"; exit 0
+currdatadir="data/user"
+echo "$sql" > $currdatadir/zz_sql.txt
+echo "$cmd" > $currdatadir/zz_cmd.txt
+curruser=$(whoami)
+echo "Current user: $curruser ($local)" > $currdatadir/zz_curruser.txt
+#echo ""; echo "Stopping after \copy command"; exit 0
 
 
 ############################################
