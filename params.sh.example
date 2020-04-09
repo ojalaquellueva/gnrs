@@ -7,17 +7,22 @@
 # Substitute everything surrounded by <...> with actual parameter
 ##############################################################
 
+# Absolute path to base directory for this application
+# Install the application code (from repo) inside a 
+# subdirectory of the base directory
+BASEDIR="/home/boyle/bien/gnrs"
+
 # Path to database configuration file (db_config.sh)
 # Recommend move outside app root directory (use absolute path)
 # Omit trailing slash
-db_config_path="../db_config.sh"
+db_config_path="${BASEDIR}/config"
 
 # Data directory name
 # User input and results are saved here
 # GNRS will look inside app directory (gnrs/) for this directory
 # unless $data_dir_local_abs is set (next parameter)
 # Omit trailing slash
-data_base_dir="../data/user_data"		 # Relative path
+data_base_dir="../data/user"		 # Relative path
 
 # Absolute path to data directory
 # Use this if data directory outside root application directory
@@ -42,7 +47,8 @@ match_threshold=0.5
 # parameter. Must be located in the user_data directory
 submitted_filename="gnrs_submitted.csv" 
 
-# Name of results file
+# Default results file
+# Added as suffix to custom input file name
 results_filename="gnrs_results.csv"
 
 # 't' to limit number of records imported (for testing)

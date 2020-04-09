@@ -92,4 +92,4 @@ pname="GNRS"
 pname_local=$pname
 
 # General process name prefix for email notifications
-pname_header_prefix="BIEN notification: process"
+pname_header_prefix="Process"
