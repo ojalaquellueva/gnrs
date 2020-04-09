@@ -118,7 +118,8 @@ exec($cmd, $output, $status);
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
 #die("/r/nStopping after gnrs_batch call/r/n");
 
-/* For testing (confirm current user)
+/*
+// For testing (confirm current user)
 $cmd="whoami";
 exec($cmd, $output, $status);
 die("\r\nwhoami: $output[0]\r\n");

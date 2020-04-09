@@ -122,6 +122,12 @@ function csvtoarray($file,$delimiter,$lines)
 
 echo "\r\nTesting GNRS API\r\n";
 
+/*
+$cmd="whoami";
+exec($cmd, $output, $status);
+echo "\r\nwhoami: $output[0]\r\n";
+*/
+
 //
 // Form the API base url
 //
@@ -149,12 +155,6 @@ echo $inputfile . "\r\n";
 $file = new \SplFileObject($inputfile, 'r');
 $file->seek(PHP_INT_MAX);
 $flines = $file->key(); 
-
-/*
-$cmd="whoami";
-exec($cmd, $output, $status);
-die("\r\nwhoami: $output[0]\r\n");
-*/
 
 // Echo the file
 echo "\r\nInput file contents:\r\n";
@@ -218,5 +218,9 @@ curl_close($ch);
 // Echo the response
 echo "\r\nThe response:\r\n";
 print_r($response);
+
+echo "\r\nThe response (pretty):\r\n";
+$data =  json_decode($response);
+print_r($data);
 
 ?>

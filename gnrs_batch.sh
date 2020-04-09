@@ -128,7 +128,7 @@ fi
 
 # For testing
 #curruser=$(whoami)
-#echo "whoami ($local): $curruser" > curruser.txt
+#echo "Current user: $curruser ($local)" > /tmp/gnrs/curruser.txt
 
 ############################################
 # Confirmation message
@@ -214,7 +214,8 @@ source "$DIR/includes/check_status.sh"
 # Run the main GNRS app
 if  [ "$use_pwd" == "true" ]; then
 	# API calls always use this option
-	DIR/gnrs.sh -a -s -j $job
+	#$DIR/gnrs.sh -a -s -j $job
+	$DIR/gnrs.sh -a -j $job
 else
 	source "$DIR/gnrs.sh"
 fi
@@ -225,7 +226,7 @@ fi
 ############################################
 
 echoi $e -n "Exporting CSV file of results to data directory..."
-sql="\copy user_data TO '${outfile}' csv header"
+sql="\copy (SELECT * FROM user_data WHERE job='${job}') TO '${outfile}' csv header"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 eval $cmd
 echoi $e "done"
@@ -235,8 +236,8 @@ echoi $e "done"
 ############################################
 
 echoi $e -n "Clearing user data for this job from database..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
-eval $cmd
+#cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
+#eval $cmd
 echoi $e "done"
 
 ######################################################

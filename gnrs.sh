@@ -31,8 +31,6 @@ if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
 
 # $local = name of this file
 # $local_basename = name of this file minus '.sh' extension
-# $local_basename should be same as containing directory, as  
-# well as local data subdirectory within main data directory, 
 local=`basename "${BASH_SOURCE[0]}"`
 local_basename="${local/.sh/}"
 
@@ -103,18 +101,26 @@ fi
 # Main
 #########################################################################
 
+# For testing
+#curruser=$(whoami)
+#echo "Current user: $curruser ($local)" > /tmp/gnrs/curruser.txt
+
 ############################################
 # Load raw data to table user_data
 ############################################
 
 echoi $e -n "- Dropping indexes on table user_data..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -f "$DIR_LOCAL/sql/drop_indexes_user_data.sql"
+#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -f "$DIR_LOCAL/sql/drop_indexes_user_data.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_indexes_user_data.sql"
+eval $cmd
 source "$DIR/includes/check_status.sh" 
 
 # This deletes any existing data in table user_data
 # Assume user_data_raw has been populated
 echoi $e -n "- Loading table user_data..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/load_user_data.sql"
+#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/load_user_data.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/load_user_data.sql"
+eval $cmd
 source "$DIR/includes/check_status.sh" 
 
 ############################################
@@ -122,12 +128,15 @@ source "$DIR/includes/check_status.sh"
 ############################################
 
 echoi $e -n "Checking for existing results in cache..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/check_cache.sql"
+#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/check_cache.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/check_cache.sql"
+eval $cmd
 source "$DIR/includes/check_status.sh" 
 
 # If all records already in cache, skip resolution
 sql_not_cached="SELECT EXISTS ( SELECT id FROM user_data WHERE job='$job' AND match_status IS NULL) AS a"
-not_cached=`psql -d gnrs -qt -c "$sql_not_cached" | tr -d '[[:space:]]'`
+#not_cached=`psql -d $db_gnrs -qt -c "$sql_not_cached" | tr -d '[[:space:]]'`
+not_cached=`psql -U $user -d $db_gnrs -qt -c "$sql_not_cached" | tr -d '[[:space:]]'`
 
 if [ "$not_cached" == "t" ]; then 
 	############################################
@@ -138,33 +147,47 @@ if [ "$not_cached" == "t" ]; then
 
 	echoi $e "- Country:"
 	echoi $e -n "-- exact..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_country_exact.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_country_exact.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_country_exact.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e "- State/province:"
 	echoi $e -n "-- exact..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_exact.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_exact.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_sp_exact.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e "- County/parish:"
 	echoi $e -n "-- exact..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_exact.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_exact.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_cp_exact.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "- Summarizing results..."
-	PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/summarize.sql"
+	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/summarize.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/summarize.sql"
+	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 else
@@ -176,7 +199,8 @@ fi
 ############################################
 
 echoi $e -n "Populating ISO codes..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/iso_codes.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/iso_codes.sql"
+eval $cmd
 source "$DIR/includes/check_status.sh" 
 
 ############################################
@@ -185,7 +209,8 @@ source "$DIR/includes/check_status.sh"
 
 # Add new results to cache
 echoi $e -n "Updating cache..."
-PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/update_cache.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_cache.sql"
+eval $cmd
 source "$DIR/includes/check_status.sh" 
 
 ######################################################
