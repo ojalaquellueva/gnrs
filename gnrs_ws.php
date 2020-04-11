@@ -28,7 +28,7 @@ $results_filename = $basename . "_gnrs_results.csv";
 // Functions
 ///////////////////////////////////
 
-// Load a CSV file as array
+// Load CSV file as array and convert to JSON
 function csvtojson($file,$delimiter,$lines) {
 	$filename = basename($file);
     
