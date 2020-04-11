@@ -77,7 +77,7 @@ $inputfilename = "test_data.csv";
 // Number of lines of test file to import, not counting header
 // Handy for testing a small sample of larger file
 // Set to empty string ("") to impart entire file
-$lines = "2";
+$lines = "3";
 
 // API host (+port, as applicable)
 // Virtual Host and ports must be configured appropriately
@@ -90,7 +90,7 @@ $lines = "2";
 // $api_host = "127.0.0.0";
 // $api_host = "localhost:<port>";
 // $api_host = "127.0.0.0:<port>";
-$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
+//$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
 $api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
 
 /////////////////////////////////////////////
@@ -218,9 +218,12 @@ curl_close($ch);
 // Echo the response
 echo "\r\nThe response:\r\n";
 print_r($response);
+echo "\r\n\r\n";
 
-echo "\r\nThe response (pretty):\r\n";
+/*
+echo "\r\nThe response (detailed):\r\n";
 $data =  json_decode($response);
 print_r($data);
+*/
 
 ?>

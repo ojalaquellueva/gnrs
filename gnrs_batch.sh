@@ -225,8 +225,6 @@ fi
 # directory sa CSV file
 ############################################
 
-
-
 echoi $e -n "Exporting CSV file of results to data directory..."
 # "set -f" turns off globbing to prevent expansion of asterisk to unix wildcard
 set -f
@@ -236,21 +234,22 @@ eval $cmd
 set +f
 echoi $e "done"
 
+: <<'COMMENT_BLOCK_2'
 currdatadir="data/user"
 echo "$sql" > $currdatadir/zz_sql.txt
 echo "$cmd" > $currdatadir/zz_cmd.txt
 curruser=$(whoami)
 echo "Current user: $curruser ($local)" > $currdatadir/zz_curruser.txt
 #echo ""; echo "Stopping after \copy command"; exit 0
-
+COMMENT_BLOCK_2
 
 ############################################
 # Clear user data tables
 ############################################
 
 echoi $e -n "Clearing user data for this job from database..."
-#cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
-#eval $cmd
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
+eval $cmd
 echoi $e "done"
 
 ######################################################

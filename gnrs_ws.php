@@ -111,21 +111,16 @@ fclose($fp);
 // Process the CSV file in batch mode
 ///////////////////////////////////
 
+// Compose the gnrs batch command
 $cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
 #die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
 
+// Execute gnrs batch command
+// Saves result to file in data directory
 exec($cmd, $output, $status);
 
-var_dump($output);
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
 //die("\r\nStopping after gnrs_batch call\r\n");
-
-/*
-// For testing (confirm current user)
-$cmd="whoami";
-exec($cmd, $output, $status);
-die("\r\nwhoami: $output[0]\r\n");
-*/
 
 ///////////////////////////////////
 // Retrieve the tab-delimited results
