@@ -113,7 +113,7 @@ fclose($fp);
 
 // Compose the gnrs batch command
 $cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
-#die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
+//die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
 
 // Execute gnrs batch command
 // Saves result to file in data directory

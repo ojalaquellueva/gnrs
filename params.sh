@@ -87,7 +87,7 @@ recordlimit=1000
 #	to false for long time table will bloat
 ##########################
 
-clear_user_data='t'
+clear_user_data='f'
 
 ##########################
 # Display/notification parameters

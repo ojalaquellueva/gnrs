@@ -69,15 +69,15 @@ user_id,country,state_province,county_parish
 // Data directory
 // Input and output files here
 // Can user relative path or absolute path
-$ws_data_dir = "data/user/";
+$ws_data_dir = "../data/user/";
 
 // Test file of political division names
-$inputfilename = "test_data.csv";
+$inputfilename = "test_data2.csv";
 
 // Number of lines of test file to import, not counting header
 // Handy for testing a small sample of larger file
 // Set to empty string ("") to impart entire file
-$lines = "3";
+$lines = "";
 
 // API host (+port, as applicable)
 // Virtual Host and ports must be configured appropriately
@@ -91,7 +91,7 @@ $lines = "3";
 // $api_host = "localhost:<port>";
 // $api_host = "127.0.0.0:<port>";
 $api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
-//$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
+$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
 
 /////////////////////////////////////////////
 // Functions
@@ -216,14 +216,26 @@ if ( $status != 201 && $status != 200 ) {
 curl_close($ch);
 
 // Echo the response
-echo "\r\nThe response:\r\n";
+echo "\r\nJSON response:\r\n";
 print_r($response);
 echo "\r\n\r\n";
 
-/*
-echo "\r\nThe response (detailed):\r\n";
+// Echo main fields as plain text table
+echo "\r\nResponse as table (selected columns):\r\n";
 $data =  json_decode($response);
-print_r($data);
-*/
+//print_r($data);
+
+// Set format
+$mask = "%-15s %-25s %-30s %-15s %-25s %-30s %-20s \n";
+
+// Print header
+echo sprintf($mask, "country_orig", "state_province_orig", "county_parish_orig", "country", "state_province", "county_parish", "match_status");
+
+foreach ($data as $idx => $obs) {
+	// Output row
+	echo sprintf($mask, $obs->country_verbatim, $obs->state_province_verbatim, $obs->county_parish_verbatim, $obs->country, $obs->state_province, $obs->county_parish, $obs->match_status);
+}
+
+echo "\r\n";
 
 ?>

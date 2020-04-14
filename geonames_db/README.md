@@ -1,4 +1,4 @@
-# Imports geonames database to postgres
+# Import geonames database
 
 Author: Brad Boyle (bboyle@email.arizona.edu)  
 Based on: http://forum.geonames.org/gforum/posts/list/15/926.page
