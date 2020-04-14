@@ -90,8 +90,8 @@ $lines = "3";
 // $api_host = "127.0.0.0";
 // $api_host = "localhost:<port>";
 // $api_host = "127.0.0.0:<port>";
-//$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
-$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
+$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
+//$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
 
 /////////////////////////////////////////////
 // Functions

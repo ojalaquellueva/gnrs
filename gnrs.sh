@@ -191,7 +191,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 else
-	echoi $e "- All political divisions already in cache!"
+	echoi $e "- All submitted political divisions already in cache!"
 fi
 
 ############################################

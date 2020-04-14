@@ -79,6 +79,17 @@ use_limit='f'
 recordlimit=1000
 
 ##########################
+# Clear user data tables?
+#
+# Values: t|f
+# t: default value
+# f: for troubleshooting only, if set
+#	to false for long time table will bloat
+##########################
+
+clear_user_data='t'
+
+##########################
 # Display/notification parameters
 ##########################
 

@@ -248,9 +248,15 @@ COMMENT_BLOCK_2
 ############################################
 
 echoi $e -n "Clearing user data for this job from database..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
-eval $cmd
-echoi $e "done"
+if [ "$clear_user_data" == "t" ]; then
+	# This should be default
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
+	eval $cmd
+	echoi $e "done"
+else
+	# Keeping user data (for troubleshooting)
+	echoi $e "skipping"
+fi
 
 ######################################################
 # Report total elapsed time and exit if running solo
