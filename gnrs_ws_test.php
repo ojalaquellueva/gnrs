@@ -215,12 +215,12 @@ if ( $status != 201 && $status != 200 ) {
 // Close curl
 curl_close($ch);
 
-// Echo the response
+// Echo the raw response
 echo "\r\nJSON response:\r\n";
 print_r($response);
 echo "\r\n\r\n";
 
-// Echo main fields as plain text table
+// Echo selected response fields as table
 echo "\r\nResponse as table (selected columns):\r\n";
 $data =  json_decode($response);
 //print_r($data);

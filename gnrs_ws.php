@@ -53,6 +53,30 @@ function csvtojson($file,$delimiter,$lines) {
     // Convert and return the JSON
     return json_encode($f_array);
 }
+function csvtojson_test($file,$delimiter,$lines, $user) {
+	$filename = basename($file);
+    
+    if (($handle = fopen($file, "r")) === false) {
+    	$err_msg = "ERROR: Can't open file '" . $file . 
+    		"' (script: '" . basename(__FILE__) . "', user: '$user')";
+    	die($err_msg);
+    }
+
+    $f_csv = fgetcsv($handle, 4000, $delimiter);
+    $f_array = array();
+
+    while ($row = fgetcsv($handle, 4000, $delimiter)) {
+            $f_array[] = array_combine($f_csv, $row);
+    }
+
+    fclose($handle);
+    
+    // Get subset of array
+    $f_array = array_slice($f_array, 0, $lines);
+    
+    // Convert and return the JSON
+    return json_encode($f_array);
+}
 
 ///////////////////////////////////
 // Receive & validate the POST request
@@ -112,7 +136,7 @@ fclose($fp);
 ///////////////////////////////////
 
 // Compose the gnrs batch command
-$cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
+$cmd="./gnrs_batch.sh -a -s -f '$file_tmp'";
 //die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
 
 // Execute gnrs batch command
@@ -120,7 +144,6 @@ $cmd="./gnrs_batch.sh -p -s -f '$file_tmp'";
 exec($cmd, $output, $status);
 
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
-//die("\r\nStopping after gnrs_batch call\r\n");
 
 ///////////////////////////////////
 // Retrieve the tab-delimited results
@@ -131,11 +154,19 @@ if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
 $results_file = $data_dir_tmp . "/" . $results_filename;
 $results_json = csvtojson($results_file, ",",100000);
 
+/*
+// Testing
+$cmd="whoami";
+$curr_user=shell_exec($cmd);
+$results_json = csvtojson_test($results_file, ",",100000, $curr_user);
+*/
+
 ///////////////////////////////////
 // Echo the results
 ///////////////////////////////////
 
 header('Content-type: application/json');
 echo $results_json;
+#echo $curr_user;
 
 ?>

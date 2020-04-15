@@ -79,15 +79,21 @@ use_limit='f'
 recordlimit=1000
 
 ##########################
-# Clear user data tables?
+# Set debug mode
 #
 # Values: t|f
-# t: default value
-# f: for troubleshooting only, if set
-#	to false for long time table will bloat
+# t: debug mode on
+#	* clears cache and all previous user data before start
+#	* echoes parameters for gnrs_batch and gnrs to file in data directory
+#	* Retains user data for current run in DB for inspection
+# f: debug mode off
+#	* Turns off echo-params-to-file
+#	* Clears user data for current run from DB after operation complete
+#
+# Make sure debug_mode='f' for production!!!
 ##########################
 
-clear_user_data='f'
+debug_mode='f'
 
 ##########################
 # Display/notification parameters

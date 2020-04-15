@@ -66,10 +66,15 @@ fi
 #               in params file.
 ###########################################################
 
+# back up existing value of $e
+if [ -z ${e+x} ]; then
+	e_bak=$e
+fi
+
 # Set defaults
 e="true"	# Echo/interactive mode on by default
 f_custom="false"	# Use default input/output files and data directory
-use_pwd="false"		# Assume not an api call
+api="false"		# Assume not an api call
 pgpassword=""	# Not needed if not an api call
 infile=$data_dir_local"/"$submitted_filename	# Default input file & path
 outfile=$data_dir_local"/"$results_filename	# Default input file & path
@@ -79,7 +84,7 @@ while [ "$1" != "" ]; do
     case $1 in
         -s | --silent )         e="false"
                             	;;
-        -p | --use_pwd )        use_pwd="true"
+        -a | --api )        api="true"
                             	;;
         -f | --infile )        	f_custom="true"
         						shift
@@ -109,7 +114,7 @@ outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
 
 # Set PGPASSWORD for api access
 # Parameter $pgpwd set in config file
-if  [ "$use_pwd" == "true" ]; then
+if  [ "$api" == "true" ]; then
 	pgpassword="PGPASSWORD=$pgpwd"
 fi
 
@@ -125,10 +130,6 @@ fi
 #########################################################################
 # Main
 #########################################################################
-
-# For testing
-#curruser=$(whoami)
-#echo "Current user: $curruser ($local)" > /tmp/gnrs/curruser.txt
 
 ############################################
 # Confirmation message
@@ -151,6 +152,23 @@ if [ "$e" = "true" ]; then
                 echo "Operation cancelled"; exit 0
         fi
 fi
+
+####### For testing only #######
+if [ "$debug_mode" == "t" ]; then
+	# Clear everything, cache & user data
+	
+	echoi $e -n "Clearing user_data..."
+	# This should be default
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data'"
+	eval $cmd
+	echoi $e "done"
+
+	echoi $e -n "Clearing cache..."
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM cache'"
+	eval $cmd
+	echoi $e "done"
+fi
+####### END For testing only #######
 
 ############################################
 # Import raw data 
@@ -212,12 +230,15 @@ source "$DIR/includes/check_status.sh"
 ############################################
 
 # Run the main GNRS app
-if  [ "$use_pwd" == "true" ]; then
-	# API calls always use this option
+if  [ "$api" == "true" ]; then
+	# API call (use password) also turn off echo & send job#
 	$DIR/gnrs.sh -a -s -j $job
-	#$DIR/gnrs.sh -a -j $job
 else
-	source "$DIR/gnrs.sh"
+	if [ "$e" == "false" ]; then
+		$DIR/gnrs.sh -s -j $job
+	else
+		$DIR/gnrs.sh -j $job
+	fi
 fi
 
 ############################################
@@ -234,33 +255,49 @@ eval $cmd
 set +f
 echoi $e "done"
 
-: <<'COMMENT_BLOCK_2'
-currdatadir="data/user"
-echo "$sql" > $currdatadir/zz_sql.txt
-echo "$cmd" > $currdatadir/zz_cmd.txt
-curruser=$(whoami)
-echo "Current user: $curruser ($local)" > $currdatadir/zz_curruser.txt
-#echo ""; echo "Stopping after \copy command"; exit 0
-COMMENT_BLOCK_2
+####### For testing only #######
+if [ "$debug_mode" == "t" ]; then
+	curruser=$(whoami)
+	if [ "$curruser" == "www-data" ]; then
+		# Write current options to file, for testing only
+		currdatadir="/tmp/gnrs"
+	else
+		currdatadir="../data/user"
+	fi
+
+	echo "current user: $curruser ($local)" > $currdatadir/zz_gnrs_batch_options.txt
+	echo "api: $api" > $currdatadir/zz_gnrs_batch_options.txt
+	echo "sql: $sql" >> $currdatadir/zz_gnrs_batch_options.txt
+	echo "cmd: $cmd" >> $currdatadir/zz_gnrs_batch_options.txt
+	echo "db user: $user" >> $currdatadir/zz_gnrs_batch_options.txt
+	echo "db: $db_gnrs" >> $currdatadir/zz_gnrs_batch_options.txt
+	#echo ""; echo "Stopping after \copy command"; exit 0
+fi
+####### END: For testing only #######
 
 ############################################
 # Clear user data tables
 ############################################
 
 echoi $e -n "Clearing user data for this job from database..."
-if [ "$clear_user_data" == "t" ]; then
+if [ "$debug_mode" == "t" ]; then
+	# Keeping user data (for testing only)
+	echoi $e "skipping (debug_mode=='t')"
+else
 	# This should be default
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
 	eval $cmd
 	echoi $e "done"
-else
-	# Keeping user data (for troubleshooting)
-	echoi $e "skipping"
 fi
 
 ######################################################
 # Report total elapsed time and exit if running solo
 ######################################################
+
+# Restore previous value of $e, if applicable
+if [ -z ${e_bak+x} ]; then
+	e=$e_bak
+fi
 
 if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
 
