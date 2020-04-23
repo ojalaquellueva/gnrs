@@ -5,6 +5,17 @@
 # Check and change as needed
 ##############################################################
 
+# Add GADM political division names?
+# Requires local GADM database, imported using code in repo 'gadm.git',
+# and including custom build political division summary tables.
+# Can skip this if don't have gadm database.
+# Parameter $db_gadm required if $import_gadm='t'
+# Values: t|f
+import_gadm='t'
+
+# Name of local GDM database. Only used if $import_gadm='t'
+db_gadm="gadm"
+
 # Path to db_config.sh
 # For production, keep outside app working directory & supply
 # absolute path

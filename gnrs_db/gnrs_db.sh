@@ -54,8 +54,15 @@ echo "Error log
 #########################################################################
 # Main
 #########################################################################
+
+# Run pointless command to trigger sudo password request, 
+# needed below. Should remain in effect for all
+# sudo commands in this script, regardless of sudo timeout
+sudo pwd >/dev/null
+
+
+
 : <<'COMMENT_BLOCK_1'
-COMMENT_BLOCK_1
 
 ############################################
 # Create database in admin role & reassign
@@ -275,6 +282,53 @@ source "$includes_dir/check_status.sh"
 echoi $e -n "- county_parish_name...."
 PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_name_add_missing.sql
 source "$includes_dir/check_status.sh"
+
+
+COMMENT_BLOCK_1
+
+
+############################################
+# Add GADM political division names
+############################################
+
+if [ "$import_gadm" == "t" ]; then
+
+echoi $e "Adding missing GADM political division names"
+
+echoi $e "- Importing tables from DB $db_gadm:"
+
+# Dump table from source databse
+echoi $e -n "-- Creating dumpfile..."
+dumpfile="/tmp/gnrs_gadm_tables.sql"
+sudo -u postgres pg_dump --no-owner -t gadm_country -t gadm_state -t gnrs_county "$db_gadm"> $dumpfile
+source "$includes_dir/check_status.sh"	
+
+# Import table from dumpfile to target db & schema
+echoi $e -n "-- Importing tables from dumpfile..."
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile > /dev/null >> $tmplog
+source "$includes_dir/check_status.sh"	
+
+echoi $e -n "-- Removing dumpfile..."
+rm $dumpfile
+source "$includes_dir/check_status.sh"	
+
+echoi $e "- Adding missing names:"
+
+echoi $e -n "- country...."
+PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/gadm_country_name_add_missing.sql
+source "$includes_dir/check_status.sh"
+
+echoi $e -n "- state_province...."
+#PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/gadm_state_province_name_add_missing.sql
+#source "$includes_dir/check_status.sh"
+echo "UNDER CONSTRUCTION"
+
+
+
+
+
+fi
+
 
 ############################################
 # Adjust permissions

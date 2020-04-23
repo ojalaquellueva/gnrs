@@ -27,7 +27,12 @@ PostgreSQL/psql 12.2, or higher
 
 ## <a name="Dependencies"></a>Dependencies
 
-Local installation of database `geonames`, required for building the GNRS database, is included in this repo. See subdirectory `db_geonames`.
+1. Local installation of database `geonames`
+  * Required for building the GNRS database
+  * See repo: `https://github.com/ojalaquellueva/geonames.git'
+2. Local installation of database `gadm`
+  * Required for building the GNRS database
+  * See repo: `https://github.com/ojalaquellueva/gadm.git'
 
 ## <a name="installation"></a>Installation and configuration
 
