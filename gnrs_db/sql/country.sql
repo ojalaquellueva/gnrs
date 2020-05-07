@@ -1,5 +1,5 @@
 -- -----------------------------------------------------------------
--- Creates and populates country tables in gnrs database 
+-- Creates and populates country tables in geonames database 
 -- ---------------------------------------------------------------
 
 -- 

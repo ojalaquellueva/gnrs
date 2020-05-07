@@ -38,18 +38,57 @@ includes_dir=$DIR"/../includes"
 # Load parameters, functions and get command-line options
 source "$includes_dir/startup_master.sh"
 
-# Set process name and confirm operation
-pname="Build GNRS database "$db_gnrs
-source "$includes_dir/confirm.sh"
-
-# Set local directories to same as main
-data_dir_local=$data_base_dir
-DIR_LOCAL=$DIR
-
 # Pseudo error log, to absorb screen echo during import
 tmplog="/tmp/tmplog.txt"
 echo "Error log
 " > $tmplog
+
+######################################################
+# Custom confirmation message. 
+# Will only be displayed if -s (silent) option not used.
+######################################################
+
+curr_user=$(whoami)
+
+user_admin_disp=$USER_ADMIN
+if [[ "$USER_ADMIN" == "" ]]; then
+	user_admin_disp="[none]"
+fi
+
+user_read_disp=$USER_READ
+if [[ "$USER_READ" == "" ]]; then
+	user_admin_disp="[none]"
+fi
+
+if [[ "$DOWNLOAD_CROSSWALK" == "t" ]]; then
+	download_crossswalk_disp="Yes"
+fi
+
+# Reset confirmation message
+msg_conf="$(cat <<-EOF
+
+Run process '$pname' using the following parameters: 
+
+GNRS DB:			$DB_GNRS
+Geonames DB: 			$DB_GEONAMES
+GADM DB:			$DB_GADM
+Data directory:			$DATA_DIR
+Download crosswalk table:	$download_crossswalk_disp
+Current user:			$curr_user
+Admin user/db owner:		$user_admin_disp
+Additional read-only user:	$user_read_disp
+
+EOF
+)"		
+confirm "$msg_conf"
+
+# Start time, send mail if requested and echo begin message
+source "$includes_dir/start_process.sh"  
+
+
+
+echo "EXITING script `basename "$BASH_SOURCE"`"; exit 0
+
 
 #########################################################################
 # Main
@@ -71,18 +110,18 @@ sudo pwd >/dev/null
 
 # Check if db already exists
 # Warn to drop manually. This is safer.
-if psql -lqt | cut -d \| -f 1 | grep -qw "$db_gnrs"; then
+if psql -lqt | cut -d \| -f 1 | grep -qw "$DB_GNRS"; then
 	# Reset confirmation message
-	msg="Database '$db_gnrs' already exists! Please drop first."
+	msg="Database '$DB_GNRS' already exists! Please drop first."
 	echo $msg; exit 1
 fi
 
-echoi $e -n "Creating database '$db_gnrs'..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE $db_gnrs" 
+echoi $e -n "Creating database '$DB_GNRS'..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "CREATE DATABASE $DB_GNRS" 
 source "$includes_dir/check_status.sh"  
 
 echoi $e -n "Changing owner to 'bien'..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $db_gnrs OWNER TO bien" 
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $DB_GNRS OWNER TO bien" 
 source "$includes_dir/check_status.sh"  
 
 echoi $e -n "Granting permissions..."
@@ -101,7 +140,7 @@ echoi $i "done"
 echoi $e "Installing extensions:"
 
 echoi $e -n "- fuzzystrmatch..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 \set ON_ERROR_STOP on
 DROP EXTENSION IF EXISTS fuzzystrmatch;
 CREATE EXTENSION fuzzystrmatch;
@@ -110,7 +149,7 @@ echoi $i "done"
 
 # For trigram fuzzy matching
 echoi $e -n "- pg_trgm..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 \set ON_ERROR_STOP on
 DROP EXTENSION IF EXISTS pg_trgm;
 CREATE EXTENSION pg_trgm;
@@ -119,7 +158,7 @@ echoi $i "done"
 
 # For generating unaccented versions of text
 echoi $e -n "- unaccent..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 \set ON_ERROR_STOP on
 DROP EXTENSION IF EXISTS unaccent;
 CREATE EXTENSION unaccent;
@@ -131,7 +170,7 @@ echoi $i "done"
 ############################################
 
 echoi $e -n "Creating core tables..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_core_tables.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_core_tables.sql
 source "$includes_dir/check_status.sh"  
 
 ############################################
@@ -141,55 +180,55 @@ source "$includes_dir/check_status.sh"
 echoi $e "Creating poldiv tables in DB $db_geonames:"
 
 echoi $e -n "- Dropping previous GNRS tables if any..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_gnrs_tables.sql
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/drop_gnrs_tables.sql
 source "$includes_dir/check_status.sh"  
 
 echoi $e -n "- Country..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/country.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Fixing errors..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_country.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/fix_errors_country.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- State/province..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/state_province.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Adding & populating column state_province_std...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province_std.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/state_province_std.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Fixing errors..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_state_province.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/fix_errors_state_province.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Adding & populating column state_province_code2..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province_code2.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/state_province_code2.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- County/parish..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/county_parish.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Adding & populating column county_parish_std...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_std.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/county_parish_std.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Fixing errors...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/fix_errors_county_parish.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/fix_errors_county_parish.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "-- Adding & populating column county_parish_code2..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_code2.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/county_parish_code2.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- Adjusting permissions for new tables..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -d  $db_geonames -v user_adm=$user_admin -v user_read=$user_read -f $DIR_LOCAL/sql/set_permissions_geonames.sql
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -d  $db_geonames -v user_adm=$user_admin -v user_read=$USER_READ -f $DIR/sql/set_permissions_geonames.sql
 source "$includes_dir/check_status.sh"	
 
 echoi $e -n "- Reassigning ownership to postgres..."
-sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/gnrs_tables_change_owner.sql
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/gnrs_tables_change_owner.sql
 source "$includes_dir/check_status.sh"  
 
 
@@ -197,7 +236,7 @@ source "$includes_dir/check_status.sh"
 # Import geonames tables
 ############################################
 
-echoi $e "Importing tables from DB $db_geonames to DB $db_gnrs:"
+echoi $e "Importing tables from DB $db_geonames to DB $DB_GNRS:"
 
 # Dump table from source databse
 echoi $e -n "- Creating dumpfile..."
@@ -207,7 +246,7 @@ source "$includes_dir/check_status.sh"
 
 # Import table from dumpfile to target db & schema
 echoi $e -n "- Importing tables from dumpfile..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile > /dev/null >> $tmplog
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $DB_GNRS < $dumpfile > /dev/null >> $tmplog
 source "$includes_dir/check_status.sh"	
 
 echoi $e -n "- Removing dumpfile..."
@@ -222,15 +261,15 @@ source "$includes_dir/check_status.sh"
 echoi $e "Importing legacy BIEN2 data:"
 
 echoi $e -n "- Creating tables...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/create_bien2_tables.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_bien2_tables.sql
 source "$includes_dir/check_status.sh"
 
 # Import metadata file to temp table
 echoi $i -n "- Inserting to state_province_bien2..."
 sql="
-\COPY state_province_bien2 FROM '${data_dir_local}/${state_province_bien2_file}' DELIMITER ',' CSV HEADER;
+\COPY state_province_bien2 FROM '${DATA_DIR}/${state_province_bien2_file}' DELIMITER ',' CSV HEADER;
 "
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 \set ON_ERROR_STOP on
 $sql
 EOF
@@ -238,9 +277,9 @@ echoi $i "done"
 
 echoi $i -n "- Inserting to county_parish_bien2..."
 sql="
-\COPY county_parish_bien2 FROM '${data_dir_local}/${county_parish_bien2_file}' DELIMITER ',' CSV HEADER;
+\COPY county_parish_bien2 FROM '${DATA_DIR}/${county_parish_bien2_file}' DELIMITER ',' CSV HEADER;
 "
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs -q << EOF
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 \set ON_ERROR_STOP on
 $sql
 EOF
@@ -253,15 +292,15 @@ echoi $i "done"
 COMMENT_BLOCK_2
 
 echoi $e -n "Correcting known issues...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/correct_errors.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/correct_errors.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "Transferring HASC codes from BIEN2 tables..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/update_hasc_codes.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/update_hasc_codes.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "Dropping BIEN2 tables..."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_bien2_tables.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/drop_bien2_tables.sql
 source "$includes_dir/check_status.sh"
 
 ############################################
@@ -272,15 +311,15 @@ source "$includes_dir/check_status.sh"
 echoi $e "Adding missing names to table:"
 
 echoi $e -n "- country_name...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/country_name_add_missing.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/country_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- state_province_name...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/state_province_name_add_missing.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/state_province_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- county_parish_name...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/county_parish_name_add_missing.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/county_parish_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
 
@@ -291,21 +330,21 @@ COMMENT_BLOCK_1
 # Add GADM political division names
 ############################################
 
-if [ "$import_gadm" == "t" ]; then
+if [ "$IMPORT_GADM" == "t" ]; then
 
 echoi $e "Adding missing GADM political division names"
 
-echoi $e "- Importing tables from DB $db_gadm:"
+echoi $e "- Importing tables from DB $DB_GADM:"
 
 # Dump table from source databse
 echoi $e -n "-- Creating dumpfile..."
 dumpfile="/tmp/gnrs_gadm_tables.sql"
-sudo -u postgres pg_dump --no-owner -t gadm_country -t gadm_state -t gnrs_county "$db_gadm"> $dumpfile
+sudo -u postgres pg_dump --no-owner -t gadm_country -t gadm_state -t gnrs_county "$DB_GADM"> $dumpfile
 source "$includes_dir/check_status.sh"	
 
 # Import table from dumpfile to target db & schema
 echoi $e -n "-- Importing tables from dumpfile..."
-PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $db_gnrs < $dumpfile > /dev/null >> $tmplog
+PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $DB_GNRS < $dumpfile > /dev/null >> $tmplog
 source "$includes_dir/check_status.sh"	
 
 echoi $e -n "-- Removing dumpfile..."
@@ -315,11 +354,11 @@ source "$includes_dir/check_status.sh"
 echoi $e "- Adding missing names:"
 
 echoi $e -n "- country...."
-PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/gadm_country_name_add_missing.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_country_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- state_province...."
-#PGOPTIONS='--client-min-messages=warning' psql -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/gadm_state_province_name_add_missing.sql
+#PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_state_province_name_add_missing.sql
 #source "$includes_dir/check_status.sh"
 echo "UNDER CONSTRUCTION"
 
@@ -329,15 +368,50 @@ echo "UNDER CONSTRUCTION"
 
 fi
 
-
 ############################################
-# Adjust permissions
+# Alter ownership and permissions
 ############################################
 
-echoi $e -n "Adjusting permissions..."
-for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname = 'public';" $db_gnrs` ; do  psql -c "alter table \"$tbl\" owner to bien" $db_gnrs > /dev/null >> $tmplog; done
-source "$includes_dir/check_status.sh"
+if [ "$USER_ADMIN" != "" ]; then
+	echoi $e "Changing database ownership and permissions:"
 
+	echoi $e -n "- Changing DB owner to '$USER_ADMIN'..."
+	sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 -q -c "ALTER DATABASE $DB_GNRS OWNER TO $USER_ADMIN" 
+	source "$includes_dir/check_status.sh"  
+
+	echoi $e -n "- Granting permissions..."
+	sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql -q <<EOF
+	\set ON_ERROR_STOP on
+	REVOKE CONNECT ON DATABASE $DB_GNRS FROM PUBLIC;
+	GRANT CONNECT ON DATABASE $DB_GNRS TO $USER_ADMIN;
+	GRANT ALL PRIVILEGES ON DATABASE $DB_GNRS TO $USER_ADMIN;
+EOF
+	echoi $i "done"
+
+	echoi $e "- Transferring ownership of non-postgis relations to user '$USER_ADMIN':"
+	# Note: views not changed as all at this point are postgis relations
+
+	echoi $e -n "-- Tables..."
+	for tbl in `psql -qAt -c "select tablename from pg_tables where schemaname='public' and tableowner<>'postgres';" $DB_GNRS` ; do  sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql -q -c "alter table \"$tbl\" owner to $USER_ADMIN" $DB_GNRS ; done
+	source "$includes_dir/check_status.sh"  
+
+	echoi $e -n "-- Sequences..."
+	for tbl in `psql -qAt -c "select sequence_name from information_schema.sequences where sequence_schema = 'public';" $DB_GNRS` ; do  sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql -q -c "alter sequence \"$tbl\" owner to $USER_ADMIN" $DB_GNRS ; done
+	source "$includes_dir/check_status.sh"  
+fi
+
+if [[ ! "$USER_READ" == "" ]]; then
+	echoi $e -n "- Granting read access to \"$USER_READ\"..."
+	sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql -q <<EOF
+	\set ON_ERROR_STOP on
+	REVOKE CONNECT ON DATABASE $DB_GNRS FROM PUBLIC;
+	GRANT CONNECT ON DATABASE $DB_GNRS TO $USER_READ;
+	\c $DB_GNRS
+	GRANT USAGE ON SCHEMA public TO $USER_READ;
+	GRANT SELECT ON ALL TABLES IN SCHEMA public TO $USER_READ;
+EOF
+	echoi $i "done"
+fi 
 
 ######################################################
 # Report total elapsed time and exit
