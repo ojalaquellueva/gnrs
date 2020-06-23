@@ -77,6 +77,7 @@ Download crosswalk table:	$download_crossswalk_disp
 Current user:			$curr_user
 Admin user/db owner:		$user_admin_disp
 Additional read-only user:	$user_read_disp
+Operation:			$OPERATION
 
 EOF
 )"		
@@ -86,8 +87,8 @@ confirm "$msg_conf"
 source "$includes_dir/start_process.sh"  
 
 
+: <<'COMMENT_BLOCK_1'
 
-echo "EXITING script `basename "$BASH_SOURCE"`"; exit 0
 
 
 #########################################################################
@@ -99,9 +100,7 @@ echo "EXITING script `basename "$BASH_SOURCE"`"; exit 0
 # sudo commands in this script, regardless of sudo timeout
 sudo pwd >/dev/null
 
-
-
-: <<'COMMENT_BLOCK_1'
+if [ "$OPERATION" == "Build GNRS DB" ]; then 
 
 ############################################
 # Create database in admin role & reassign
@@ -231,7 +230,6 @@ echoi $e -n "- Reassigning ownership to postgres..."
 sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $db_geonames --set ON_ERROR_STOP=1 -q -f $DIR/sql/gnrs_tables_change_owner.sql
 source "$includes_dir/check_status.sh"  
 
-
 ############################################
 # Import geonames tables
 ############################################
@@ -288,8 +286,6 @@ echoi $i "done"
 ############################################
 # Transfer information from bien2 tables
 ############################################
-: <<'COMMENT_BLOCK_2'
-COMMENT_BLOCK_2
 
 echoi $e -n "Correcting known issues...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/correct_errors.sql
@@ -322,6 +318,9 @@ echoi $e -n "- county_parish_name...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/county_parish_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
+# Second part of $OPERATION if...elif...fi
+elif [ "$OPERATION" == "Import GADM names" ]; then 
+
 
 COMMENT_BLOCK_1
 
@@ -330,11 +329,19 @@ COMMENT_BLOCK_1
 # Add GADM political division names
 ############################################
 
-if [ "$IMPORT_GADM" == "t" ]; then
+# WARNING: This approach not yet a pipeline
+# Assumes at this point that geonames tables (country, state_province & 
+# county_parish) have been exported to gadm database and updated with 
+# gadm names. This task, currently performed by gadm.sh as an optional 
+# step after importing the gadm database, needs to be moved to here, as 
+# it assumes that geonames tables in gnrs db have already been built
+# Until this is done, you MUST break the pipeline HERE, build the GADM
+# database, with optional step that adds gadm names to the geonames tables,
+# then return HERE to import those tables and finish up.
 
 echoi $e "Adding missing GADM political division names"
 
-echoi $e "- Importing tables from DB $DB_GADM:"
+echoi $e "- Importing revised geonames tables from DB $DB_GADM:"
 
 # Dump table from source databse
 echoi $e -n "-- Creating dumpfile..."
@@ -363,13 +370,23 @@ echoi $e -n "- state_province...."
 echo "UNDER CONSTRUCTION"
 
 
+: <<'COMMENT_BLOCK_2'
 
 
-
+# Closing 'else...fi' for $OPERATION if...elif...fi
+else
+	echo "ERROR: Unknown value '"$OPERATION"' for parameter \$OPERATION"
+	exit 1
 fi
 
+
+COMMENT_BLOCK_2
+
+
 ############################################
-# Alter ownership and permissions
+# Set ownership and permissions
+# 
+# Performed after either operation
 ############################################
 
 if [ "$USER_ADMIN" != "" ]; then

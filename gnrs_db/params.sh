@@ -5,8 +5,24 @@
 # Check and change as needed
 ##############################################################
 
+# Operation to be performed
+# Values: "Build GNRS DB" | "Import GADM names"
+# If OPERATION="Build GNRS DB", will build GNRS db from scratch. 
+# Requires local geonames db.
+# OPERATION="Import GADM names", will add GADM names to existing
+# GNRS database. Requires local gadm database, including geonames
+# tables (country, state_province, county_parish) extracted from 
+# GNRS database. 
+# A complete build of the GNRS database therefore requires four steps:
+# 1. Build geonames database
+# 2. Run this script with OPERATION="Build GNRS DB"
+# 3. Build gadm database (requires GNRS db)
+# 4. Run this script with OPERATION="Import GADM names"
+#OPERATION="Build GNRS DB"
+OPERATION="Import GADM names"
+
 # Name of the GNRS database to build
-DB_GNRS="gnrs_dev2"
+DB_GNRS="gnrs_dev"
 
 # Path to db_config.sh
 # For production, keep outside app working directory & supply
@@ -14,14 +30,14 @@ DB_GNRS="gnrs_dev2"
 # For development, if keep inside working directory, then supply
 # relative path
 # Omit trailing slash
-db_config_path="/home/boyle/bien3/gnrs"	# include files require lower case 
+db_config_path="/home/bien/gnrs/config"	# include files require lower case 
 
 # Path to general function directory
 # If directory is outside app working directory, supply
 # absolute path, otherwise supply relative path
 # Omit trailing slash
 #functions_path=""
-functions_path="/home/boyle/functions/sh"	# include files require lower case 
+functions_path="/home/bien/gnrs/src/includes"	
 
 # Path to data directory for database build
 # Recommend call this "data"
@@ -30,8 +46,8 @@ functions_path="/home/boyle/functions/sh"	# include files require lower case
 # forward slash at start).
 # Recommend keeping outside app directory
 # Omit trailing slash
-DATA_BASE_DIR="/home/boyle/bien3/gnrs"
-DATA_DIR="${DATA_BASE_DIR}/db_data"
+DATA_BASE_DIR="/home/bien/gnrs/data/"
+DATA_DIR="${DATA_BASE_DIR}/db"
 
 # Text file state/province and county/parisgh HASC codes, compiled for bien2
 state_province_bien2_file="stateProvince_utf8.csv"
@@ -57,14 +73,6 @@ USER_READ="public_bien"
 # Name of other databases required to build the GNRS DB
 DB_GEONAMES="geonames"
 DB_GADM="gadm"
-
-# Add GADM political division names?
-# Requires local GADM database, imported using code in repo 'gadm.git',
-# and including custom build political division summary tables.
-# Can skip this if don't have gadm database.
-# Parameter $db_gadm required if $import_gadm='t'
-# Values: t|f
-IMPORT_GADM='t'
 
 # t: Download crosswalk table directly from source?
 # f: Import from file downloaded manually and copied to data directory
