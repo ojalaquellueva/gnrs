@@ -11,22 +11,14 @@ country_name_std,
 name_type
 )
 SELECT 
-gadm.country_id,
-gadm.country_name,
-gadm.country,
+a.country_id,
+a.country,
+unaccent(a.country),
 'from GADM'
-FROM 
-(
-SELECT b.country_id, a.country as country_name, b.country 
-FROM gadm_country a JOIN country b
-ON a.iso_3=b.iso_alpha3
-WHERE a.country<>b.country
-) gadm 
-LEFT JOIN country_name gnrs 
-ON gadm.country_name=gnrs.country_name
-WHERE gnrs.country_name IS NULL
+FROM country a LEFT JOIN country_name b 
+ON a.country=b.country_name
+WHERE b.country_name IS NULL
 ;
-
 
 -- Plain ascii name
 INSERT INTO country_name (
@@ -36,18 +28,11 @@ country_name_std,
 name_type
 )
 SELECT 
-gadm.country_id,
-gadm.country_name,
-gadm.country,
+a.country_id,
+unaccent(a.country),
+unaccent(a.country),
 'from GADM'
-FROM 
-(
-SELECT b.country_id, unaccent(a.country) as country_name, b.country 
-FROM gadm_country a JOIN country b
-ON a.iso_3=b.iso_alpha3
-WHERE a.country<>b.country
-) gadm 
-LEFT JOIN country_name gnrs 
-ON gadm.country_name=gnrs.country_name
-WHERE gnrs.country_name IS NULL
+FROM country a LEFT JOIN country_name b 
+ON unaccent(a.country)=b.country_name
+WHERE b.country_name IS NULL
 ;

@@ -321,10 +321,6 @@ source "$includes_dir/check_status.sh"
 # Second part of $OPERATION if...elif...fi
 elif [ "$OPERATION" == "Import GADM names" ]; then 
 
-
-COMMENT_BLOCK_1
-
-
 ############################################
 # Add GADM political division names
 ############################################
@@ -343,10 +339,39 @@ echoi $e "Adding missing GADM political division names"
 
 echoi $e "- Importing revised geonames tables from DB $DB_GADM:"
 
+echoi $e -n "-- Dropping previous geonames tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+ALTER TABLE country_name DROP CONSTRAINT IF EXISTS country_name_country_id_fkey;
+DROP TABLE IF EXISTS country;
+ALTER TABLE state_province_name DROP CONSTRAINT IF EXISTS state_province_name_state_province_id_fkey;
+DROP TABLE IF EXISTS state_province;
+ALTER TABLE county_parish_name DROP CONSTRAINT IF EXISTS county_parish_name_county_parish_id_fkey;
+DROP TABLE IF EXISTS county_parish;
+EOF
+echoi $i "done"
+
+echoi $e -n "-- Dropping previous gadm tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+DROP TABLE IF EXISTS gadm_country;
+DROP TABLE IF EXISTS gadm_admin_1;
+DROP TABLE IF EXISTS gadm_admin_2;
+EOF
+echoi $i "done"
+
+# These shouldn't exist, but dropping for testing
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+DROP TABLE IF EXISTS geonames_country;
+DROP TABLE IF EXISTS geonames_state_province;
+DROP TABLE IF EXISTS geonames_county_parish;
+EOF
+
 # Dump table from source databse
 echoi $e -n "-- Creating dumpfile..."
-dumpfile="/tmp/gnrs_gadm_tables.sql"
-sudo -u postgres pg_dump --no-owner -t gadm_country -t gadm_state -t gnrs_county "$DB_GADM"> $dumpfile
+dumpfile="/tmp/gnrs_geonames_tables_revised.sql"
+sudo -u postgres pg_dump --no-owner -t geonames_country -t geonames_state_province -t geonames_county_parish -t gadm_country -t gadm_admin_1 -t gadm_admin_2 "$DB_GADM"> $dumpfile
 source "$includes_dir/check_status.sh"	
 
 # Import table from dumpfile to target db & schema
@@ -358,17 +383,35 @@ echoi $e -n "-- Removing dumpfile..."
 rm $dumpfile
 source "$includes_dir/check_status.sh"	
 
+# These shouldn't exist, but dropping for testing
+echoi $e -n "- Renaming geonames tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+ALTER TABLE IF EXISTS geonames_country RENAME TO country;
+ALTER TABLE IF EXISTS geonames_state_province RENAME TO state_province;
+ALTER TABLE IF EXISTS geonames_county_parish RENAME TO county_parish;
+EOF
+echoi $i "done"
+
+
+
+COMMENT_BLOCK_1
+
+
+
 echoi $e "- Adding missing names:"
 
-echoi $e -n "- country...."
+echoi $e -n "-- country...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_country_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
-echoi $e -n "- state_province...."
-#PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_state_province_name_add_missing.sql
-#source "$includes_dir/check_status.sh"
-echo "UNDER CONSTRUCTION"
+echoi $e -n "-- state_province...."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_state_province_name_add_missing.sql
+source "$includes_dir/check_status.sh"
 
+echoi $e -n "-- county_parish...."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_county_parish_name_add_missing.sql
+source "$includes_dir/check_status.sh"
 
 : <<'COMMENT_BLOCK_2'
 
