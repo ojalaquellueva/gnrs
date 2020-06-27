@@ -62,9 +62,6 @@ fi
 
 if [[ "$DOWNLOAD_CROSSWALK" == "t" ]]; then
 	download_crossswalk_disp="Yes"
-else
-	download_crossswalk_disp="No"
-
 fi
 
 # Reset confirmation message
@@ -89,6 +86,11 @@ confirm "$msg_conf"
 # Start time, send mail if requested and echo begin message
 source "$includes_dir/start_process.sh"  
 
+
+: <<'COMMENT_BLOCK_1'
+
+
+
 #########################################################################
 # Main
 #########################################################################
@@ -98,18 +100,7 @@ source "$includes_dir/start_process.sh"
 # sudo commands in this script, regardless of sudo timeout
 sudo pwd >/dev/null
 
-
-
-: <<'COMMENT_BLOCK_1'
-
-############################################
-# Create if required databases exist
-############################################
-
-
-
-
-
+if [ "$OPERATION" == "Build GNRS DB" ]; then 
 
 ############################################
 # Create database in admin role & reassign
@@ -248,7 +239,7 @@ echoi $e "Importing tables from DB $db_geonames to DB $DB_GNRS:"
 # Dump table from source databse
 echoi $e -n "- Creating dumpfile..."
 dumpfile="/tmp/gnrs_geonames_extract.sql"
-sudo -u postgres pg_dump --no-owner -t geoname -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
+sudo -u postgres pg_dump --no-owner -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
 source "$includes_dir/check_status.sh"	
 
 # Import table from dumpfile to target db & schema
@@ -327,20 +318,40 @@ echoi $e -n "- county_parish_name...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/county_parish_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
+# Second part of $OPERATION if...elif...fi
+elif [ "$OPERATION" == "Import GADM names" ]; then 
+
 ############################################
-# Merge GADM political divisions into 
-# geonames tables
+# Add GADM political division names
 ############################################
 
-echoi $e "Merging GADM political divisions into geonames tables:"
+# WARNING: This approach not yet a pipeline
+# Assumes at this point that geonames tables (country, state_province & 
+# county_parish) have been exported to gadm database and updated with 
+# gadm names. This task, currently performed by gadm.sh as an optional 
+# step after importing the gadm database, needs to be moved to here, as 
+# it assumes that geonames tables in gnrs db have already been built
+# Until this is done, you MUST break the pipeline HERE, build the GADM
+# database, with optional step that adds gadm names to the geonames tables,
+# then return HERE to import those tables and finish up.
 
-echoi $e -n "- Creating derived GADM poldiv tables in DB '$DB_GADM'..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GADM --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_gadm_poldiv_tables.sql
-source "$includes_dir/check_status.sh"	
+echoi $e "Adding missing GADM political division names"
 
-echoi $e "- Importing GADM poldiv tables:"
+echoi $e "- Importing revised geonames tables from DB $DB_GADM:"
 
-echoi $e -n "-- Dropping previous gadm tables, if any..."
+echoi $e -n "-- Dropping previous geonames tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+ALTER TABLE country_name DROP CONSTRAINT IF EXISTS country_name_country_id_fkey;
+DROP TABLE IF EXISTS country;
+ALTER TABLE state_province_name DROP CONSTRAINT IF EXISTS state_province_name_state_province_id_fkey;
+DROP TABLE IF EXISTS state_province;
+ALTER TABLE county_parish_name DROP CONSTRAINT IF EXISTS county_parish_name_county_parish_id_fkey;
+DROP TABLE IF EXISTS county_parish;
+EOF
+echoi $i "done"
+
+echoi $e -n "-- Dropping previous gadm tables..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 \set ON_ERROR_STOP on
 DROP TABLE IF EXISTS gadm_country;
@@ -349,11 +360,21 @@ DROP TABLE IF EXISTS gadm_admin_2;
 EOF
 echoi $i "done"
 
+# These shouldn't exist, but dropping for testing
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+DROP TABLE IF EXISTS geonames_country;
+DROP TABLE IF EXISTS geonames_state_province;
+DROP TABLE IF EXISTS geonames_county_parish;
+EOF
+
+# Dump table from source databse
 echoi $e -n "-- Creating dumpfile..."
-dumpfile="/tmp/gadm_tables.sql"
-sudo -u postgres pg_dump --no-owner -t gadm_country -t gadm_admin_1 -t gadm_admin_2 "$DB_GADM"> $dumpfile
+dumpfile="/tmp/gnrs_geonames_tables_revised.sql"
+sudo -u postgres pg_dump --no-owner -t geonames_country -t geonames_state_province -t geonames_county_parish -t gadm_country -t gadm_admin_1 -t gadm_admin_2 "$DB_GADM"> $dumpfile
 source "$includes_dir/check_status.sh"	
 
+# Import table from dumpfile to target db & schema
 echoi $e -n "-- Importing tables from dumpfile..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $DB_GNRS < $dumpfile > /dev/null >> $tmplog
 source "$includes_dir/check_status.sh"	
@@ -362,133 +383,48 @@ echoi $e -n "-- Removing dumpfile..."
 rm $dumpfile
 source "$includes_dir/check_status.sh"	
 
-###
-# ***** Insert contents of standardize_ne.sh here *****
-###
-
-######################################################
-# Import & unpack Natural Earth iso/hasc code crosswalk
-######################################################
-
-echoi $e "Importing ISO/HASC code crosswalk table:"
-
-# Set date/time of access
-download_timestamp=$(date '+%F_%H:%M:%S')
-
-# Make subdirectory to hold contents of download 
-data_dir_crosswalk=${DATA_DIR}/crosswalk
-mkdir -p $data_dir_crosswalk
-
-# Import directly from source if requested
-# If this option not used, you MUST manually download the archive,
-# extract the dbf file to utf-8 csv, and place it in the crosswalk
-# data directory
-
-if [ "$DOWNLOAD_CROSSWALK" == "t" ]; then
-	# WARNING: not yet working properly!!!
-	echoi $e -n "- Downloading ${ARCHIVE_ADM1_CROSSWALK} to $data_dir_crosswalk..."
-	rm -f ${data_dir_crosswalk}/${ARCHIVE_ADM1_CROSSWALK}
-	wget -q $URL_ADM1_CROSSWALK -P $data_dir_crosswalk
-	source "$includes_dir/check_status.sh"  
-
-	echoi $e -n "- Unzipping archive..."
-	unzip -o -q "${data_dir_crosswalk}/${ARCHIVE_ADM1_CROSSWALK}" -d $data_dir_crosswalk
-	source "$includes_dir/check_status.sh"  
-
-	# WARNING: not yet working properly!!!
-	# Currently Postgres copy command throws the following error:
-	# ERROR:  invalid byte sequence for encoding "UTF8": 0x00
-	echoi $e -n "- Converting dbf file to CSV..."
-	php "$DIR"/php/dbfToCsv.php "${data_dir_crosswalk}/${DBF_ADM1_CROSSWALK}"
-	source "$includes_dir/check_status.sh"  
-fi
-
-echoi $e -n "- Creating tables..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q 	-f $DIR/sql/create_admin1_crosswalk_raw.sql
-source "$includes_dir/check_status.sh"	
-
-echoi $e -n "- Inserting data from file '${CSV_ADM1_CROSSWALK}'..."
-sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql $DB_GNRS --set ON_ERROR_STOP=1 -q <<EOT
-copy admin1_crosswalk_raw from '${data_dir_crosswalk}/${CSV_ADM1_CROSSWALK}' CSV HEADER;
-EOT
-source "$includes_dir/check_status.sh"
-
-echoi $e "- Trimming whitespace from all columns in admin1_crosswalk_raw:"
-echoi $e -n "-- Generating SQL..."
-echo $(PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -qt -c "SELECT 'UPDATE '||quote_ident(c.table_name)||' SET '||c.COLUMN_NAME||'=TRIM('||quote_ident(c.COLUMN_NAME)||');' as sql_stmt FROM (SELECT table_name,COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='admin1_crosswalk_raw' AND (data_type='text' or data_type='character varying') ) AS c
-")  >> sql/admin1_crosswalk_raw_trim_ws.sql
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "-- Executing SQL..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/admin1_crosswalk_raw_trim_ws.sql
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "- Inserting data to table admin1_crosswalk..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_admin1_crosswalk.sql
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "- Altering table admin1_crosswalk..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/admin1_crosswalk_alter.sql
-source "$includes_dir/check_status.sh"	
-
-echoi $e -n "- Dropping table admin1_crosswalk_raw..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -c "DROP TABLE IF EXISTS admin1_crosswalk_raw"
-source "$includes_dir/check_status.sh"
-
-######################################################
-# Index gadm political divisions with geonames IDs
-######################################################
-
-echoi $e "Linking gadm political divisions to geonames:"
-
-echoi $e -n "- Countries..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_geonames_index_country.sql 
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "- Admin 1..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_geonames_index_admin_1.sql
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "- Admin 2..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_geonames_index_admin_2.sql
-source "$includes_dir/check_status.sh"
+# These shouldn't exist, but dropping for testing
+echoi $e -n "- Renaming geonames tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+ALTER TABLE IF EXISTS geonames_country RENAME TO country;
+ALTER TABLE IF EXISTS geonames_state_province RENAME TO state_province;
+ALTER TABLE IF EXISTS geonames_county_parish RENAME TO county_parish;
+EOF
+echoi $i "done"
 
 
 
 COMMENT_BLOCK_1
 
 
-######################################################
-# Add missing gadm names to gnrs-geonames tables
-######################################################
 
-echoi $e "Adding new gadm political divisions to geonames tables:"
+echoi $e "- Adding missing names:"
 
-echoi $e -n "- Countries..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/geonames_add_gadm_country.sql > /dev/null
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "- Admin 1..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/geonames_add_gadm_admin_1.sql > /dev/null
-source "$includes_dir/check_status.sh"
-
-echoi $e -n "- Admin 2..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/geonames_add_gadm_admin_2.sql > /dev/null
-source "$includes_dir/check_status.sh"
-
-echoi $e "Adding missing GADM alternate names:"
-
-echoi $e -n "- country...."
+echoi $e -n "-- country...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_country_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
-echoi $e -n "- state_province...."
+echoi $e -n "-- state_province...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_state_province_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
-echoi $e -n "- county_parish...."
+echoi $e -n "-- county_parish...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_county_parish_name_add_missing.sql
 source "$includes_dir/check_status.sh"
+
+: <<'COMMENT_BLOCK_2'
+
+
+# Closing 'else...fi' for $OPERATION if...elif...fi
+else
+	echo "ERROR: Unknown value '"$OPERATION"' for parameter \$OPERATION"
+	exit 1
+fi
+
+
+COMMENT_BLOCK_2
+
 
 ############################################
 # Set ownership and permissions

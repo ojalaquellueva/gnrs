@@ -19,7 +19,7 @@
 # 3. Build gadm database (requires GNRS db)
 # 4. Run this script with OPERATION="Import GADM names"
 #OPERATION="Build GNRS DB"
-OPERATION="Import GADM names"
+#OPERATION="Import GADM names"
 
 # Name of the GNRS database to build
 DB_GNRS="gnrs_dev"
@@ -49,6 +49,12 @@ functions_path="/home/bien/gnrs/src/includes"
 DATA_BASE_DIR="/home/bien/gnrs/data/"
 DATA_DIR="${DATA_BASE_DIR}/db"
 
+# Base application directory
+DB_BASE_DIR="/home/boyle/bien/gnrs/src"
+
+# Main application directory
+DB_DIR="${DB_BASE_DIR}/gnrs_db"
+
 # Text file state/province and county/parisgh HASC codes, compiled for bien2
 state_province_bien2_file="stateProvince_utf8.csv"
 county_parish_bien2_file="countyParish_utf8.csv"
@@ -74,9 +80,35 @@ USER_READ="public_bien"
 DB_GEONAMES="geonames"
 DB_GADM="gadm"
 
-# t: Download crosswalk table directly from source?
-# f: Import from file downloaded manually and copied to data directory
-DOWNLOAD_CROSSWALK="t"
+########################################################
+# Natural Earth crosswalk table parameters
+########################################################
+
+# Download crosswalk data directly from source?
+# Values:
+#	t 	Download directly from source
+#	f 	Import from file already present in data directory)
+# If $DOWNLOAD_CROSSWALK="f", you MUST manually download the archive,
+# extract the dbf file to utf-8 csv, and place it in the crosswalk
+# data directory
+DOWNLOAD_CROSSWALK="f"
+
+# Link to dbf file of admin1 political divisions and codes
+# Needed for linking GADM admin1 to geonames admin1
+# Once unzipped, you still need to be able to dump the dbf file
+URL_ADM1_CROSSWALK="https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_1_states_provinces.zip"
+
+# The archive should just be the basename of the url, but 
+# adjust accordingly if not
+ARCHIVE_ADM1_CROSSWALK=$(basename $URL_ADM1_CROSSWALK)
+
+# Name of dbf file that needs to be unpacked. 
+# Adjust accordingly if this formula changes
+DBF_ADM1_CROSSWALK=${ARCHIVE_ADM1_CROSSWALK/.zip/.dbf}
+
+# This is only crosswalk file nameparameter needed needed
+# if not importing directly from source
+CSV_ADM1_CROSSWALK=${DBF_ADM1_CROSSWALK/.dbf/.csv}
 
 #########################################################
 # Miscellaneous parameters
