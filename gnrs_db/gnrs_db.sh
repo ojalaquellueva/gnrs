@@ -490,6 +490,10 @@ echoi $e -n "- county_parish...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_county_parish_name_add_missing.sql
 source "$includes_dir/check_status.sh"
 
+echoi $e -n "Adding GADM IDs...."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/add_gadm_ids.sql
+source "$includes_dir/check_status.sh"
+
 ############################################
 # Set ownership and permissions
 # 
