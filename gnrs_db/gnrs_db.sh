@@ -100,13 +100,9 @@ sudo pwd >/dev/null
 
 
 
+
+echo "WARNING: Some code commented out for development!"
 : <<'COMMENT_BLOCK_1'
-
-############################################
-# Create if required databases exist
-############################################
-
-
 
 
 
@@ -362,10 +358,6 @@ echoi $e -n "-- Removing dumpfile..."
 rm $dumpfile
 source "$includes_dir/check_status.sh"	
 
-###
-# ***** Insert contents of standardize_ne.sh here *****
-###
-
 ######################################################
 # Import & unpack Natural Earth iso/hasc code crosswalk
 ######################################################
@@ -452,6 +444,8 @@ source "$includes_dir/check_status.sh"
 echoi $e -n "- Admin 2..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_geonames_index_admin_2.sql
 source "$includes_dir/check_status.sh"
+
+
 
 
 
