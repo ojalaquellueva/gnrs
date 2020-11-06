@@ -24,40 +24,39 @@ COMMENT_BLOCK_x
 # Date in nanoseconds plus random integer for good measure
 job="job_$(date +%Y%m%d_%H%M%N)_${RANDOM}"	
 
-# Get local working directory
-DIR_LOCAL="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
+# The name of this file. Tells sourced scripts not to reload general  
+# parameters and command line options as they are being called by  
+# another script. Allows component scripts to be called individually  
+# if needed
+master=`basename "$0"`
 
-# $local = name of this file
-# $local_basename = name of this file minus '.sh' extension
-# $local_basename should be same as containing directory, as  
-# well as local data subdirectory within main data directory, 
-local=`basename "${BASH_SOURCE[0]}"`
-local_basename="${local/.sh/}"
+# Get working directory
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
-# Set parent directory if running independently & suppress main message
-if [ -z ${master+x} ]; then
-	#DIR=$DIR_LOCAL"/.."
-	DIR=$DIR_LOCAL
-	suppress_main='true'
-else
-	suppress_main='false'
-fi
+# Start logfile
+export glogfile="$DIR/log/logfile_"$master".txt"
+mkdir -p "$DIR/log" 
+touch $glogfile
 
-# Load startup script for local files
-# Sets remaining parameters and options, and issues confirmation
-# and startup messages
-custom_opts="true"
-source "$DIR/includes/startup_local.sh"	
+# Set includes directory path, relative to $DIR
+includes_dir=$DIR"/includes"
 
-# Set current script as master if not already source by another file
-# master = name of this file. 
-# Tells sourced scripts not to reload general parameters and command line 
-# options as they are being called by another script. Allows component 
-# scripts to be called individually if needed
-if [ -z ${master+x} ]; then
-	master=`basename "$0"`
-fi
+# Load parameters file
+source "$DIR/params.sh"
+
+# Load db configuration params
+source "$db_config_path/db_config.sh"	
+
+# Load functions 
+source "$includes_dir/functions.sh"
+
+# Set local directories to same as main
+data_dir_local=$data_base_dir
+data_dir=$data_base_dir
+DIR_LOCAL=$DIR
+
+pname="GNRS Batch"
 
 ###########################################################
 # Get custom options
@@ -75,7 +74,6 @@ fi
 e="true"	# Echo/interactive mode on by default
 f_custom="false"	# Use default input/output files and data directory
 api="false"		# Assume not an api call
-pgpassword=""	# Not needed if not an api call
 infile=$data_dir_local"/"$submitted_filename	# Default input file & path
 outfile=$data_dir_local"/"$results_filename	# Default input file & path
 mailme="false"
@@ -114,6 +112,8 @@ outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
 
 # Set PGPASSWORD for api access
 # Parameter $pgpwd set in config file
+# Not needed if not an api call
+pgpassword=""
 if  [ "$api" == "true" ]; then
 	pgpassword="PGPASSWORD=$pgpwd"
 fi
@@ -126,10 +126,6 @@ if [[ "$mailme" == "true" ]]; then
 else
 	email="n/a"
 fi
-
-#########################################################################
-# Main
-#########################################################################
 
 ############################################
 # Confirmation message
@@ -148,10 +144,35 @@ if [ "$e" = "true" ]; then
         
         if [[ $REPLY =~ ^[Yy]$ ]]; then
                 continue="true"
+
         else 
                 echo "Operation cancelled"; exit 0
         fi
 fi
+
+# Start the time
+source "$includes_dir/start_time.sh"
+
+# Start time, send mail if requested and echo begin message
+# Start timing & process ID
+starttime="$(date)"
+start=`date +%s%N`; prev=$start
+pid=$$
+
+if [[ "$m" == "true" ]]; then 
+	source "${includes_dir}/mail_process_start.sh"	# Email notification
+fi
+
+if [ "$e" == "true" ]; then
+	echoi $e ""; echoi $e "------ Process $pname started at $starttime ------"
+	echoi $e ""
+fi
+
+
+#########################################################################
+# Main
+#########################################################################
+
 
 ####### For testing only #######
 if [ "$debug_mode" == "t" ]; then
@@ -253,7 +274,7 @@ sql="\copy (SELECT * FROM user_data WHERE job='$job') TO '$outfile' csv header"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
 eval $cmd
 set +f
-echoi $e "done"
+source "$DIR/includes/check_status.sh"
 
 ####### For testing only #######
 if [ "$debug_mode" == "t" ]; then
@@ -287,11 +308,11 @@ else
 	# This should be default
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
 	eval $cmd
-	echoi $e "done"
+	source "$DIR/includes/check_status.sh"
 fi
 
 ######################################################
-# Report total elapsed time and exit if running solo
+# Report total elapsed time if running solo
 ######################################################
 
 # Restore previous value of $e, if applicable
@@ -299,7 +320,7 @@ if [ -z ${e_bak+x} ]; then
 	e=$e_bak
 fi
 
-if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
+if [ master==`basename "$0"` ]; then source "$DIR/includes/finish.sh"; fi
 
 ######################################################
 # End script

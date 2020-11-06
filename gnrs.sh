@@ -24,27 +24,31 @@ COMMENT_BLOCK_x
 # Set basic parameters, functions and options
 ######################################################
 
-# Get local working directory
-#DIR_LOCAL="${BASH_SOURCE%/*}"
-DIR_LOCAL="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-if [[ ! -d "$DIR_LOCAL" ]]; then DIR_LOCAL="$PWD"; fi
+# Get working directory
+DIR="$(dirname ${BASH_SOURCE[0]})"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
-# $local = name of this file
-# $local_basename = name of this file minus '.sh' extension
-local=`basename "${BASH_SOURCE[0]}"`
-local_basename="${local/.sh/}"
+# Start logfile
+export glogfile="$DIR/log/logfile_"$master".txt"
+mkdir -p "$DIR/log" 
+touch $glogfile
 
-# Set parent directory if running independently
-if [ -z ${master+x} ]; then
-	DIR=$DIR_LOCAL
-fi
-if [[ -z ${DIR+x} ]]; then DIR="$PWD"; fi
+# Set includes directory path, relative to $DIR
+includes_dir=$DIR"/includes"
 
-# Load startup script for local files
-# Sets remaining parameters and options, and issues confirmation
-# and startup messages
-custom_opts="true"
-source "$DIR/includes/startup_local.sh"	
+# Load parameters file
+source "$DIR/params.sh"
+
+# Load db configuration params
+source "$db_config_path/db_config.sh"	
+
+# Load functions 
+source "$includes_dir/functions.sh"
+
+# Set local directories to same as main
+data_dir_local=$data_base_dir
+data_dir=$data_base_dir
+DIR_LOCAL=$DIR
 
 # Set current script as master if not already source by another file
 # master = name of this file. 
@@ -61,7 +65,7 @@ fi
 ###########################################################
 
 # back up existing value of $e
-if [ -z ${e+x} ]; then
+if [ ! -z ${e+x} ]; then
 	e_bak=$e
 fi
 
@@ -95,6 +99,13 @@ if [ "$silent" == "true" ]; then
 	e="false"
 else
 	e="true"
+fi
+
+# Start timer if previous time not sent by calling script
+if  [ master=`basename "$0"` ]; then
+	source "$includes_dir/start_time.sh"
+else 
+	prev=`date +%s%N`
 fi
 
 #########################################################################
@@ -175,45 +186,38 @@ if [ "$not_cached" == "t" ]; then
 
 	echoi $e "- Country:"
 	echoi $e -n "-- exact..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_country_exact.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_country_exact.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_country_fuzzy.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e "- State/province:"
 	echoi $e -n "-- exact..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_exact.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_sp_exact.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e "- County/parish:"
 	echoi $e -n "-- exact..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_exact.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_cp_exact.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f "$DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "- Summarizing results..."
-	#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/summarize.sql"
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/summarize.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
@@ -246,11 +250,9 @@ source "$DIR/includes/check_status.sh"
 ######################################################
 
 # Restore previous value of $e, if applicable
-if [ -z ${e_bak+x} ]; then
+if [ ! -z ${e_bak+x} ]; then
 	e=$e_bak
 fi
-
-if [ -z ${master+x} ]; then source "$DIR/includes/finish.sh"; fi
 
 ######################################################
 # End script
