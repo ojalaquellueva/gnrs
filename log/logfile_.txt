@@ -470,3 +470,347 @@ Resolving political divisions:
 - Summarizing results...done (1.48 sec)
 Populating ISO codes...done (.07 sec)
 Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.23 sec)
+- Loading table user_data...done (.68 sec)
+Checking for existing results in cache...done (.20 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.29 sec)
+Updating cache...done (.09 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.10 sec)
+Checking for existing results in cache...done (.14 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.13 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.14 sec)
+Checking for existing results in cache...done (.15 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.10 sec)
+Checking for existing results in cache...done (.12 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.11 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.09 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.17 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.10 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.10 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.12 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.09 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.10 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.15 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.11 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.13 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+- Dropping indexes on table user_data...done (.08 sec)
+- Loading table user_data...done (.08 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.09 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.35 sec)
+-- fuzzy...done (.40 sec)
+- State/province:
+-- exact...done (.26 sec)
+-- fuzzy...done (.10 sec)
+- County/parish:
+-- exact...done (2.86 sec)
+-- fuzzy...done (1.58 sec)
+- Summarizing results...done (.10 sec)
+Populating ISO codes...done (.10 sec)
+Updating cache...done (.11 sec)
+- Dropping indexes on table user_data...done (.15 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.08 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.15 sec)
+Updating cache...done (.09 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.08 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.17 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.06 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.16 sec)
+-- fuzzy...done (.33 sec)
+- State/province:
+-- exact...done (.10 sec)
+-- fuzzy...done (.12 sec)
+- County/parish:
+-- exact...done (.23 sec)
+-- fuzzy...done (1.23 sec)
+- Summarizing results...done (.07 sec)
+Populating ISO codes...done (.06 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.15 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.08 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.11 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.06 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.09 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.07 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.16 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.08 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.15 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.10 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.08 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.17 sec)
+Updating cache...done (.09 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.07 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.13 sec)
+- Loading table user_data...done (.10 sec)
+Checking for existing results in cache...done (.09 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.16 sec)
+Updating cache...done (.10 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.08 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.14 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.08 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.06 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.13 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.09 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.09 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.16 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.11 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.08 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.24 sec)
+-- fuzzy...done (.48 sec)
+- State/province:
+-- exact...done (.11 sec)
+-- fuzzy...done (.08 sec)
+- County/parish:
+-- exact...done (.13 sec)
+-- fuzzy...done (.08 sec)
+- Summarizing results...done (.10 sec)
+Populating ISO codes...done (.09 sec)
+Updating cache...done (.09 sec)
+- Dropping indexes on table user_data...done (.14 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.06 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.17 sec)
+-- fuzzy...done (.46 sec)
+- State/province:
+-- exact...done (.12 sec)
+-- fuzzy...done (.09 sec)
+- County/parish:
+-- exact...done (.13 sec)
+-- fuzzy...done (.08 sec)
+- Summarizing results...done (.08 sec)
+Populating ISO codes...done (.08 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.14 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.07 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.20 sec)
+-- fuzzy...done (.45 sec)
+- State/province:
+-- exact...done (.12 sec)
+-- fuzzy...done (.09 sec)
+- County/parish:
+-- exact...done (.13 sec)
+-- fuzzy...done (.08 sec)
+- Summarizing results...done (.09 sec)
+Populating ISO codes...done (.09 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.14 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.07 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.19 sec)
+-- fuzzy...done (.49 sec)
+- State/province:
+-- exact...done (.12 sec)
+-- fuzzy...done (.10 sec)
+- County/parish:
+-- exact...done (.14 sec)
+-- fuzzy...done (.68 sec)
+- Summarizing results...done (.08 sec)
+Populating ISO codes...done (.08 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.15 sec)
+- Loading table user_data...done (.08 sec)
+Checking for existing results in cache...done (.08 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.19 sec)
+-- fuzzy...done (.46 sec)
+- State/province:
+-- exact...done (.13 sec)
+-- fuzzy...done (.09 sec)
+- County/parish:
+-- exact...done (.13 sec)
+-- fuzzy...done (.69 sec)
+- Summarizing results...done (.08 sec)
+Populating ISO codes...done (.07 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.17 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.07 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.20 sec)
+-- fuzzy...done (.45 sec)
+- State/province:
+-- exact...done (.12 sec)
+-- fuzzy...done (.09 sec)
+- County/parish:
+-- exact...done (.14 sec)
+-- fuzzy...done (.37 sec)
+- Summarizing results...done (.08 sec)
+Populating ISO codes...done (.06 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.15 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.06 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.19 sec)
+-- fuzzy...done (.43 sec)
+- State/province:
+-- exact...done (.10 sec)
+-- fuzzy...done (.11 sec)
+- County/parish:
+-- exact...done (.13 sec)
+-- fuzzy...done (.33 sec)
+- Summarizing results...done (.08 sec)
+Populating ISO codes...done (.06 sec)
+Updating cache...done (.08 sec)
+- Dropping indexes on table user_data...done (.15 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.08 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.17 sec)
+-- fuzzy...done (.43 sec)
+- State/province:
+-- exact...done (.10 sec)
+-- fuzzy...done (.10 sec)
+- County/parish:
+-- exact...done (.12 sec)
+-- fuzzy...done (.32 sec)
+- Summarizing results...done (.07 sec)
+Populating ISO codes...done (.07 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.16 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.06 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.16 sec)
+-- fuzzy...done (.42 sec)
+- State/province:
+-- exact...done (.11 sec)
+-- fuzzy...done (.08 sec)
+- County/parish:
+-- exact...done (.12 sec)
+-- fuzzy...done (.69 sec)
+- Summarizing results...done (.08 sec)
+Populating ISO codes...done (.07 sec)
+Updating cache...done (.06 sec)
+- Dropping indexes on table user_data...done (.13 sec)
+- Loading table user_data...done (.09 sec)
+Checking for existing results in cache...done (.07 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.19 sec)
+-- fuzzy...done (.47 sec)
+- State/province:
+-- exact...done (.12 sec)
+-- fuzzy...done (.09 sec)
+- County/parish:
+-- exact...done (.12 sec)
+-- fuzzy...done (.36 sec)
+- Summarizing results...done (.07 sec)
+Populating ISO codes...done (.08 sec)
+Updating cache...done (.07 sec)
+- Dropping indexes on table user_data...done (.14 sec)
+- Loading table user_data...done (.07 sec)
+Checking for existing results in cache...done (.08 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.21 sec)
+-- fuzzy...done (.31 sec)
+- State/province:
+-- exact...done (.28 sec)
+-- fuzzy...done (.12 sec)
+- County/parish:
+-- exact...done (.48 sec)
+-- fuzzy...done (.44 sec)
+- Summarizing results...done (.09 sec)
+Populating ISO codes...done (.08 sec)
+Updating cache...done (.08 sec)

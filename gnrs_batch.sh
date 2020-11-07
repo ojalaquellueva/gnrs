@@ -134,7 +134,8 @@ fi
 if [ "$e" = "true" ]; then
         echo "Execute GNRS batch with the following settings?
 
-        infile: 	$infile
+        Database: 	$db_gnrs
+        Input file: 	$infile
         Results file: 	$outfile
         Notify: 	$mailme
         Notify email:	$email
@@ -179,7 +180,6 @@ if [ "$debug_mode" == "t" ]; then
 	# Clear everything, cache & user data
 	
 	echoi $e -n "Clearing user_data..."
-	# This should be default
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data'"
 	eval $cmd
 	echoi $e "done"
@@ -300,12 +300,8 @@ fi
 # Clear user data tables
 ############################################
 
-echoi $e -n "Clearing user data for this job from database..."
 if [ "$debug_mode" == "t" ]; then
-	# Keeping user data (for testing only)
-	echoi $e "skipping (debug_mode=='t')"
-else
-	# This should be default
+	echoi $e -n "Clearing user data for this job from database..."
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh"
