@@ -11,7 +11,7 @@ UPDATE user_data u
 SET 
 state_province_id=sp.state_province_id,
 state_province=sp.state_province_std,
-match_method_state_province='wildcard alternate name'
+match_method_state_province='wildcard alt name'
 FROM (
 SELECT a.id, b.country_id, b.state_province_id, b.state_province_std, COUNT(DISTINCT b.state_province_id)
 FROM user_data a JOIN state_province b 
@@ -307,3 +307,36 @@ AND a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province IS NULL AND match_status IS NULL
 ;
+
+--
+-- Alternate names - simple wildcard match
+-- Matching by alternate (stripped) verbatim state name
+-- 
+
+UPDATE user_data u
+SET 
+state_province_id=sp.state_province_id,
+state_province=sp.state_province_std,
+match_method_state_province='wildcard alt verbatim name'
+FROM (
+SELECT a.id, b.country_id, b.state_province_id, b.state_province_std, COUNT(DISTINCT b.state_province_id)
+FROM user_data a JOIN state_province b 
+ON a.country_id=b.country_id
+JOIN state_province_name c
+ON b.state_province_id=c.state_province_id
+WHERE a.job=:'job' 
+AND a.state_province_id IS NULL AND match_status IS NULL
+AND 
+(
+c.state_province_name LIKE  '%'  || a.state_province_verbatim_alt || '%' OR 
+a.state_province_verbatim_alt LIKE '%'  || c.state_province_name || '%'
+) 
+AND a.state_province_verbatim_alt IS NOT NULL AND a.state_province_verbatim_alt<>''
+GROUP BY a.id, b.country_id, b.state_province_id, b.state_province_std
+HAVING COUNT(DISTINCT b.state_province_id)=1
+) sp
+WHERE u.job=:'job' 
+AND u.state_province_id IS NULL AND match_status IS NULL
+AND u.id=sp.id
+;
+

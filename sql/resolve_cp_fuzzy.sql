@@ -10,7 +10,7 @@ UPDATE user_data u
 SET 
 county_parish_id=cp.county_parish_id,
 county_parish=cp.county_parish_std,
-match_method_county_parish='wildcard alternate name'
+match_method_county_parish='wildcard alt name'
 FROM (
 SELECT a.id, b.country_id, b.state_province_id, b.county_parish_id, b.county_parish_std, COUNT(DISTINCT b.county_parish_id)
 FROM user_data a JOIN county_parish b 
@@ -342,4 +342,36 @@ AND a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
 AND a.county_parish_id IS NULL AND match_status IS NULL
+;
+
+
+--
+-- Alternate names - simple wildcard match
+-- Only if query returns exactly one result
+-- 
+UPDATE user_data u
+SET 
+county_parish_id=cp.county_parish_id,
+county_parish=cp.county_parish_std,
+match_method_county_parish='wildcard alt verbatim name'
+FROM (
+SELECT a.id, b.country_id, b.state_province_id, b.county_parish_id, b.county_parish_std, COUNT(DISTINCT b.county_parish_id)
+FROM user_data a JOIN county_parish b 
+ON a.country_id=b.country_id AND a.state_province_id=b.state_province_id
+JOIN county_parish_name c
+ON b.county_parish_id=c.county_parish_id
+WHERE a.job=:'job' 
+AND a.county_parish_id IS NULL AND a.match_status IS NULL
+AND 
+(
+c.county_parish_name LIKE  '%'  || a.county_parish_verbatim_alt || '%' OR 
+a.county_parish_verbatim_alt LIKE '%'  || c.county_parish_name || '%'
+) 
+AND a.county_parish_verbatim_alt IS NOT NULL AND a.county_parish_verbatim_alt<>''
+GROUP BY a.id, b.country_id, b.state_province_id, b.county_parish_id, b.county_parish_std
+HAVING COUNT(DISTINCT b.county_parish_id)=1
+) cp
+WHERE u.job=:'job' 
+AND u.county_parish_id IS NULL AND u.match_status IS NULL
+AND u.id=cp.id 
 ;

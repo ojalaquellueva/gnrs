@@ -117,16 +117,29 @@ fi
 ############################################
 
 echoi $e -n "- Dropping indexes on table user_data..."
-#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -f "$DIR_LOCAL/sql/drop_indexes_user_data.sql"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_indexes_user_data.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh" 
 
-# This deletes any existing data in table user_data
-# Assume user_data_raw has been populated
+# Assumes table user_data_raw has been populated
 echoi $e -n "- Loading table user_data..."
-#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/load_user_data.sql"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/load_user_data.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
+
+# Populate alternate verbatim state and county columns
+# Values are stripped of admin category identifiers such as "State",
+# "Department", "Municipio de", etc.
+echoi $e -n "- Populating alt state_province_verbatim column..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/populate_sp_verbatim_alt.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
+
+# Populate alternate verbatim state and county columns
+# Values are stripped of admin category identifiers such as "State",
+# "Department", "Municipio de", etc.
+echoi $e -n "- Populating alt county_parish_verbatim_verbatim column..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/populate_cp_verbatim_alt.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh" 
 
@@ -134,17 +147,7 @@ source "$DIR/includes/check_status.sh"
 # Check against existing results in cache
 ############################################
 
-###### Testing only! ######
-if [ "$debug_mode" == "t" ]; then
-	# Test user's DB authorization by inserting test records to table user_data
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/test2_load_user_data.sql"
-	eval $cmd
-	source "$DIR/includes/check_status.sh" 
-fi
-###### END Testing only! ######
-
 echoi $e -n "Checking for existing results in cache..."
-#PGOPTIONS='--client-min-messages=warning' psql -d gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f "$DIR_LOCAL/sql/check_cache.sql"
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/check_cache.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh" 
