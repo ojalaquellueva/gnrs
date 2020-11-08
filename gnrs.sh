@@ -230,11 +230,21 @@ else
 fi
 
 ############################################
-# Populate ISO codes (add-on feature)
+# Populate supplementary fields
 ############################################
 
 echoi $e -n "Populating ISO codes..."
 cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/iso_codes.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "Populating gadm IDs..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/gadm_ids.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
+
+echoi $e -n "Populating geonames IDs..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/geonames_ids.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh" 
 
