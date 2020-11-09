@@ -9,7 +9,9 @@
 // Parameters
 ///////////////////////////////////
 
-include 'params.php';
+// parameters in ALL_CAPS set in the two params files
+require_once 'server_params.php';	// server-specific parameters
+require_once 'api_params.php';		// API option parameters
 
 // Get name of this file for error reporting
 $currfile = basename(__FILE__);

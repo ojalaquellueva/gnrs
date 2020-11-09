@@ -2,5 +2,5 @@
 	path = includes
 	url = https://github.com/ojalaquellueva/includes.git
 [submodule "php_includes"]
-	path = php_includes
+	path = api/php_includes
 	url = https://github.com/ojalaquellueva/php_includes.git
