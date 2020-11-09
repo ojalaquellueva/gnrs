@@ -46,7 +46,8 @@ data_dir_local=$data_dir_local_abs
 # parameters
 ##########################
 
-# Default batch size. Recommend 10000
+# Default batch size. Recommend 10000. Input files smaller than this number
+# (I.e., fewer lines) will be processed as single batch.
 batch_size=10000;
 
 ##########################

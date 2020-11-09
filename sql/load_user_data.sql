@@ -22,10 +22,6 @@ FROM user_data_raw
 WHERE job=:'job'
 ;
 
--- Index job
-DROP INDEX IF EXISTS user_data_job_idx;
-CREATE INDEX user_data_job_idx ON user_data (job);
-
 -- Detect poldiv submitted
 UPDATE user_data
 SET poldiv_submitted=NULL

@@ -9,23 +9,27 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
 - [Dependencies](#Dependencies)
 - [Installation and configuration](#installation)
 - [Maintenance](#maintenance)
-- [Input File](#input-file)
-- [Output File](#output-file)
+- [Input/Output](#input-output)
+  - [Input File](#input-file)
+  - [Output File](#output-file)
 - [Usage](#Usage)
 - [API](#api)
 
-### <a name="Overview"></a>Overview
+<a name="Overview"></a>
+## Overview
 
 The GNRS is a batch application for resolving & standardizing political division names against standard name in the Geonames database (http://www.geonames.org/). The GNRS resolves political division names at three levels: country, state/province and county/parish. Resolution is performed in a series steps, beginning with direct matching to standard names, followed by direct matching to alternate names in different languages, followed by direct matching to standard codes (such as ISO and FIPS codes). If direct matching fails, the GNRS attempts to match to standard and then alternate names using fuzzy matching, but does not perform fuzzing matching of political division codes. The GNRS works down the political division hierarchy, stopping at the current level if all matches fail. In other words, if a country cannot be matched, the GNRS does not attempt to match state or county.
 
 The results output by the GNRS include the original political division names, the resolved political division names and IDs (from geonames) and additional information on how each name was resolved and the quality of the overal match.
 
-## <a name="Software"></a>Software
+<a name="Software"></a>
+## Software
 
 Ubuntu 16.04 or higher  
 PostgreSQL/psql 12.2, or higher
 
-## <a name="Dependencies"></a>Dependencies
+<a name="Dependencies"></a>
+## Dependencies
 
 1. Local installation of database `geonames`
   * Required for building the GNRS database
@@ -34,7 +38,8 @@ PostgreSQL/psql 12.2, or higher
   * Required for building the GNRS database
   * See repo: `https://github.com/ojalaquellueva/gadm.git'
 
-## <a name="installation"></a>Installation and configuration
+<a name="installation"></a>
+## Installation and configuration
 
 I recommend the following setup:
 
@@ -58,7 +63,8 @@ mv config ../
 
 Note: temporary data directory in /tmp/gnrs (used by gnrs api) is installed on the fly by the application.
 
-### <a name="maintenance"></a>Maintenance
+<a name="maintenance"></a>
+## Maintenance
 
 To avoid filling up the gnrs temp directory, consider adding a crontab entry to delete files older than a certain number of days. For example, the following cron job find and deletes all files older than 7 days, every day at 4:02 am:
 
@@ -78,7 +84,11 @@ Whichever you use, be sure to test first to verify that the list of files makes 
 find /tmp/gnrs/* -type f -mtime +7 
 ```
 
-### <a name="input-file"></a>Input File
+<a name="input-output"></a>
+## Input/Output
+
+<a name="input-file"></a>
+### Input File
 
 The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitted.csv, with the following fields:
 
@@ -91,7 +101,8 @@ The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitte
 
 Header `user_id,country,state_province,county_parish` must be the first line of the file. Place this file in the GNRS user data directory (`data/user/`; path and directory name set in file params.sh). 
 
-### <a name="output-file"></a>Output File
+<a name="output-file"></a>
+### Output File
 
 GNRS output is saved to the GNRS user data directory as a utf-8 CSV file with header named gnrs_results.csv. Fields are as follows:
 
@@ -121,9 +132,39 @@ GNRS output is saved to the GNRS user data directory as a utf-8 CSV file with he
 
 Place your input file in the gnrs user data directory (path and directory name set in param file). input file must be named "gnrs_submitted.csv".
 
-### <a name="Usage"></a>Usage
+<a name="Usage"></a>
+## Usage
 
-#### GNRS batch application
+<a name="II-cds-parallel"></a>
+### III. GNRSpar (GNRS with parallel processing)
+* This should be considered the default application as it is by far the fastest
+* Splits submitted file into batches, removing duplicates, and processes several batches at once using multiple cores.
+* Reassembles batches into single file when all batches complete
+* Invokes `gnrs_batch.sh` (see below)
+
+#### Syntax
+
+```
+./gnrspar.pl -in <input_filename_and_path> -nbatch <batches> -opt <makeflow_options>
+```
+
+#### Options
+
+Option | Meaning | Required? | Default value | 
+------ | ------- | -------  | ---------- | 
+-in     | Input file and path | Yes | |
+-out     | Output file and path | No | [input\_file\_name]\_cds\_results.csv | 
+-nbatch     | Number of batches | Yes |  |
+-opt     | Makeflow options | No | 
+
+#### Example:
+
+```
+./cdspar.pl -in "data/cds_testfile.csv" -nbatch 3
+```
+
+<a name="gnrs-batch"></a>
+### GNRS batch
 Import, name resolution and export of results are run as a single operation by invoking the following script:
 
 ```
@@ -143,7 +184,8 @@ Example:
 ```
 * The above assumes data directory and test file are stil inside application directory (as structured in this repo). Adjust path accordingly if you move data directory outside the repo, as recommended above under [Installation and configuration](#installation).
 
-#### Legacy usage: import, resolve, export
+<a name="legacy-commands"></a>
+### Legacy commands: import, resolve, export
 
 This approach has been replaced by the single file `gnrs_batch.sh`. File `gnrs.sh` is the core GNRS script invoked by `gnrs_batch.sh`. Scripts `gnrs_import.sh` and `gnrs_export.sh` are no longer needed but I am retaining now for internal use for compatibility with legacy BIEN applications. 
 

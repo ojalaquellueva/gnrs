@@ -30,11 +30,6 @@ job="job_$(date +%Y%m%d_%H%M%N)_${RANDOM}"
 # if needed
 master=`basename "$0"`
 
-# Default outputfile suffix
-# If $outfile not supplied by user, output file name will be formed by
-# appending this suffix to basename of input file
-outfile_suffix="_gnrs_results"
-
 # Get working directory
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
@@ -77,26 +72,21 @@ fi
 
 # Set defaults
 e="true"	# Echo/interactive mode on by default
-i="true"	# Interactive mode on by default
 f_custom="false"	# Use default input/output files and data directory
 api="false"		# Assume not an api call
-infile=""
-outfile=""
+infile=$data_dir_local"/"$submitted_filename	# Default input file & path
+outfile=$data_dir_local"/"$results_filename	# Default input file & path
 mailme="false"
 
 while [ "$1" != "" ]; do
     case $1 in
         -s | --silent )         e="false"
-        						i="false"
                             	;;
         -a | --api )        api="true"
                             	;;
         -f | --infile )        	f_custom="true"
         						shift
                                 infile=$1
-                                ;;
-        -o | --outfile )       	shift
-                                outfile=$1
                                 ;;
         -m | --mailme )       	mailme="true"
         						shift
@@ -116,40 +106,16 @@ if [ ! -f "$infile" ]; then
 fi
 
 # Set results file
-# data_dir=$(dirname "${infile}")
-# outfile_basename=$(basename ${infile%.*})
-# outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
-
-# Output file path and name
-if [[ ! "$outfile" == "" ]]; then
-	# Check destination directory exists
-	outdir=$(dirname "${outfile}")
-	if [ ! -d "$outdir" ]; then
-		echo "ERROR in outfile '$outfile': no such path"
-		exit 1
-	fi
-else
-	# Create default results file path and name
-	outdir=$(dirname "${infile}")
-	filename=$(basename -- "${infile}")
-	ext="${filename##*.}"
-	base="${filename%.*}"
-	outfilename="${base}${outfile_suffix}.${ext}"
-	outfile="${outdir}/${outfilename}"
-fi
+data_dir=$(dirname "${infile}")
+outfile_basename=$(basename ${infile%.*})
+outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
 
 # Set PGPASSWORD for api access
 # Parameter $pgpwd set in config file
 # Not needed if not an api call
-opt_pgpassword=""
-opt_user="-U $user"
+pgpassword=""
 if  [ "$api" == "true" ]; then
-	opt_pgpassword="PGPASSWORD=$pgpwd"
-	opt_user="-U $user"
-	
-	# Turn off all echoes, regardless of echo options sent
-	e="false"
-	i="false"
+	pgpassword="PGPASSWORD=$pgpwd"
 fi
 
 # Check valid email
@@ -165,7 +131,7 @@ fi
 # Confirmation message
 ############################################
 
-if [ "$i" = "true" ]; then
+if [ "$e" = "true" ]; then
         echo "Execute GNRS batch with the following settings?
 
         Database: 	$db_gnrs
@@ -214,12 +180,12 @@ if [ "$debug_mode" == "t" ]; then
 	# Clear everything, cache & user data
 	
 	echoi $e -n "Clearing user_data..."
-	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data'"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data'"
 	eval $cmd
 	echoi $e "done"
 
 	echoi $e -n "Clearing cache..."
-	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM cache'"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM cache'"
 	eval $cmd
 	echoi $e "done"
 fi
@@ -235,7 +201,7 @@ fi
 echoi $e "Importing user data:"
 
 echoi $e -n "- Clearing table user_data_raw..."
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data_raw' WHERE job='$job'"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data_raw' WHERE job='$job'"
 eval $cmd
 source "$DIR/includes/check_status.sh"  
 
@@ -250,7 +216,7 @@ if [ $use_limit = "true" ]; then
 else
 	# Import full file
  	sql="\COPY user_data_raw FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
 	eval $cmd
 fi
 COMMENT_BLOCK_1
@@ -260,7 +226,7 @@ raw_data_tbl_temp="user_data_raw_${job}"
 
 # Create job-specific temp table to hold raw data
 echoi $e -n "-- Creating temp table $raw_data_tbl_temp..."
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/create_raw_data_temp.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/create_raw_data_temp.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
@@ -269,13 +235,13 @@ source "$DIR/includes/check_status.sh"
 # Will make this a parameter at some point, with NULL AS NA as the default
 echoi $e -n "-- Importing '$submitted_filename' to temp table..."
 metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
 # Import the raw data
 echoi $e -n "-- Inserting from temp table to user_data_raw..."
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/import_user_data.sql"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/import_user_data.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
@@ -305,7 +271,7 @@ echoi $e -n "Exporting CSV file of results to data directory..."
 # "set -f" turns off globbing to prevent expansion of asterisk to unix wildcard
 set -f
 sql="\copy (SELECT * FROM user_data WHERE job='$job') TO '$outfile' csv header"
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
 eval $cmd
 set +f
 source "$DIR/includes/check_status.sh"
@@ -336,7 +302,7 @@ fi
 
 if [ "$debug_mode" == "t" ]; then
 	echoi $e -n "Clearing user data for this job from database..."
-	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_user_data.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh"
 fi
