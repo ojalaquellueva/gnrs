@@ -1,8 +1,9 @@
 <?php
 
 ////////////////////////////////////////////////////////
-// Accepts batch web service requests and submits to 
-// gnrs_batch.php
+// Legacy gnrs batch api. Runs non-parallel gnrs_batch.sh
+//
+// For updated parallel version, see gnrs_api.sh
 ////////////////////////////////////////////////////////
 
 ///////////////////////////////////
@@ -19,13 +20,10 @@ $data_dir_tmp = "/tmp/gnrs";
 
 // Input file
 $basename = uniqid(rand(), true);
-$filename_tmp = $basename . '_in.csv';
+$filename_tmp = $basename . '.csv';
 
 // Results file
-$results_filename = $basename . "_out.csv";
-
-# Full path and name of results file
-$results_file = $data_dir_tmp . "/" . $results_filename;
+$results_filename = $basename . "_gnrs_results.csv";
 
 ///////////////////////////////////
 // Functions
@@ -38,6 +36,30 @@ function csvtojson($file,$delimiter,$lines) {
     if (($handle = fopen($file, "r")) === false) {
     	$err_msg = "ERROR: Can't open file '" . $file . 
     		"' (script: '" . basename(__FILE__) . "')";
+    	die($err_msg);
+    }
+
+    $f_csv = fgetcsv($handle, 4000, $delimiter);
+    $f_array = array();
+
+    while ($row = fgetcsv($handle, 4000, $delimiter)) {
+            $f_array[] = array_combine($f_csv, $row);
+    }
+
+    fclose($handle);
+    
+    // Get subset of array
+    $f_array = array_slice($f_array, 0, $lines);
+    
+    // Convert and return the JSON
+    return json_encode($f_array);
+}
+function csvtojson_test($file,$delimiter,$lines, $user) {
+	$filename = basename($file);
+    
+    if (($handle = fopen($file, "r")) === false) {
+    	$err_msg = "ERROR: Can't open file '" . $file . 
+    		"' (script: '" . basename(__FILE__) . "', user: '$user')";
     	die($err_msg);
     }
 
@@ -115,15 +137,14 @@ fclose($fp);
 ///////////////////////////////////
 
 // Compose the gnrs batch command
-//$cmd="./gnrs_batch.sh -a -s -f '$file_tmp'";
-$cmd="cdspar.pl -in '$file_tmp'  -out '$results_file' -nbatch $nbatches ";
+$cmd="./gnrs_batch.sh -a -s -f '$file_tmp'";
 //die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
 
 // Execute gnrs batch command
 // Saves result to file in data directory
 exec($cmd, $output, $status);
 
-if ($status) die("ERROR: gnrspar non-zero exit status ($status)");
+if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
 
 ///////////////////////////////////
 // Retrieve the tab-delimited results
@@ -131,8 +152,15 @@ if ($status) die("ERROR: gnrspar non-zero exit status ($status)");
 ///////////////////////////////////
 
 // Import the results file
-//$results_file = $data_dir_tmp . "/" . $results_filename;
+$results_file = $data_dir_tmp . "/" . $results_filename;
 $results_json = csvtojson($results_file, ",",100000);
+
+/*
+// Testing
+$cmd="whoami";
+$curr_user=shell_exec($cmd);
+$results_json = csvtojson_test($results_file, ",",100000, $curr_user);
+*/
 
 ///////////////////////////////////
 // Echo the results

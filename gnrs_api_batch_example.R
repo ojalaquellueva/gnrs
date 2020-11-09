@@ -1,3 +1,11 @@
+#####################################
+# Legacy batch api
+#
+# Runs gnrs_batch.sh (non-parallel). For updated
+# test script running parallel gnrs (gnrspar.sh) see
+# gnrs_api_example.R
+#####################################
+
 # Load libraries
 library(RCurl) # API requests
 library(rjson) # JSON coding/decoding

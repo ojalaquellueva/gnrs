@@ -72,7 +72,7 @@ user_id,country,state_province,county_parish
 $ws_data_dir = "../data/user/";
 
 // Test file of political division names
-$inputfilename = "test_data2.csv";
+$inputfilename = "gnrs_testfile.csv";
 
 // Number of lines of test file to import, not counting header
 // Handy for testing a small sample of larger file
@@ -92,6 +92,9 @@ $lines = "";
 // $api_host = "127.0.0.0:<port>";
 $api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
 $api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
+
+$api_app = "gnrs_ws.php";
+$api_app = "gnrs_api.php";
 
 /////////////////////////////////////////////
 // Functions
@@ -128,11 +131,8 @@ exec($cmd, $output, $status);
 echo "\r\nwhoami: $output[0]\r\n";
 */
 
-//
 // Form the API base url
-//
-
-$api_url = $api_host . "/gnrs_ws.php";
+$api_url = $api_host . "/" . $api_app;
 
 // Echo it
 echo "\r\nGNRS API host:\r\n'$api_host'\r\n";

@@ -4,6 +4,21 @@
 # 	Service (GNRS)
 # Author: Naim Matasci <nmatasci@iplantcollaborative.org>
 # Modified by: Brad Boyle <bboyle@email.arizona.edu>
+#
+# Usage:
+# 	./cdspar.pl -in <input_filename_and_path> -out <output_filename_and_path> -nbatch <batches> -opt <makeflow_options>
+# 
+# Options:
+# Option | Meaning | Required? | Default value | 
+# -in     | Input file and path | Yes | |
+# -out     | Output file and path | No | [input\_file\_name]\_cds\_results.csv | 
+# -nbatch     | Number of batches | Yes |  |
+# -opt     | Makeflow options | No | \
+#
+# Example:
+#	./cdspar.pl -in "data/cds_testfile.csv" -nbatch 3
+#
+# Note: if get permission error, run as sudo
 ###############################################################################
 
 use strict;
