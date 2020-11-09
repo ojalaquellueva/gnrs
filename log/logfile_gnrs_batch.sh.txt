@@ -1315,3 +1315,94 @@ Exporting CSV file of results to data directory...done (3.23 sec)
 
 ------ Process 'GNRS Batch' completed in 3.70 seconds ------
 
+
+------ Process GNRS Batch started at Sun Nov  8 14:15:29 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.21 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1415351555394_828...done (.09 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.08 sec)
+-- Inserting from temp table to user_data_raw...done (.10 sec)
+Exporting CSV file of results to data directory...done (4.93 sec)
+
+------ Process 'GNRS Batch' completed in 5.49 seconds ------
+
+
+------ Process GNRS Batch started at Sun Nov  8 15:45:26 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.11 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1545758465154_4694...done (.11 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.09 sec)
+-- Inserting from temp table to user_data_raw...done (.10 sec)
+Exporting CSV file of results to data directory...done (.90 sec)
+
+------ Process 'GNRS Batch' completed in 1.35 seconds ------
+
+
+------ Process GNRS Batch started at Sun Nov  8 15:47:03 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.09 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1547686903109_12021...done (.09 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.11 sec)
+-- Inserting from temp table to user_data_raw...done (.10 sec)
+Exporting CSV file of results to data directory...done (.89 sec)
+
+------ Process 'GNRS Batch' completed in 1.34 seconds ------
+
+
+------ Process GNRS Batch started at Sun Nov  8 15:48:43 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.09 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1548799246609_28941...done (.09 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.09 sec)
+-- Inserting from temp table to user_data_raw...done (.11 sec)
+Exporting CSV file of results to data directory...done (1.18 sec)
+
+------ Process 'GNRS Batch' completed in 1.62 seconds ------
+
+
+------ Process GNRS Batch started at Sun Nov  8 15:49:56 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.11 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1549838093330_18227...done (.10 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.08 sec)
+-- Inserting from temp table to user_data_raw...done (.13 sec)
+Exporting CSV file of results to data directory...done (1.25 sec)
+
+------ Process 'GNRS Batch' completed in 1.75 seconds ------
+
+
+------ Process GNRS Batch started at Sun Nov  8 16:05:12 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.09 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1605826613792_29970...done (.08 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.08 sec)
+-- Inserting from temp table to user_data_raw...done (.09 sec)
+Exporting CSV file of results to data directory...done (1.13 sec)
+
+------ Process 'GNRS Batch' completed in 1.53 seconds ------
+
+
+------ Process GNRS Batch started at Sun Nov  8 16:05:33 PST 2020 ------
+
+Importing user data:
+- Clearing table user_data_raw...done (.09 sec)
+- Importing raw data:
+-- Creating temp table user_data_raw_job_20201108_1605994219863_14397...done (.10 sec)
+-- Importing 'gnrs_submitted.csv' to temp table...done (.08 sec)
+-- Inserting from temp table to user_data_raw...done (.11 sec)
+Exporting CSV file of results to data directory...done (3.12 sec)
+
+------ Process 'GNRS Batch' completed in 3.56 seconds ------
+
