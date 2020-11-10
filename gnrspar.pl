@@ -77,6 +77,18 @@ if ( !$outfile ) {
 	$outfile =~ s/(?:\.\w+)?$/_${APPNAME}${RESULTSFILESUFFIX}.csv/;    
 }
 
+# Correct windows/mac line endings, if any
+my $finfo = `file $infile`;
+if ( index( $finfo, 'CRLF' ) != -1) {
+	# CRLF (windows)
+	system "tr -d '\15\32' < $infile > ${infile}.temp";
+	system "mv ${infile}.temp $infile";
+} elsif ( index( $finfo, 'CR' ) != -1) {
+	# CR (mac)
+	system "tr '\r' '\n' < $infile > ${infile}.temp";
+	system "mv ${infile}.temp $infile";
+} 
+
 # Let the magic begin
 process( $infile, $nbatch, $tmpfolder, $outfile );
 
@@ -223,11 +235,11 @@ sub _generate_mfconfig {
 		my $operation =
 		  "$tmpfolder/out_$i.txt: $tmpfolder/input/in_$i.txt \$APPBIN\n"; 
 		#Line 2: main application command
-		# TNRS version:
-# 		$operation .=
-# "\t\$APPBIN -a -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt $opt_maxdist $opt_maxdistrel \n\n"; 
+		# Note GNRS options: 
+		#	-a: api mode, no echo, use password
+		#	-n: no header; critical or will lose one line per batch
 		$operation .=
-"\t\$APPBIN -a -s -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
+"\t\$APPBIN -a -n -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
 		$cmd = $cmd . $operation;
 		$filelist .= "$tmpfolder/out_$i.txt ";
 	}

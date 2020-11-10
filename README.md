@@ -181,7 +181,7 @@ Options (listed separately preceded by dash; do not combine):
 Example:
 
 ```
-./gnrs_batch.sh -f "data/user/test_data.csv"
+./gnrs_batch.sh -f "data/user/gnrs_testfile.csv"
 
 ```
 * The above assumes data directory and test file are stil inside application directory (as structured in this repo). Adjust path accordingly if you move data directory outside the repo, as recommended above under [Installation and configuration](#installation).

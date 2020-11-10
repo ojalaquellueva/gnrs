@@ -12,7 +12,7 @@ country_verbatim,
 state_province_verbatim,
 county_parish_verbatim
 )
-SELECT DISTINCT
+SELECT 
 job,
 user_id,
 country,

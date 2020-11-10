@@ -2,10 +2,6 @@
 -- Check for existing results in cache
 -- 
 
--- Recreate FK & WHERE indexes
-CREATE INDEX IF NOT EXISTS user_data_poldiv_full_idx ON user_data (poldiv_full);
--- CREATE INDEX IF NOT EXISTS user_data_job_idx ON user_data (job);
-
 -- JOIN on FK
 UPDATE user_data a 
 SET 

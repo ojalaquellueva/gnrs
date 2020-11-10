@@ -83,6 +83,7 @@ api="false"		# Assume not an api call
 infile=""
 outfile=""
 mailme="false"
+header="true"	# Assume input file has header
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -90,6 +91,8 @@ while [ "$1" != "" ]; do
         						i="false"
                             	;;
         -a | --api )        api="true"
+                            	;;
+        -n | --noheader )       header="false"
                             	;;
         -f | --infile )        	f_custom="true"
         						shift
@@ -113,6 +116,12 @@ if [ "$f_custom" == "true" ] && [ "$infile" == "" ]; then
 fi
 if [ ! -f "$infile" ]; then
     echo "Input file '$infile' does not exist!"; exit 1    
+fi
+
+# Set header option for file import
+opt_header="HEADER"
+if  [ "$header" == "false" ]; then
+	opt_header=""
 fi
 
 # Set results file
@@ -170,6 +179,7 @@ if [ "$i" = "true" ]; then
 
         Database: 	$db_gnrs
         Input file: 	$infile
+        Has header:	$header
         Results file: 	$outfile
         Notify: 	$mailme
         Notify email:	$email
@@ -241,20 +251,6 @@ source "$DIR/includes/check_status.sh"
 
 echoi $e "- Importing raw data:"
 
-: <<'COMMENT_BLOCK_1'
-# The development limit/testing option below need to be updated
-# to accommodate use of job # with all raw data
-if [ $use_limit = "true" ]; then 
-	# Import subset of records (development only)
-	head -n $recordlimit $infile | psql -U $user $db_gnrs -q -c "COPY user_data_raw FROM STDIN DELIMITER ',' CSV NULL AS 'NA' HEADER"
-else
-	# Import full file
- 	sql="\COPY user_data_raw FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
-	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${sql}\""
-	eval $cmd
-fi
-COMMENT_BLOCK_1
-
 # Compose name of temporary, job-specific raw data table
 raw_data_tbl_temp="user_data_raw_${job}"
 
@@ -265,10 +261,10 @@ eval $cmd
 source "$DIR/includes/check_status.sh"
 
 # Import the raw data
-# Not "NULL AS NA": concession to R users
+# Note "NULL AS NA": concession to R users
 # Will make this a parameter at some point, with NULL AS NA as the default
 echoi $e -n "-- Importing '$submitted_filename' to temp table..."
-metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' HEADER;"
+metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' ${opt_header};"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
 eval $cmd
 source "$DIR/includes/check_status.sh"
@@ -304,7 +300,7 @@ fi
 echoi $e -n "Exporting CSV file of results to data directory..."
 # "set -f" turns off globbing to prevent expansion of asterisk to unix wildcard
 set -f
-sql="\copy (SELECT * FROM user_data WHERE job='$job') TO '$outfile' csv header"
+sql="\copy (SELECT poldiv_full, country_verbatim, state_province_verbatim, state_province_verbatim_alt, county_parish_verbatim, county_parish_verbatim_alt, country, state_province, county_parish, country_id, state_province_id, county_parish_id, country_iso, state_province_iso, county_parish_iso, geonameid, gid_0, gid_1, gid_2, match_method_country, match_method_state_province, match_method_county_parish, match_score_country, match_score_state_province, match_score_county_parish, poldiv_submitted, poldiv_matched, match_status, user_id FROM user_data WHERE job='$job') TO '$outfile' csv header"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
 eval $cmd
 set +f
