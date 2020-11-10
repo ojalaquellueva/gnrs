@@ -13,6 +13,9 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
   - [Input File](#input-file)
   - [Output File](#output-file)
 - [Usage](#Usage)
+  - [GNRS (parallel processing)](#gnrs-parallel)
+  - [GNRS batch (non-parallel)](#gnrs-batch)
+  - [Legacy commands](#legacy-commands)
 - [API](#api)
 
 <a name="Overview"></a>
@@ -104,39 +107,39 @@ Header `user_id,country,state_province,county_parish` must be the first line of 
 <a name="output-file"></a>
 ### Output File
 
-GNRS output is saved to the GNRS user data directory as a utf-8 CSV file with header named gnrs_results.csv. Fields are as follows:
+GNRS output is saved as a utf-8 CSV file with header. By default, the name of the output file is the basename of the input file, plus suffix "gnrs\_results.csv". Fields are as follows:
 
 | Field name | Meaning |
 | ----- | ----- |
 | id | gnrs ID of each record |
-| poldiv_full | Verbatim country, state/province and county/parish, concatenated with '@' dellimiter |
-| country_verbatim | Verbatim country |
-| state_province_verbatim | Verbatim state/province |
-| county_parish_verbatim | Verbatim county/parish |
+| poldiv\_full | Verbatim country, state/province and county/parish, concatenated with '@' dellimiter |
+| country\_verbatim | Verbatim country |
+| state\_province\_verbatim | Verbatim state/province |
+| county\_parish\_verbatim | Verbatim county/parish |
 | country | Resolved country |
-| state_province | Resolved state/province |
-| county_parish | Resolve couny/parish |
-| country_id | Geonames ID of resolved country |
-| state_province_id | Geonames ID of resolved state/province |
-| county_parish_id | Geonames ID of resolve county/parish |
-| match_method_country | Method used to match country |
-| match_method_state_province | Method used to match state/province |
-| match_method_county_parish | Method used to match county/parish |
-| match_score_country | Country match score (if fuzzy matched) |
-| match_score_state_province | State/province match score (if fuzzy matched) |
-| match_score_county_parish | County/parish match score (if fuzzy matched) |
-| poldiv_submitted | Lowest political division submitted |
-| poldiv_matched | Lowest political division matched |
-| match_status | Completeness of overall match |
-| user_id | User id, if supplied |
+| state\_province | Resolved state/province |
+| county\_parish | Resolve couny/parish |
+| country\_id | Geonames ID of resolved country |
+| state\_province\_id | Geonames ID of resolved state/province |
+| county\_parish\_id | Geonames ID of resolve county/parish |
+| match\_method\_country | Method used to match country |
+| match\_method\_state\_province | Method used to match state/province |
+| match\_method\_county\_parish | Method used to match county/parish |
+| match\_score\_country | Country match score (if fuzzy matched) |
+| match\_score\_state\_province | State/province match score (if fuzzy matched) |
+| match\_score\_county\_parish | County/parish match score (if fuzzy matched) |
+| poldiv\_submitted | Lowest political division submitted |
+| poldiv\_matched | Lowest political division matched |
+| match\_status | Completeness of overall match |
+| user\_id | User id, if supplied |
 
-Place your input file in the gnrs user data directory (path and directory name set in param file). input file must be named "gnrs_submitted.csv".
+Place your input file in the gnrs user data directory (path and directory name set in param file). input file must be named "gnrs\_submitted.csv".
 
 <a name="Usage"></a>
 ## Usage
 
-<a name="II-cds-parallel"></a>
-### III. GNRSpar (GNRS with parallel processing)
+<a name="gnrs-parallel"></a>
+### GNRS (parallel processing)
 * This should be considered the default application as it is by far the fastest
 * Splits submitted file into batches, removing duplicates, and processes several batches at once using multiple cores.
 * Reassembles batches into single file when all batches complete
@@ -153,18 +156,17 @@ Place your input file in the gnrs user data directory (path and directory name s
 Option | Meaning | Required? | Default value | 
 ------ | ------- | -------  | ---------- | 
 -in     | Input file and path | Yes | |
--out     | Output file and path | No | [input\_file\_name]\_cds\_results.csv | 
 -nbatch     | Number of batches | Yes |  |
 -opt     | Makeflow options | No | 
 
 #### Example:
 
 ```
-./cdspar.pl -in "data/cds_testfile.csv" -nbatch 3
+./gnrspar.pl -in "../data/user/gnrs_testfile.csv" -nbatch 3
 ```
 
 <a name="gnrs-batch"></a>
-### GNRS batch
+### GNRS batch (non-parallel)
 Import, name resolution and export of results are run as a single operation by invoking the following script:
 
 ```
@@ -214,10 +216,6 @@ Component service options:
   -m: Send notification emails    
   -n: No warnings: suppress confirmations but not progress messages  
   -s: Silent mode: suppress all (confirmations & progress messages)  
-
-  
-### <a name="example"></a>Example
-
 
 ### <a name="api"></a>API
 

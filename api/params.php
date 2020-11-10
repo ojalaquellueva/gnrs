@@ -10,7 +10,7 @@
 $BASE_DIR = "/home/boyle/bien/gnrs/";
 
 // Application code from repo goes here
-$APP_DIR = $BASE_DIR."src/";
+$APP_DIR = $BASE_DIR."src/api/";
 
 // dir where db user & pwd file kept
 // Should be outside application directory and html directory
