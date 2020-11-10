@@ -2,6 +2,13 @@
 -- Creates all remaining tables not derived from geonames
 -- -----------------------------------------------------------------
 
+DROP TABLE IF EXISTS meta;
+CREATE TABLE meta (
+db_version text DEFAULT NULL,
+code_version text DEFAULT NULL,
+build_date date
+);
+
 DROP TABLE IF EXISTS user_data_raw;
 CREATE TABLE user_data_raw (
 job text NOT NULL,
