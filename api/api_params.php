@@ -4,6 +4,8 @@
 // API tuning parameters
 /////////////////////////////////////////////////
 
+$APPNAME="gnrs";
+
 // Return offending SQL on error? (true|false)
 // TURN OFF FOR PRODUCTION! ($err_show_sql=false)
 $err_show_sql=false;

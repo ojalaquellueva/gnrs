@@ -1,241 +1,262 @@
 <?php
 
-///////////////////////////////////////////////////////////////
-// Script for testing GNRS API
+//////////////////////////////////////////////////////
+// Submits test data to CDS API & displays results
 //
-// Usage:
-//	php gnrs_ws_test.php
+// * Imports names from test file on local file system
+// * Displays input and output at various stages of
+// 	 the process.
+//////////////////////////////////////////////////////
+
+/////////////////////
+// API parameters
+/////////////////////
+
+// api base url 
+//$base_url = "http://vegbiendev.nceas.ucsb.edu:8775/cds_api.php"; 
+$base_url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php"; // production
+$base_url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php"; // development
+
+require_once 'server_params.php';	// server-specific parameters 
+require_once 'api_params.php';			// general api parameters
+
+// Path and name of file containing input names and political divisions
+$inputfile = $DATADIR."gnrs_testfile.csv";	// local test file
+// $inputfile = $DATADIR."cds_testfile_big.csv";	// local test file (big)
+// $inputfile = "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/10/cds_testfile.csv";
+
+// Desired response format
+//	Options: json*|xml
+// Example: $format="xml";
+// NOT YET IMPLEMENTED!
+$format="json";
+
+// Number of lines to import
+// Use this option to limit test data to small subsample of input file
+// Set to number > # of lines in file to import entire file
+$lines = 10000000000;
+//$lines = 5;
+
+/////////////////////////////////////////
+// GNRS options
 //
-// Purpose: 
-//	Use to test GNRS API on command line. Imports CSV test data
-//	file (directory & file of your choice), restructures as json,  
-//	echoes json to screen, sends to GNRS api as POST  
-//	request, echoes response (will see json if successful).
-//
-// Parameters (set in parameters section below, not on command line):
-// 	$ws_data_dir: Directory of test file (utf-8 text CSV with header)
-//	$inputfilename: Name of test file
-// 	$lines: Number of lines of test file to import
-//	$api_host: Host (and port, if applicable) of API
-//  
-// Input file format: see below
-//  
-// Author: Brad Boyle (bboyle@email.arizona.edu)
-///////////////////////////////////////////////////////////////
+// UNDER CONSTRUCTION! - NOT ALL OPTIONS
+// CURRENTLY IMPLEMENTED
+// 
+// Set any option to empty string ("") to 
+// use default
+// *=default option
+/////////////////////////////////////////
 
-// $me=basename(__FILE__); exit("\r\nExiting $me...\r\n");
+// Processing mode
+//	Options: resolve*|meta
+// 	E.g., $mode="meta"
+$mode="resolve";			// Resolve names
+//$mode="meta";			// Return metadata on GNRS & sources
 
-/*
+// Number of batches for parallel processing
+$ppbatches=20;
 
-Input file requirements
+/////////////////////////////////////////
+// Display options
+// 
+// * Turn on/off what is echoed to terminal
+// * Raw data always displayed
+/////////////////////////////////////////
 
-Rules:
-* UTF-8 CSV test with header
-* Column country mandatory
-* Column state_province required only if country_parish included
+$disp_data_array=false;		// Echo raw data as array
+$disp_combined_array=false;	// Echo combined options+data array
+$disp_opts_array=false;		// Echo CDS options as array
+$disp_opts=true;			// Echo CDS options
+$disp_json_data=true;		// Echo the options + raw data JSON POST data
+$disp_results_json=true;	// Echo results as array
+$disp_results_array=false;	// Echo results as array
+$disp_results_csv=true;		// Echo results as CSV text
+$time=true;					// Echo time elapsed
 
-Fields:
-user_id	- user-supplied unique identifier (text; optional)
-country	- country name (text; required)
-state_province - state/province name (text; optional)
-county_parish - next lower political division (text; optional)
+/////////////////////////////////////////////////////
+// Command line options
+// Use to over-ride the above parameters
+/////////////////////////////////////////////////////
 
-Header: 
-user_id,country,state_province,county_parish
+// Get options, set defaults for optional parameters
+// Use default if unset
+$options = getopt("b:m:");
+$batches=isset($options["b"])?$options["b"]:$ppbatches;	
 
-Format:
-user_id,country,state_province,county_parish
-row1_user_id,row1_country,row1_state_province,row1_county_parish
-row2_user_id,row2_country,row2_state_province,row2_county_parish
-row3_user_id,row3_country,row3_state_province,row3_county_parish
-...
+////////////////////////////////////////////////////////////////
+// Main
+////////////////////////////////////////////////////////////////
 
-Example input file (note user_id not used):
-user_id,country,state_province,county_parish
-,United States,Arizona,Pima County
-,Russia,Lipetsk,Dobrovskiy rayon
-,Mexico,"Sonora, Estado de",Huépac
-,Guatemala,Izabal,El Estor
+include $timer_on; 	// Start the timer
+echo "\n";
 
-*/
+///////////////////////////////
+// Set options array
+///////////////////////////////
+$opts_arr = array(
+	"mode"=>$mode
+	);
+if ( ! $batches=="" ) $opts_arr += array("batches"=>$batches);
 
-/////////////////////////////////////////////
-// Parameters
-//
-// Adjust the following parameters according
-// to your installation and test data
-/////////////////////////////////////////////
+///////////////////////////////
+// Make data array
+///////////////////////////////
 
-// Data directory
-// Input and output files here
-// Can user relative path or absolute path
-$ws_data_dir = "../data/user/";
+// Import csv data and convert to array
+$data_arr = array_map('str_getcsv', file($inputfile));
 
-// Test file of political division names
-$inputfilename = "gnrs_testfile.csv";
+# Get subset
+$data_arr = array_slice($data_arr, 0, $lines);
 
-// Number of lines of test file to import, not counting header
-// Handy for testing a small sample of larger file
-// Set to empty string ("") to impart entire file
-$lines = "";
+if ( $mode=="resolve" ) {
+	// Echo raw data
+	echo "The raw data:\r\n";
+	foreach($data_arr as $row) {
+		foreach($row as $key => $value) echo "$value\t"; echo "\r\n";
+	}
+	echo "\r\n";
 
-// API host (+port, as applicable)
-// Virtual Host and ports must be configured appropriately
-// Examples formats:
-// $api_host = "<server_name>"
-// $api_host = "<server_name>:<port>"
-// $api_host = "<server_ip>"
-// $api_host = "<server_ip>:<port>"
-// $api_host = "localhost";
-// $api_host = "127.0.0.0";
-// $api_host = "localhost:<port>";
-// $api_host = "127.0.0.0:<port>";
-$api_host = "http://vegbiendev.nceas.ucsb.edu:8875";	// production
-$api_host = "http://vegbiendev.nceas.ucsb.edu:9875";	// development
-
-$api_app = "gnrs_ws.php";
-$api_app = "gnrs_api.php";
-
-/////////////////////////////////////////////
-// Functions
-/////////////////////////////////////////////
-
-function csvtoarray($file,$delimiter,$lines)
-{
-    if (($handle = fopen($file, "r")) === false) {
-    	die("can't open the file.");
-    }
-
-    $f_csv = fgetcsv($handle, 4000, $delimiter);
-    $f_array = array();
-
-    while ($row = fgetcsv($handle, 4000, $delimiter)) {
-            $f_array[] = array_combine($f_csv, $row);
-    }
-
-    fclose($handle);
-    $f_array = array_slice($f_array, 0, $lines); // Get requested subset
-    
-    return $f_array;
+	if ($disp_data_array) {
+		echo "The raw data as array:\r\n";
+		var_dump($data_arr);
+		echo "\r\n";
+	}
 }
 
-/////////////////////////////////////////////
-// Main
-/////////////////////////////////////////////
+///////////////////////////////
+// Merge options and data into 
+// json object for post
+///////////////////////////////
 
-echo "\r\nTesting GNRS API\r\n";
+// Convert to JSON
+if ($mode=='resolve') {
+	# Options + data
+	$json_data = json_encode(array('opts' => $opts_arr, 'data' => $data_arr));	
+} else {
+	# Just options
+	$json_data = json_encode(array('opts' => $opts_arr));	
+}
 
-/*
-$cmd="whoami";
-exec($cmd, $output, $status);
-echo "\r\nwhoami: $output[0]\r\n";
-*/
+///////////////////////////////
+// Decompose the JSON
+// into opt and data
+///////////////////////////////
 
-// Form the API base url
-$api_url = $api_host . "/" . $api_app;
+$input_array = json_decode($json_data, true);
 
-// Echo it
-echo "\r\nGNRS API host:\r\n'$api_host'\r\n";
+if ($disp_combined_array) {
+	echo "The combined array:\r\n";
+	var_dump($input_array);
+	echo "\r\n";
+}
 
-//
-// Load the input file
-//
+$opts = $input_array['opts'];
+if ($disp_opts_array) {
+	echo "Options array:\r\n";
+	var_dump($opts);
+	echo "\r\n";
+}
 
-// Set to very large number to import entire file
-// if $lines parameter blank
-if ($lines=="") $lines=1000000000;
+if ($disp_opts) {
+	
+	// Echo the options
+	echo "CDS options:\r\n";
+	//echo "  mode: " . $mode . "\r\n";
+	//echo "  batches: " . $opts['batches'] . "\r\n";
+	foreach($opts_arr as $key => $value) {
+		//foreach($row as $key => $value) {
+			echo "  $key=$value\n";
+		//}
+	}
+	echo "\r\n";
+}
 
-// Input file name and path
-$inputfile = $ws_data_dir.$inputfilename;
-if (!file_exists($inputfile)) die("Input file '$inputfile' doesn't exist!\r\n");
-echo "\r\nInput file:\r\n";
-echo $inputfile . "\r\n";
+if ($disp_json_data) {
+	// Echo the final JSON post data
+	echo "API input (options + raw data converted to JSON):\r\n";
+	echo $json_data . "\r\n\r\n";
+}
 
-// Get total lines in file
-$file = new \SplFileObject($inputfile, 'r');
-$file->seek(PHP_INT_MAX);
-$flines = $file->key(); 
+///////////////////////////////
+// Call the API
+///////////////////////////////
 
-// Echo the file
-echo "\r\nInput file contents:\r\n";
-$csv_arr = file($inputfile);
-for ($i=0; $i<min($lines+1,$flines); $i++) echo $csv_arr[$i];
+$url = $base_url;    
 
-// Convert to JSON & echo
-$csv_arr = csvtoarray($inputfile,',',$lines);
-$json_data = json_encode($csv_arr);
-echo "\r\nJSON data sent:\r\n";
-echo $json_data . "\r\n";
-
-//
-// Prepare the API request
-//
-
-// Call the batch api
-$url = $api_url;    
-$content = $json_data;
-
-// Initialize curl request
+// Initialize curl & set options
 $ch = curl_init($url);	
-
-// Option: return response (CRITICAL!)
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-// Set to catch all errors, incluing http errors
-curl_setopt($ch, CURLOPT_FAILONERROR, true);
-
-// Option: POST request
-curl_setopt($ch, CURLOPT_POST, 1);	
-
-// Set the header
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);	// Return response (CRITICAL!)
+curl_setopt($ch, CURLOPT_POST, 1);	// POST request
+curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);	// Attach the encoded JSON
 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json')); 
 
-// Attach the encoded JSON
-curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);	
-
-//
-// Send the request
-//
-
-// Execute the API call
+// Send the API call
 $response = curl_exec($ch);
-
-//
-// Process the response
-//
 
 // Check status of the response and echo if error
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-// Echo fatal errors if any
 if ( $status != 201 && $status != 200 ) {
-    die("Error: call to URL $url failed with status $status, response $response, curl_error " . curl_error($ch) . ", curl_errno " . curl_errno($ch) . "\r\n");
+	$status_msg = $http_status_codes[$status];
+	$msg="Error: call to URL $url failed with status $status $status_msg \r\nDetails: $response \r\n";
+    //die($msg);
+    echo $msg;
 }
 
 // Close curl
 curl_close($ch);
 
-// Echo the raw response
-echo "\r\nJSON response:\r\n";
-print_r($response);
-echo "\r\n\r\n";
+///////////////////////////////
+// Echo the results
+///////////////////////////////
 
-// Echo selected response fields as table
-echo "\r\nResponse as table (selected columns):\r\n";
-$data =  json_decode($response);
-//print_r($data);
+$results_json = $response;
+$results = json_decode($results_json, true);	// Convert JSON results to array
 
-// Set format
-$mask = "%-15s %-25s %-30s %-15s %-25s %-30s %-20s \n";
-
-// Print header
-echo sprintf($mask, "country_orig", "state_province_orig", "county_parish_orig", "country", "state_province", "county_parish", "match_status");
-
-foreach ($data as $idx => $obs) {
-	// Output row
-	echo sprintf($mask, $obs->country_verbatim, $obs->state_province_verbatim, $obs->county_parish_verbatim, $obs->country, $obs->state_province, $obs->county_parish, $obs->match_status);
+// Echo the JSON response
+if ($disp_results_json) {
+	echo "API results (JSON)\r\n";
+	echo $results_json;
+	echo "\r\n\r\n";
 }
 
-echo "\r\n";
+if ($disp_results_array) {
+	echo "API results as array:\r\n";
+	var_dump($results);
+	echo "\r\n\r\n";
+}
+
+if ($disp_results_csv) {
+	echo "API results as CSV:\r\n";
+	
+	foreach ( $results as $rkey => $row ) {
+		$rind=array_search( $rkey, array_keys($results) );	# Index: current row
+		$cindmax = count( $row )-1;	// Index: last column of current row
+	
+		if ( $rind==0 ) {
+			// Print header
+			foreach ( $row as $key => $value )  {	
+				$cind=array_search( $key, array_keys($row) );
+				$cind==$cindmax?$format="%1s\n":$format="%1s,";
+				printf($format, $key);
+			}
+		}
+
+		// Print data 
+		foreach ( $row as $key => $value )  {	
+			$cind=array_search( $key, array_keys($row) );
+			$cind==$cindmax?$format="%1s\n":$format="%1s,";
+			printf($format, $value);
+		}
+	}
+}
+
+///////////////////////////////////
+// Echo time elapsed
+///////////////////////////////////
+
+include $timer_off;	// Stop the timer
+if ($time) echo "\r\nTime elapsed: " . $tsecs . " seconds.\r\n\r\n"; 
 
 ?>

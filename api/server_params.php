@@ -9,7 +9,7 @@
 $BASE_DIR = "/home/boyle/bien/gnrs/";
 
 // API directory
-$APP_DIR = $BASE_DIR."src/";
+$APP_DIR = $BASE_DIR."src/api/";
 
 // Batch application source directory
 $BATCH_DIR=$BASE_DIR."src/";
