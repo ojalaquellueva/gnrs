@@ -106,7 +106,7 @@ results[ 1:8, c(	'country', 'state_province', 'county_parish',
 
 #################################
 # Example 2: Get metadata for current 
-# CDS version
+# GNRS version
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
 

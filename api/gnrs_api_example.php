@@ -52,7 +52,7 @@ $lines = 10000000000;
 //	Options: resolve*|meta
 // 	E.g., $mode="meta"
 $mode="resolve";			// Resolve names
-//$mode="meta";			// Return metadata on GNRS & sources
+$mode="meta";			// Return metadata on GNRS & sources
 
 // Number of batches for parallel processing
 $ppbatches=20;
