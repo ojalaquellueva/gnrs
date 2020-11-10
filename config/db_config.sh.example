@@ -14,7 +14,7 @@
 host='localhost'
 
 # GNRS database
-db_gnrs="gnrs_test"		# Name of gnrs database
+db_gnrs="gnrs"		# Name of gnrs database
 
 # Required databases (for building GNRS db only)
 db_geonames="geonames" 	# Local geonames database
