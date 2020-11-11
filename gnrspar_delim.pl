@@ -19,11 +19,13 @@
 #	./cdspar.pl -in "data/cds_testfile.csv" -nbatch 3
 #
 # Note: if get permission error, run as sudo
-#############################################################################
+##############################################################################
 
 use strict;
 use POSIX;
 use Getopt::Long;
+use Text::CSV; 
+use open qw/ :std :encoding(utf-8) /;
 
 my $APPNAME	= "gnrs";
 my $binpath = $0;
@@ -37,21 +39,28 @@ my $CONSOLIDATE_SCR = "$binpath/consolidator.pl";
 # Master directory where all content saved
 my $tmpfoldermaster = "/tmp/${APPNAME}/";
 
-my $infile  = '';   # Input file
-my $outfile = '';   # Optput file - optional [currently custom output file
-					# name not supported]
-my $nbatch  = '';   # Number of batches
-my $mf_opt  = '';   # makeflow options - optional
-my $d = '';         # Output file delimiter
-my $d_def = "t";	# Default output file delimiter
+my $infile  = '';    # Input file
+my $outfile = '';    # Optput file - optional [currently custom output file
+					 # name not supported]
+my $nbatch  = '';    # Number of batches
+my $mf_opt  = '';    # makeflow options - optional
+my $d = 'c';         # Default output file delimiter. For now must be 
+					 # 'c' (csv), as currently this is only format supported
+my $din = '';       # Input file file delimiter.
 
 GetOptions(
 	'in=s'      => \$infile,
 	'out:s'     => \$outfile,
 	'nbatch=i'  => \$nbatch,
 	'opt:s'     => \$mf_opt,
+	'din:s'     => \$din,
 	'd:s'     => \$d
 );
+
+# If no output file name given
+if ( !$infile ) {
+	die("Input file required! \n");
+}
 
 # The temporary folder needs to be in the /tmp directory 
 # (see the function _clean)
@@ -72,16 +81,35 @@ if ( !$outfile ) {
 	$outfile =~ s/(?:\.\w+)?$/_${APPNAME}_results.csv/;    
 }
 
-# Output file delimiter
-if ( !$d ) {
-	$d = $d_def;
-} elsif ( $d eq "c" || $d eq "," ) {
-	$d = "c";
-} elsif ( $d eq "t" ) {
-	$d = "t";
+# Get input file delimiter
+if ( !$din ) {
+	# Default input delimiter
+	$din = ",";
+} elsif ( $din == "c" || $din == "," ) {
+	$din = ",";
+} elsif ( $din == "t" ) {
+	$din = "\t";
+} elsif ( $din == "|" ) {
+	$din = "|";
 } else {
-	die("\"$d\" is not a valid output file delimiter! \n");
+	die("\"$din\" is not a valid input delimiter code! \n");
 }
+print "Initial \$din=\"$din\"\n";
+
+# Get output file delimiter
+if ( !$d ) {
+	# Default input delimiter
+	$d = ",";
+} elsif ( $d == "c" || $d == "," ) {
+	$d = ",";
+} elsif ( $d == "t" ) {
+	$d = "\t";
+} elsif ( $d == "|" ) {
+	$d = "|";
+} else {
+	die("\"$d\" is not a valid output delimiter! \n");
+}
+print "\$d=\"$d\"\n";
 
 # Correct windows/mac line endings, if any
 my $finfo = `file $infile`;
@@ -95,11 +123,30 @@ if ( index( $finfo, 'CRLF' ) != -1) {
 	system "mv ${infile}.temp $infile";
 } 
 
+if ( ! $din == "\t" ) {
+	# Convert non-tsv input file to tab-delimited 
+	my $csv = Text::CSV->new ({ binary => 1 });
+	my $tsv = Text::CSV->new ({ binary => 1, sep_char => "\t", eol => "\n" });
+
+	open my $infh,  "<:encoding(utf8)", "$infile";
+	open my $outfh, ">:encoding(utf8)", "${infile}.tsv";
+
+	while (my $row = $csv->getline ($infh)) {
+		$tsv->print ($outfh, $row);
+	}
+	
+	# Reset the input delimiter to tab
+	$din = "\t";
+}
+print "New \$din=\"$din\"\n";
+
+die("STOPPING");
+
 # Let the magic begin
 process( $infile, $nbatch, $tmpfolder, $outfile );
 
 sub process {
-	my ( $infile, $nbatch, $tmpfolder, $outfile ) = @_;
+	my ( $infile, $nbatch, $tmpfolder, $outfile, $din ) = @_;
 
 	# Get the number of records in the input file
 	my $nlines = `wc -l < $infile 2>/dev/null`
@@ -146,7 +193,7 @@ sub process {
 		# different primary id, will be processed only once
 		# All the associated primary ids will be returned. 
 		my $pid=$tot;    # Assign original primary id
-		if ( $inputval =~ m/,/ ) {
+		if ( $inputval =~ m/$din/ ) {
 # 			( $lat, $long ) = ( split /,/, $inputval );
 # 			$inputval =~ s/^\s+//;
 			if ( exists $pids{$inputval} ) {
@@ -245,12 +292,13 @@ sub _generate_mfconfig {
 		#	-a: api mode, no echo, use password
 		#	-n: no header; critical or will lose one line per batch
 		$operation .=
-"\t\$APPBIN -a -n -d t -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
+"\t\$APPBIN -a -n -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
 		$cmd = $cmd . $operation;
 		$filelist .= "$tmpfolder/out_$i.txt ";
 	}
 	
 	# Call to the consolidation script
+	#$cmd .= "$tmpfolder/output.csv: $CONSOLIDATE_SCR $tmpfolder $filelist\nLOCAL $CONSOLIDATE_SCR $tmpfolder\n\n";
 	$cmd .= "$tmpfolder/output.csv: $CONSOLIDATE_SCR $tmpfolder $filelist\n $CONSOLIDATE_SCR $tmpfolder $d\n\n";
 
 	# Copy the consolidated output to the final destination
@@ -264,7 +312,7 @@ sub _generate_mfconfig {
 	close $FF;
 }
 
-# Write a batch of coordinates to a file in the temporary folder
+# Write a batch of values to a file in the temporary folder
 sub _write_out {
 	my $batch_id  = shift;
 	my $batch     = shift;

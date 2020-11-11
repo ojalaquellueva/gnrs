@@ -11,20 +11,23 @@ process(@ARGV);
 
 sub process {
 	my $tmpfolder = shift;
-	my $d = shift;  #Output file delimiter option
+	my $dout = shift;  # Output file delimiter option
 	my $mapfile   = "$tmpfolder/map.tab";
 	my $pidfile   = "$tmpfolder/pids.tab";
 	my %map;
 	my %pids;
-	my $delim = '';	#Output file delimiter
+	
+	# Input file delimiter, as output by gnrspar.pl
+	# Use tab (TSV) to properly handle embedded commas
+	my $din = '\t';
 
 	#Set the output file delimiter
-	if ($d eq 't') {
-		$delim = "\t";
-	} elsif ($d eq 'c') {
-		$delim = ',';
+	if ($dout eq 't') {
+		$dout = "\t";
+	} elsif ($dout eq 'c') {
+		$dout = ',';
 	} else {
-		print "Not a valid delimiter, must be c or t"; exit 1;
+		die("Not a valid delimiter, must be c or t");
 	}
 
 	#Load the mapping of names to internal ids
@@ -83,7 +86,8 @@ sub process {
 		for (@names_list) {
 			chomp;
 			
-			my @fields = split /$delim/, $_; #split files on delimiter
+			# Split the input line
+			my @fields = split /$din/, $_; #split files on delimiter
 			
 			my $id     = "$i." . shift(@fields); #recreates the internal id
 			
@@ -93,8 +97,8 @@ sub process {
 				$ref = $pids{ $map{$id} }; 	#Just the integer ID
 			}
 			
-			#push @consolidated, join "$delim", ( "\"$ref\"", @fields );
-			push @consolidated, join "$delim", ( "$ref", @fields );
+			# Form the output line
+			push @consolidated, join "$dout", ( "$ref", @fields );
 		}
 		
 		#Append the batch of processed names to the output file. 

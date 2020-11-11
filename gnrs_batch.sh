@@ -82,6 +82,7 @@ f_custom="false"	# Use default input/output files and data directory
 api="false"		# Assume not an api call
 infile=""
 outfile=""
+delim=","		# Output file delimiter; default=csv
 mailme="false"
 header="true"	# Assume input file has header
 
@@ -100,6 +101,9 @@ while [ "$1" != "" ]; do
                                 ;;
         -o | --outfile )       	shift
                                 outfile=$1
+                                ;;
+        -d | --delim )      	shift
+                                delim=$1
                                 ;;
         -m | --mailme )       	mailme="true"
         						shift
@@ -122,6 +126,15 @@ fi
 opt_header="HEADER"
 if  [ "$header" == "false" ]; then
 	opt_header=""
+fi
+
+# Set delimiter option for file export
+# Default option is CSV
+opt_delim=""
+delim_disp="CSV"
+if  [ "$delim" == "t" ]; then
+	opt_delim="DELIMITER E'\t'"
+	delim_disp="TSV"
 fi
 
 # Set results file
@@ -180,7 +193,8 @@ if [ "$i" = "true" ]; then
         Database: 	$db_gnrs
         Input file: 	$infile
         Has header:	$header
-        Results file: 	$outfile
+        Output file: 	$outfile
+        Output file delimiter: $delim_disp
         Notify: 	$mailme
         Notify email:	$email
         Job id:		$job
@@ -300,7 +314,7 @@ fi
 echoi $e -n "Exporting CSV file of results to data directory..."
 # "set -f" turns off globbing to prevent expansion of asterisk to unix wildcard
 set -f
-sql="\copy (SELECT poldiv_full, country_verbatim, state_province_verbatim, state_province_verbatim_alt, county_parish_verbatim, county_parish_verbatim_alt, country, state_province, county_parish, country_id, state_province_id, county_parish_id, country_iso, state_province_iso, county_parish_iso, geonameid, gid_0, gid_1, gid_2, match_method_country, match_method_state_province, match_method_county_parish, match_score_country, match_score_state_province, match_score_county_parish, poldiv_submitted, poldiv_matched, match_status, user_id FROM user_data WHERE job='$job') TO '$outfile' csv header"
+sql="\copy (SELECT poldiv_full, country_verbatim, state_province_verbatim, state_province_verbatim_alt, county_parish_verbatim, county_parish_verbatim_alt, country, state_province, county_parish, country_id, state_province_id, county_parish_id, country_iso, state_province_iso, county_parish_iso, geonameid, gid_0, gid_1, gid_2, match_method_country, match_method_state_province, match_method_county_parish, match_score_country, match_score_state_province, match_score_county_parish, poldiv_submitted, poldiv_matched, match_status, user_id FROM user_data WHERE job='$job') TO '$outfile' csv header $opt_delim"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
 eval $cmd
 set +f
