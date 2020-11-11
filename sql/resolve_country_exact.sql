@@ -1,14 +1,6 @@
 -- ------------------------------------------------------------
---  Resolve country
+--  Resolve country by exact matching
 -- ------------------------------------------------------------
-
--- Index only as needed
-DROP INDEX IF EXISTS user_data_match_status_isnull_idx;
-CREATE INDEX IF NOT EXISTS user_data_match_status_isnull_idx ON user_data (match_status) WHERE match_status IS NULL;
-DROP INDEX IF EXISTS user_data_country_verbatim_idx;
-CREATE INDEX IF NOT EXISTS user_data_country_verbatim_idx ON user_data (country_verbatim);
-DROP INDEX IF EXISTS user_data_country_id_isnull_idx;
-CREATE INDEX IF NOT EXISTS user_data_country_id_isnull_idx ON user_data (country_id) WHERE country_id IS NULL;
 
 -- standard name
 UPDATE user_data a

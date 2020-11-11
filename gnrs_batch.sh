@@ -223,12 +223,12 @@ fi
 if [ "$debug_mode" == "t" ]; then
 	# Clear everything, cache & user data
 	
-	echoi $e -n "Clearing user_data..."
+	echoi $e -n "Clearing all user_data..."
 	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data'"
 	eval $cmd
 	echoi $e "done"
 
-	echoi $e -n "Clearing cache..."
+	echoi $e -n "Clearing entire cache..."
 	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM cache'"
 	eval $cmd
 	echoi $e "done"
@@ -282,7 +282,7 @@ source "$DIR/includes/check_status.sh"
 
 # Run the main GNRS app
 if  [ "$api" == "true" ]; then
-	# API call (use password) also turn off echo & send job#
+	# API call (use password) also turn off echo
 	$DIR/gnrs.sh -a -s -j $job
 else
 	if [ "$e" == "false" ]; then
