@@ -2,6 +2,7 @@
 --  Resolve coounty_parish
 -- ------------------------------------------------------------
 
+/*
 -- Index only as needed
 -- Indexes on country_id and state_province_id should already exist
 DROP INDEX IF EXISTS user_data_county_parish_verbatim_idx;
@@ -11,6 +12,7 @@ CREATE INDEX user_data_county_parish_id_isnull_idx ON user_data (county_parish_i
 
 -- Not needed, speeds thing up a bit to drop
 DROP INDEX IF EXISTS user_data_state_province_verbatim_idx;
+*/
 
 --
 -- Standard names

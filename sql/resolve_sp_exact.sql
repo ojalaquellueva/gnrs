@@ -1,17 +1,18 @@
 -- ------------------------------------------------------------
 --  Resolve country
 -- ------------------------------------------------------------
-
+/*
 -- Index only as needed
 -- Index on country_id should already exist
 
 DROP INDEX IF EXISTS user_data_state_province_verbatim_idx;
-CREATE INDEX user_data_state_province_verbatim_idx ON user_data (state_province_verbatim);
+CREATE INDEX IF NOT EXISTS user_data_state_province_verbatim_idx ON user_data (state_province_verbatim);
 DROP INDEX IF EXISTS user_data_state_province_id_isnull_idx;
-CREATE INDEX user_data_state_province_id_isnull_idx ON user_data (state_province_id) WHERE state_province_id IS NULL;
+CREATE INDEX IF NOT EXISTS user_data_state_province_id_isnull_idx ON user_data (state_province_id) WHERE state_province_id IS NULL;
 
 -- Not needed, speeds thing up a bit to drop
 DROP INDEX IF EXISTS user_data_country_verbatim_idx;
+*/
 
 --
 -- Standard names

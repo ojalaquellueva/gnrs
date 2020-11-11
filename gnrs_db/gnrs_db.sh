@@ -177,6 +177,10 @@ echoi $e -n "Creating core tables..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_core_tables.sql
 source "$includes_dir/check_status.sh"  
 
+echoi $e -n "Indexing core tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_indexes_core_tables.sql
+source "$includes_dir/check_status.sh"  
+
 ############################################
 # Build political division tables
 ############################################

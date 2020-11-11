@@ -19,6 +19,7 @@ WHERE job=:'job'
 AND county_parish_verbatim IS NOT NULL AND TRIM(county_parish_verbatim)<>''
 ;
 
+/*
 -- Index for faster updates
 DROP INDEX IF EXISTS user_data_country_idx;
 DROP INDEX IF EXISTS user_data_state_province_idx;
@@ -31,6 +32,7 @@ CREATE INDEX user_data_state_province_idx ON user_data (state_province);
 CREATE INDEX user_data_county_parish_idx ON user_data (county_parish);
 CREATE INDEX user_data_poldiv_matched_idx ON user_data (poldiv_matched);
 CREATE INDEX user_data_poldiv_submitted_idx ON user_data (poldiv_submitted);
+*/
 
 -- Mark political division matched
 UPDATE user_data

@@ -19,11 +19,13 @@
 #	./cdspar.pl -in "data/cds_testfile.csv" -nbatch 3
 #
 # Note: if get permission error, run as sudo
-###############################################################################
+##############################################################################
 
 use strict;
 use POSIX;
 use Getopt::Long;
+use Text::CSV; 
+use open qw/ :std :encoding(utf-8) /;
 
 my $APPNAME	= "gnrs";
 my $binpath = $0;
@@ -33,12 +35,6 @@ if ( !$binpath ) {
 }
 my $BINARY          = "$binpath/gnrs_batch.sh";
 my $CONSOLIDATE_SCR = "$binpath/consolidator.pl";
-
-# Default results file suffix
-# Unless user supplies a custom output file name (using the -out switch), 
-# output file is named by adding this suffix to the basename
-# of the input file
-my $RESULTSFILESUFFIX="_gnrs_results";
 
 # Master directory where all content saved
 my $tmpfoldermaster = "/tmp/${APPNAME}/";
@@ -74,7 +70,7 @@ if ( !$outfile ) {
 	$outfile = $infile;
 	# Use the input file name w/o extension and 
 	# append [APPNAME][RESULTSFILESUFFIX].csv
-	$outfile =~ s/(?:\.\w+)?$/_${APPNAME}${RESULTSFILESUFFIX}.csv/;    
+	$outfile =~ s/(?:\.\w+)?$/_${APPNAME}_results.csv/;    
 }
 
 # Correct windows/mac line endings, if any
@@ -109,7 +105,6 @@ sub process {
 	my %map;
 
 	# Used to map the original IDs, if present
-	# NOT NEEDED
 	my %pids;
 
 	# Used to store names that are already valid. Not used
@@ -124,60 +119,79 @@ sub process {
 	# Line tracker
 	my $tot = 0;
 
-	# The list of lat/long pairs forming a batch
+	# The list of input values forming a batch
 	my @batch;
 
+	# binary allows special characters
+	my $csv = Text::CSV->new({ binary => 1, sep_char => ',' });
+	
 	open( my $INL, "<$infile" ) or die "Cannot open input file $infile: $!\n";
 
-	while (<$INL>) {
+	while (my $line = <$INL>) {
 
 		$tot++;
-		chomp;
+		chomp $line;
+		
+		if ($csv->parse($line)) {
+		
+			my @fields = $csv->fields();
+		
+			#my $inputval = $_;
+			my $inputval = $line;
 
-		my $coords = $_;
+			# Concatenate the 3 political divisions, fields 1-3 (0 is user_id)
+			my $pid = $fields[1] . "@" . $fields[2] . "@" . $fields[3];
+			#my $inputval = shift(@fields);
+		
+			print "inputval: $inputval \n";
 
-		# A coordinate that is present more than once in the list, but with 
-		# different primary id, will be processed only once
-		# All the associated primary ids will be returned. 
-		my $pid=$tot;    # Assign original primary id
-		if ( $coords =~ m/,/ ) {
-# 			( $lat, $long ) = ( split /,/, $coords );
-# 			$coords =~ s/^\s+//;
-			if ( exists $pids{$coords} ) {
-				my @k = @{ $pids{$coords} };
-				unshift @k, $pid;
-				$pids{$coords} = \@k;
+			# An input value that is present more than once, but with 
+			# different primary id, will be processed only once
+			# All the associated primary ids will be returned. 
+#			my $pid=$tot;    # Assign new primary id
+#			if ( $inputval =~ m/,/ ) {
+				if ( exists $pids{$inputval} ) {
+					my @k = @{ $pids{$inputval} };
+					unshift @k, $pid;
+					$pids{$inputval} = \@k;
+				}
+				else {
+					$pids{$inputval} = [$pid];
+				}
+#			}
+
+			if ( exists $map{$inputval} && $tot <= $nlines ) { 
+				#We have already seen that name
+				next;
 			}
-			else {
-				$pids{$coords} = [$pid];
+		
+			# Append inputval to @batch
+			push @batch, $inputval;
+		
+			# Every inputval is assigned a unique internal id, combining its
+			# batch id and position within the batch
+			$map{$inputval} = "$batch_id.$id";
+		
+			$id++;
+		
+			# We write a file every time we reach the predetermined batchsize 
+			# or if there aren't any more input values
+			if ( @batch >= $exp_g_size || $tot == $nlines ) {
+				if ( $batch_id == 0 ) {
+					# Remove header line if this if first batch
+					shift(@batch);
+				}
+			
+				_write_out( $batch_id, \@batch, $tmpfolder );
+
+				#			_write_screen($batch_id,\@batch);
+				@batch = ();
+				$batch_id++;
+				$id = 0;
 			}
+		} else {
+		  warn "Line could not be parsed: $line\n";
 		}
-
-		if ( exists $map{$coords} && $tot <= $nlines ) { 
-			#We have already seen that name
-			next;
-		}
-		
-		# Append coordinates to @batch
-		push @batch, $coords;
-		
-		# Every name is assigned a unique internal id, combining its
-		# batch id and position within the batch
-		$map{$coords} = "$batch_id.$id";
-		
-		$id++;
-		
-		# We write a file every time we reach the predetermined batchsize 
-		# or if there aren't any more input values
-		if ( @batch >= $exp_g_size || $tot == $nlines ) {
-			_write_out( $batch_id, \@batch, $tmpfolder );
-
-			#			_write_screen($batch_id,\@batch);
-			@batch = ();
-			$batch_id++;
-			$id = 0;
-		}
-
 	}
 	close $INL;
 	
@@ -207,16 +221,16 @@ sub _write_map {
 	my ( $map, $fn, $invert ) = @_;
 	
 	open my $MAP, ">$fn" or die "Cannot write map file $fn: $!\n";
-	while ( my ( $coords, $id ) = each %{$map} ) {
+	while ( my ( $inputval, $id ) = each %{$map} ) {
 		if ($invert) { #In case the name and ids are swapped (depends which one is unique)
 			my $t = $id;
-			$id   = $coords;
-			$coords = $t;
+			$id   = $inputval;
+			$inputval = $t;
 		}
-		if ( ref($coords) eq 'ARRAY' ) { 
-			$coords = join ',', @{$coords};
+		if ( ref($inputval) eq 'ARRAY' ) { 
+			$inputval = join ',', @{$inputval};
 		}
-		print $MAP "$id,$coords\n";
+		print $MAP "$id,$inputval\n";
 	}
 	close $MAP;
 }

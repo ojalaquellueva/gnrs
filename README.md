@@ -30,6 +30,8 @@ The results output by the GNRS include the original political division names, th
 
 Ubuntu 16.04 or higher  
 PostgreSQL/psql 12.2, or higher
+Perl:
+Perl module: Text::CSV
 
 <a name="Dependencies"></a>
 ## Dependencies

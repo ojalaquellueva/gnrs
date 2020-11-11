@@ -116,10 +116,10 @@ fi
 # Load raw data to table user_data
 ############################################
 
-echoi $e -n "- Dropping indexes on table user_data..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_indexes_user_data.sql"
-eval $cmd
-source "$DIR/includes/check_status.sh" 
+# echoi $e -n "- Dropping indexes on table user_data..."
+# cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_indexes_user_data.sql"
+# eval $cmd
+# source "$DIR/includes/check_status.sh" 
 
 # Assumes table user_data_raw has been populated
 echoi $e -n "- Loading table user_data..."
@@ -181,6 +181,8 @@ fi
 ######## END: For testing only ########
 
 if [ "$not_cached" == "t" ]; then 
+	# Process non-cached records
+
 	############################################
 	# Resolve political divisions & summarize
 	############################################
@@ -226,6 +228,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 else
+	# Nothing to process, all submitted values already in cache
 	echoi $e "- All submitted political divisions already in cache!"
 fi
 

@@ -54,7 +54,6 @@ match_status VARCHAR(50) DEFAULT NULL,
 user_id text DEFAULT NULL
 ) 
 ;
-CREATE INDEX user_data_job_idx ON user_data (job);
 
 DROP TABLE IF EXISTS cache;
 CREATE TABLE cache (
