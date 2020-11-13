@@ -33,7 +33,7 @@ require_once 'api_params.php';		// api-specific parameters
 
 // Path and name of file containing input names and political divisions
 $inputfile = $DATADIR."gnrs_testfile.csv";	// local test file
-$inputfile = "../../data/user/gnrs_testfile.csv";	// local test file
+$inputfile = "../../data/user/gnrs_testfile_noheader_ids.csv";	// local test file
 //$inputfile = "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile.csv";
 
 // Desired response format
@@ -103,10 +103,13 @@ if ($disp_opts) {
 			echo "  $key=$value\n";
 		//}
 	}
-	echo "  input file: $inputfile \n";
+	echo $mode=="resolve"?"  input file: $inputfile \n":"";
 	echo "  API url: $base_url \n";
 	echo "\r\n";
 }
+
+$batches=isset($options["b"])?$options["b"]:$ppbatches;	
+
 
 // Confirm above options before proceeding
 $message   =  "Execute API call with above settings? [y/n]";
