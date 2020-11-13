@@ -180,7 +180,7 @@ sub process {
 		
 		# We write a file every time we reach the predetermined batchsize 
 		# or if there aren't any more input values
-		if ( @batch >= $exp_g_size || $tot == $nlines+1 ) {
+		if ( @batch >= $exp_g_size || $tot == $nlines ) {
 			_write_out( $batch_id, \@batch, $tmpfolder );
 
 			# _write_screen($batch_id,\@batch);

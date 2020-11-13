@@ -1,29 +1,40 @@
 <?php
 
 //////////////////////////////////////////////////////
-// Submits test data to CDS API & displays results
+// Submits test data to GNRS API & displays results
 //
 // * Imports names from test file on local file system
 // * Displays input and output at various stages of
 // 	 the process.
+// * 
 //////////////////////////////////////////////////////
+
+/////////////////////////////////////////
+// API processing options
+/////////////////////////////////////////
+
+// Processing mode
+$mode="resolve";		// Resolve names
+$mode="meta";			// Return metadata on application & sources
+
+// Number of batches for parallel processing
+$ppbatches=20;
 
 /////////////////////
 // API parameters
 /////////////////////
 
 // api base url 
-//$base_url = "http://vegbiendev.nceas.ucsb.edu:8775/cds_api.php"; 
 $base_url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php"; // production
 $base_url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php"; // development
 
 require_once 'server_params.php';	// server-specific parameters 
-require_once 'api_params.php';			// general api parameters
+require_once 'api_params.php';		// api-specific parameters
 
 // Path and name of file containing input names and political divisions
 $inputfile = $DATADIR."gnrs_testfile.csv";	// local test file
-// $inputfile = $DATADIR."cds_testfile_big.csv";	// local test file (big)
-// $inputfile = "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/10/cds_testfile.csv";
+$inputfile = "../../data/user/gnrs_testfile.csv";	// local test file
+//$inputfile = "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile.csv";
 
 // Desired response format
 //	Options: json*|xml
@@ -38,26 +49,6 @@ $lines = 10000000000;
 //$lines = 5;
 
 /////////////////////////////////////////
-// GNRS options
-//
-// UNDER CONSTRUCTION! - NOT ALL OPTIONS
-// CURRENTLY IMPLEMENTED
-// 
-// Set any option to empty string ("") to 
-// use default
-// *=default option
-/////////////////////////////////////////
-
-// Processing mode
-//	Options: resolve*|meta
-// 	E.g., $mode="meta"
-$mode="resolve";			// Resolve names
-$mode="meta";			// Return metadata on GNRS & sources
-
-// Number of batches for parallel processing
-$ppbatches=20;
-
-/////////////////////////////////////////
 // Display options
 // 
 // * Turn on/off what is echoed to terminal
@@ -66,8 +57,8 @@ $ppbatches=20;
 
 $disp_data_array=false;		// Echo raw data as array
 $disp_combined_array=false;	// Echo combined options+data array
-$disp_opts_array=false;		// Echo CDS options as array
-$disp_opts=true;			// Echo CDS options
+$disp_opts_array=false;		// Echo application options as array
+$disp_opts=true;			// Echo application options
 $disp_json_data=true;		// Echo the options + raw data JSON POST data
 $disp_results_json=true;	// Echo results as array
 $disp_results_array=false;	// Echo results as array
@@ -81,7 +72,8 @@ $time=true;					// Echo time elapsed
 
 // Get options, set defaults for optional parameters
 // Use default if unset
-$options = getopt("b:m:");
+$options = getopt("m:b:");
+$mode=isset($options["m"])?$options["m"]:$mode;	
 $batches=isset($options["b"])?$options["b"]:$ppbatches;	
 
 ////////////////////////////////////////////////////////////////
@@ -100,6 +92,34 @@ $opts_arr = array(
 if ( ! $batches=="" ) $opts_arr += array("batches"=>$batches);
 
 ///////////////////////////////
+// Display options and confirm
+///////////////////////////////
+
+if ($disp_opts) {	
+	// Echo the options
+	echo "$APPNAME options:\r\n";
+	foreach($opts_arr as $key => $value) {
+		//foreach($row as $key => $value) {
+			echo "  $key=$value\n";
+		//}
+	}
+	echo "  input file: $inputfile \n";
+	echo "  API url: $base_url \n";
+	echo "\r\n";
+}
+
+// Confirm above options before proceeding
+$message   =  "Execute API call with above settings? [y/n]";
+print $message;
+// flush();
+// ob_flush();
+$confirmation  =  trim( fgets( STDIN ) );
+if ( $confirmation !== 'y' ) {
+   exit (0);
+}
+
+
+///////////////////////////////
 // Make data array
 ///////////////////////////////
 
@@ -109,13 +129,18 @@ $data_arr = array_map('str_getcsv', file($inputfile));
 # Get subset
 $data_arr = array_slice($data_arr, 0, $lines);
 
+$lines_in = 0;
 if ( $mode=="resolve" ) {
 	// Echo raw data
 	echo "The raw data:\r\n";
 	foreach($data_arr as $row) {
 		foreach($row as $key => $value) echo "$value\t"; echo "\r\n";
+		$lines_in++;
 	}
 	echo "\r\n";
+	
+	$lines_in = $lines_in-1;
+	echo "\nInput rows (minus header): $lines_in\n\n";
 
 	if ($disp_data_array) {
 		echo "The raw data as array:\r\n";
@@ -155,20 +180,6 @@ $opts = $input_array['opts'];
 if ($disp_opts_array) {
 	echo "Options array:\r\n";
 	var_dump($opts);
-	echo "\r\n";
-}
-
-if ($disp_opts) {
-	
-	// Echo the options
-	echo "CDS options:\r\n";
-	//echo "  mode: " . $mode . "\r\n";
-	//echo "  batches: " . $opts['batches'] . "\r\n";
-	foreach($opts_arr as $key => $value) {
-		//foreach($row as $key => $value) {
-			echo "  $key=$value\n";
-		//}
-	}
 	echo "\r\n";
 }
 
@@ -228,9 +239,11 @@ if ($disp_results_array) {
 }
 
 if ($disp_results_csv) {
+	$lines_out = 0;
 	echo "API results as CSV:\r\n";
 	
 	foreach ( $results as $rkey => $row ) {
+		$lines_out++;
 		$rind=array_search( $rkey, array_keys($results) );	# Index: current row
 		$cindmax = count( $row )-1;	// Index: last column of current row
 	
@@ -250,6 +263,9 @@ if ($disp_results_csv) {
 			printf($format, $value);
 		}
 	}
+	
+	$lines_out = $lines_out-1;
+	echo "\nOutput rows (minus header): $lines_out\n\n";
 }
 
 ///////////////////////////////////

@@ -9,6 +9,9 @@
 // Parameters
 ///////////////////////////////////
 
+# Delimiter of results file returned by core application
+$results_file_delim = "\t";
+
 // parameters in ALL_CAPS set in the two params files
 require_once 'server_params.php';	// server-specific parameters
 require_once 'api_params.php';		// API option parameters
@@ -193,6 +196,9 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	} else {
 		$nbatches = $NBATCH;
 	}
+	
+	# Reset batches to 2 if 1 (b=1 failing for some reason)
+	if ( $nbatches==1 ) $nbatches=2;
 
 	///////////////////////////////////////////
 	// Save data array to temp directory as 
@@ -248,7 +254,7 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	///////////////////////////////////
 	
 	// Import the results file (tab-delimitted) to array
-	$results_array = file_to_array_assoc($results_file, ",");
+	$results_array = file_to_array_assoc($results_file, $results_file_delim);
 
 } else {	// CONTINUE mode_if 
 	// Metadaa requests

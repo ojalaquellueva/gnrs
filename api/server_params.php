@@ -5,8 +5,14 @@
 // Keep outside repo to preserve settings
 /////////////////////////////////////////////////
 
+// Application name
+// Use lower case to enable use in file names and paths
+// If you follow the recommended setup, this parameter and the 
+// next should be the only ones you need to change
+$APPNAME = "gnrs";
+
 // Application base directory
-$BASE_DIR = "/home/boyle/bien/gnrs/";
+$BASE_DIR = "/home/boyle/bien/$APPNAME/";
 
 // API directory
 $APP_DIR = $BASE_DIR."src/api/";
