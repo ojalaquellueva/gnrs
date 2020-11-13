@@ -70,35 +70,42 @@ sub process {
 		my @names_list = <$NL>;
 		close $NL;
 		
-		#If a header hasn't been written, create the file and write the header 
+		# If a header hasn't been written, create the file and write the header 
 		if ( !$header ) {
 			$header = shift(@names_list);
 			open my $OF, ">$tmpfolder/output.csv"
 			  or die "Cannot create output file $tmpfolder/output.csv: $!\n";
 			print $OF "$header";
 			close $OF;
-		}
-		else {
-			shift @names_list; #The first line of every file is the header, so it always needs to be removed
+		} else {
+			# The first line of every remaining file is the header, so it 
+			# always needs to be removed
+			shift @names_list; 
 		}
 		
-		#Go over the list of names
+		# Go over the list of names
 		for (@names_list) {
 			chomp;
 			
 			# Split the input line
-			my @fields = split /$din/, $_; #split files on delimiter
+			my @fields = split /$din/, $_; # split on delimiter
 			
+=pod	
+# Cutting this next section to avoid "shifting" the first column
+# of output into oblivion. pid-mapping isn't working anyway
+		
 			my $id     = "$i." . shift(@fields); #recreates the internal id
 			
-			my $ref    = $map{$id}; #Use the internal id to retrieve the original name
+			my $ref    = $map{$id}; # Use the internal id to retrieve the original name
+
 			if (%pids) {
 				#$ref = $pids{ $map{$id} } . "|$map{$id}"; #and the primary id, if present
 				$ref = $pids{ $map{$id} }; 	#Just the integer ID
 			}
-			
+=cut
 			# Form the output line
-			push @consolidated, join "$dout", ( "$ref", @fields );
+			#push @consolidated, join "$dout", ( "$ref", @fields );
+			push @consolidated, join "$dout", ( @fields );
 		}
 		
 		#Append the batch of processed names to the output file. 

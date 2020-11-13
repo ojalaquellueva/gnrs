@@ -123,9 +123,9 @@ if [ ! -f "$infile" ]; then
 fi
 
 # Set header option for file import
-opt_header="HEADER"
-if  [ "$header" == "false" ]; then
-	opt_header=""
+opt_header=""
+if  [ "$header" == "true" ]; then
+	opt_header="HEADER"
 fi
 
 # Set delimiter option for file export

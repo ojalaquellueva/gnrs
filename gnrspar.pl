@@ -6,26 +6,26 @@
 # Modified by: Brad Boyle <bboyle@email.arizona.edu>
 #
 # Usage:
-# 	./cdspar.pl -in <input_filename_and_path> -out <output_filename_and_path> -nbatch <batches> -opt <makeflow_options>
+# 	./gnrspar.pl -in <input_filename_and_path> -out <output_filename_and_path> -nbatch <batches> -opt <makeflow_options>
 # 
 # Options:
 # Option | Meaning | Required? | Default value | 
 # -in     | Input file and path | Yes | |
-# -out     | Output file and path | No | [input\_file\_name]\_cds\_results.csv | 
+# -out     | Output file and path | No | [input\_file\_name]\_gnrs\_results.csv | 
 # -nbatch     | Number of batches | Yes |  |
 # -opt     | Makeflow options | No | \
 #
 # Example:
-#	./cdspar.pl -in "data/cds_testfile.csv" -nbatch 3
+#	./gnrspar.pl -in "data/gnrs_testfile.csv" -nbatch 3
 #
-# Note: if get permission error, run as sudo
-##############################################################################
+# Notes: 
+# 	1. If get permission error, run as sudo
+#	2. Input file MUST be CSV
+#############################################################################
 
 use strict;
 use POSIX;
 use Getopt::Long;
-use Text::CSV; 
-use open qw/ :std :encoding(utf-8) /;
 
 my $APPNAME	= "gnrs";
 my $binpath = $0;
@@ -39,19 +39,20 @@ my $CONSOLIDATE_SCR = "$binpath/consolidator.pl";
 # Master directory where all content saved
 my $tmpfoldermaster = "/tmp/${APPNAME}/";
 
-my $infile  = '';    # Input file
-my $outfile = '';    # Optput file - optional [currently custom output file
-					 # name not supported]
-my $nbatch  = '';    # Number of batches
-my $mf_opt  = '';    # makeflow options - optional
-my $d = 'c';         # Default output file delimiter. For now must be 
-					 # 'c' (csv), as currently this is only format supported
+my $infile  = '';   # Input file
+my $outfile = '';   # Optput file - optional [currently custom output file
+					# name not supported]
+my $nbatch  = '';   # Number of batches
+my $mf_opt  = '';   # makeflow options - optional
+my $d = '';         # Output file delimiter
+my $d_def = "t";	# Default output file delimiter
 
 GetOptions(
 	'in=s'      => \$infile,
 	'out:s'     => \$outfile,
 	'nbatch=i'  => \$nbatch,
-	'opt:s'     => \$mf_opt
+	'opt:s'     => \$mf_opt,
+	'd:s'     => \$d
 );
 
 # The temporary folder needs to be in the /tmp directory 
@@ -71,6 +72,17 @@ if ( !$outfile ) {
 	# Use the input file name w/o extension and 
 	# append [APPNAME][RESULTSFILESUFFIX].csv
 	$outfile =~ s/(?:\.\w+)?$/_${APPNAME}_results.csv/;    
+}
+
+# Output file delimiter
+if ( !$d ) {
+	$d = $d_def;
+} elsif ( $d eq "c" || $d eq "," ) {
+	$d = "c";
+} elsif ( $d eq "t" ) {
+	$d = "t";
+} else {
+	die("\"$d\" is not a valid output file delimiter! \n");
 }
 
 # Correct windows/mac line endings, if any
@@ -105,6 +117,7 @@ sub process {
 	my %map;
 
 	# Used to map the original IDs, if present
+	# NOT NEEDED
 	my %pids;
 
 	# Used to store names that are already valid. Not used
@@ -119,79 +132,63 @@ sub process {
 	# Line tracker
 	my $tot = 0;
 
-	# The list of input values forming a batch
+	# The list of lat/long pairs forming a batch
 	my @batch;
 
-	# binary allows special characters
-	my $csv = Text::CSV->new({ binary => 1, sep_char => ',' });
-	
 	open( my $INL, "<$infile" ) or die "Cannot open input file $infile: $!\n";
 
-	while (my $line = <$INL>) {
+	while (<$INL>) {
 
 		$tot++;
-		chomp $line;
-		
-		if ($csv->parse($line)) {
-		
-			my @fields = $csv->fields();
-		
-			#my $inputval = $_;
-			my $inputval = $line;
+		chomp;
 
-			# Concatenate the 3 political divisions, fields 1-3 (0 is user_id)
-			my $pid = $fields[1] . "@" . $fields[2] . "@" . $fields[3];
-			#my $inputval = shift(@fields);
-		
-			print "inputval: $inputval \n";
+		my $inputval = $_;
 
-			# An input value that is present more than once, but with 
-			# different primary id, will be processed only once
-			# All the associated primary ids will be returned. 
-#			my $pid=$tot;    # Assign new primary id
-#			if ( $inputval =~ m/,/ ) {
-				if ( exists $pids{$inputval} ) {
-					my @k = @{ $pids{$inputval} };
-					unshift @k, $pid;
-					$pids{$inputval} = \@k;
-				}
-				else {
-					$pids{$inputval} = [$pid];
-				}
-#			}
+		# An input value that is present more than once, but with 
+		# different primary id, will be processed only once
+		# All the associated primary ids will be returned. 
+#		my $pid=$tot;    # Assign original primary id
+		my $pid;    # Primary id: the original id, if present
+		if ( $inputval =~ m/,/ ) {
+# 			# get original id, if any
+#			( $pid, my $junk ) = split(/,/, $inputval, 2);	
 
-			if ( exists $map{$inputval} && $tot <= $nlines ) { 
-				#We have already seen that name
-				next;
+# 			$inputval =~ s/^\s+//;	# trim leading whitespace
+			if ( exists $pids{$inputval} ) {
+				my @k = @{ $pids{$inputval} };
+				unshift @k, $pid;
+				$pids{$inputval} = \@k;
 			}
-		
-			# Append inputval to @batch
-			push @batch, $inputval;
-		
-			# Every inputval is assigned a unique internal id, combining its
-			# batch id and position within the batch
-			$map{$inputval} = "$batch_id.$id";
-		
-			$id++;
-		
-			# We write a file every time we reach the predetermined batchsize 
-			# or if there aren't any more input values
-			if ( @batch >= $exp_g_size || $tot == $nlines ) {
-				if ( $batch_id == 0 ) {
-					# Remove header line if this if first batch
-					shift(@batch);
-				}
-			
-				_write_out( $batch_id, \@batch, $tmpfolder );
-
-				#			_write_screen($batch_id,\@batch);
-				@batch = ();
-				$batch_id++;
-				$id = 0;
+			else {
+				$pids{$inputval} = [$pid];
 			}
-		} else {
-		  warn "Line could not be parsed: $line\n";
 		}
+
+		if ( exists $map{$inputval} && $tot <= $nlines ) { 
+			#We have already seen that name
+			next;
+		}
+		
+		# Append input value to @batch
+		push @batch, $inputval;
+		
+		# Every input value is assigned a unique internal id, combining its
+		# batch id and position within the batch
+		$map{$inputval} = "$batch_id.$id";
+		
+		$id++;
+		
+		# We write a file every time we reach the predetermined batchsize 
+		# or if there aren't any more input values
+		if ( @batch >= $exp_g_size || $tot == $nlines+1 ) {
+			_write_out( $batch_id, \@batch, $tmpfolder );
+
+			# _write_screen($batch_id,\@batch);
+			@batch = ();
+			$batch_id++;
+			$id = 0;
+		}
+
 	}
 	close $INL;
 	
@@ -216,13 +213,15 @@ sub process {
 
 }
 
-#Writes a mapping to a comma separated file
+# Writes a mapping to a tab separated file
 sub _write_map {
 	my ( $map, $fn, $invert ) = @_;
 	
 	open my $MAP, ">$fn" or die "Cannot write map file $fn: $!\n";
 	while ( my ( $inputval, $id ) = each %{$map} ) {
-		if ($invert) { #In case the name and ids are swapped (depends which one is unique)
+		if ($invert) { 
+			# In case the name and ids are swapped (depends 
+			# which one is unique)
 			my $t = $id;
 			$id   = $inputval;
 			$inputval = $t;
@@ -230,12 +229,13 @@ sub _write_map {
 		if ( ref($inputval) eq 'ARRAY' ) { 
 			$inputval = join ',', @{$inputval};
 		}
-		print $MAP "$id,$inputval\n";
+		#print $MAP "$id,$inputval\n";
+		print $MAP "$id\t$inputval\n";
 	}
 	close $MAP;
 }
 
-#Writes the makeflow control file
+# Writes the makeflow control file
 sub _generate_mfconfig {
 	my ( $batch_id, $tmpfolder, $outfile ) = @_;
 	
@@ -249,17 +249,17 @@ sub _generate_mfconfig {
 		my $operation =
 		  "$tmpfolder/out_$i.txt: $tmpfolder/input/in_$i.txt \$APPBIN\n"; 
 		#Line 2: main application command
-		# Note GNRS options: 
+		# GNRS options: 
 		#	-a: api mode, no echo, use password
 		#	-n: no header; critical or will lose one line per batch
+		# 	-d: outfile delimiter. MUST be t (tab) to avoid frame shift errors
 		$operation .=
-"\t\$APPBIN -a -n -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
+"\t\$APPBIN -a -n -d t -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
 		$cmd = $cmd . $operation;
 		$filelist .= "$tmpfolder/out_$i.txt ";
 	}
 	
 	# Call to the consolidation script
-	#$cmd .= "$tmpfolder/output.csv: $CONSOLIDATE_SCR $tmpfolder $filelist\nLOCAL $CONSOLIDATE_SCR $tmpfolder\n\n";
 	$cmd .= "$tmpfolder/output.csv: $CONSOLIDATE_SCR $tmpfolder $filelist\n $CONSOLIDATE_SCR $tmpfolder $d\n\n";
 
 	# Copy the consolidated output to the final destination
@@ -295,7 +295,7 @@ sub _write_out {
 	close $OF;
 }
 
-#In case no files need to be written (Unused)
+# In case no files need to be written
 sub _write_screen {
 	my $batch_id = shift;
 	my @batch    = @{ shift() };
@@ -305,15 +305,16 @@ sub _write_screen {
 
 }
 
-#Remove temporary files
-#The tempfolder needs to be in the /tmp directory
+# Remove temporary files
+# The tempfolder needs to be in the /tmp directory
 sub _clean {
 	my $td = shift;
 	$td =~ s/^\/tmp//; 	#This is a failsafe to avoid accidentally deleting other relevant files.
 	my $dummy = system("rm -rf /tmp$td");
 }
 
-#Dummy function, in case accepted names are to be treated differently
+# Dummy function, in case accepted names are to be treated differently
+# HOLDOVER FROM TNRS; CURRENTLY NOT USED
 sub is_accepted {
 	return 0;
 
