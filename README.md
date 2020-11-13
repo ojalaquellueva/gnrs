@@ -11,6 +11,7 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
 - [Maintenance](#maintenance)
 - [Input/Output](#input-output)
   - [Input File](#input-file)
+  - [Input File Type](#input-file-type)
   - [Output File](#output-file)
 - [Usage](#Usage)
   - [GNRS (parallel processing)](#gnrs-parallel)
@@ -95,7 +96,7 @@ find /tmp/gnrs/* -type f -mtime +7
 <a name="input-file"></a>
 ### Input File
 
-The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitted.csv, with the following fields:
+The input file for the TNRS must be utf-8 plain text file name with the following fields:
 
 | Field name | Required? | Meaning |
 | ----- | ----- | ----- |
@@ -105,6 +106,11 @@ The input file for the TNRS must be utf-8 plain text CSV file name gnrs_submitte
 | county_parish | No | County/parish name |
 
 Header `user_id,country,state_province,county_parish` must be the first line of the file. Place this file in the GNRS user data directory (`data/user/`; path and directory name set in file params.sh). 
+
+<a name="input-file-type"></a>
+### Input File Type
+* `gnrspar.pl`: must be tab delimited
+* `gnrs_batch.sh`: tab delimited or comma delimited. Specify on command line (see below).
 
 <a name="output-file"></a>
 ### Output File
@@ -150,16 +156,18 @@ Place your input file in the gnrs user data directory (path and directory name s
 #### Syntax
 
 ```
-./gnrspar.pl -in <input_filename_and_path> -nbatch <batches> -opt <makeflow_options>
+./gnrspar.pl -in <input_filename_and_path> -nbatch <batches> -opt <makeflow_options> <other options>
 ```
 
 #### Options
 
-Option | Meaning | Required? | Default value | 
------- | ------- | -------  | ---------- | 
--in     | Input file and path | Yes | |
--nbatch     | Number of batches | Yes |  |
--opt     | Makeflow options | No | 
+Option | Meaning | Required? | Default value | Values  
+------ | ------- | -------  | :--------: | --- |  
+-in     | Input file and path | Yes | | |  
+-out     | Output file and path | No | /path/to/<inputfilename>\_gnrs\_results.tsv | |  
+-nbatch     | Number of batches | Yes |  | |  
+-opt     | Makeflow options | No |  |  
+-d     | Output file delimiter | No | t | c (CSV), t (TSV)|  
 
 #### Example:
 
@@ -175,10 +183,17 @@ Import, name resolution and export of results are run as a single operation by i
 ./gnrs_batch.sh [-option1] [-option2] ...
 ```
 
-Options (listed separately preceded by dash; do not combine):  
-  -m: Send notification emails  
-  -s: Silent mode: suppress all (confirmations & progress messages)  
-  -p: Use PGPASSWORD authentication (required for API call)  
+#### Options
+
+Option | Purpose | Required? | Default value | Comments
+------ | ------- | -------  | ---------- | ---- |
+  -f | Input file and path  | Yes | |  
+  -f | Output file and path  | No | /path/to/<inputfilename>\_gnrs\_results.csv |  
+  -d | Output file delimiter  | No | c |  c=comma (CSV), t=tab (TSV)
+  -a | Api call  | No (yes for api) | | invokes other options such as -s and -p
+  -s | Silent mode: suppress all (confirmations & progress messages)  | No | |   
+  -p | Use password authentication |No | |  for API call 
+  -m | Send notification emails  | No | |  Must be followed by valid email
   
 Example:
 
