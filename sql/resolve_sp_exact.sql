@@ -20,6 +20,20 @@ AND a.state_province_verbatim=b.state_province
 AND a.country_id=c.country_id
 ;
 
+-- standard name lower case
+UPDATE user_data a
+SET 
+state_province_id=b.state_province_id,
+state_province=b.state_province_std,
+match_method_state_province='exact name'
+FROM state_province b JOIN country c
+ON b.country_id=c.country_id
+WHERE job=:'job'
+AND a.state_province_id IS NULL AND match_status IS NULL
+AND LOWER(a.state_province_verbatim)=LOWER(b.state_province)
+AND a.country_id=c.country_id
+;
+
 -- standard name ascii
 UPDATE user_data a
 SET 
@@ -35,6 +49,21 @@ AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
 ;
 
+-- standard name ascii lower case
+UPDATE user_data a
+SET 
+state_province_id=b.state_province_id,
+state_province=b.state_province_std,
+match_method_state_province='exact ascii name'
+FROM state_province b JOIN country c
+ON b.country_id=c.country_id
+WHERE job=:'job'
+AND a.state_province_id IS NULL AND match_status IS NULL
+AND LOWER(unaccent(a.state_province_verbatim))=LOWER(b.state_province_ascii)
+AND a.country_id=c.country_id
+AND a.state_province_verbatim<>''
+;
+
 -- short name ascii
 UPDATE user_data a
 SET 
@@ -46,6 +75,21 @@ ON b.country_id=c.country_id
 WHERE job=:'job'
 AND a.state_province_id IS NULL AND match_status IS NULL
 AND unaccent(a.state_province_verbatim)=b.state_province_std
+AND a.country_id=c.country_id
+AND a.state_province_verbatim<>''
+;
+
+-- short name ascii lower case
+UPDATE user_data a
+SET 
+state_province_id=b.state_province_id,
+state_province=b.state_province_std,
+match_method_state_province='exact ascii short name'
+FROM state_province b JOIN country c
+ON b.country_id=c.country_id
+WHERE job=:'job'
+AND a.state_province_id IS NULL AND match_status IS NULL
+AND LOWER(unaccent(a.state_province_verbatim))=LOWER(b.state_province_std)
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
 ;

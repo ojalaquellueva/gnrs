@@ -47,6 +47,8 @@ CREATE INDEX state_province_country_id_idx ON state_province USING btree (countr
 CREATE INDEX state_province_state_province_ascii_idx ON state_province USING btree (state_province_ascii);
 CREATE INDEX state_province_state_province_code_idx ON state_province USING btree (state_province_code);
 CREATE INDEX state_province_state_province_code_full_idx ON state_province USING btree (state_province_code_full);
+CREATE INDEX state_province_state_province_ci_idx ON state_province USING btree (LOWER(state_province));
+CREATE INDEX state_province_state_province_ascii_ci_idx ON state_province USING btree (LOWER(state_province_ascii));
 
 -- 
 -- state_province_name: state_province alternate names

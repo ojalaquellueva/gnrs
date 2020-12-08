@@ -336,4 +336,6 @@ WHERE state_province_ascii='Red Sea Governorate'
 ;
 
 CREATE INDEX state_province_state_province_std ON state_province (state_province_std);
+CREATE INDEX state_province_state_province_std_ci_idx ON state_province USING btree (LOWER(state_province_std));
+
 

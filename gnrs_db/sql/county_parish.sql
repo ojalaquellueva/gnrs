@@ -33,6 +33,8 @@ CREATE INDEX ON county_parish (state_province_code);
 CREATE INDEX ON county_parish (county_parish);
 CREATE INDEX ON county_parish (county_parish_ascii);
 CREATE INDEX ON county_parish (county_parish_code);
+CREATE INDEX county_parish_county_parish_ci_idx ON county_parish (LOWER(county_parish));
+CREATE INDEX county_parish_county_parish_ascii_ci_idx ON county_parish (LOWER(county_parish_ascii));
 
 -- Populate country and state_province names
 UPDATE county_parish a

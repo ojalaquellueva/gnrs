@@ -24,6 +24,24 @@ AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
 ;
 
+-- standard name lower case
+UPDATE user_data a
+SET 
+county_parish_id=b.county_parish_id,
+county_parish=b.county_parish_std,
+match_method_county_parish='exact name'
+FROM county_parish b JOIN state_province c
+ON b.state_province_id=c.state_province_id
+JOIN country d
+ON c.country_id=d.country_id
+WHERE job=:'job'
+AND LOWER(a.county_parish_verbatim)=LOWER(b.county_parish)
+AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.country_id=d.country_id
+AND a.state_province_id=c.state_province_id
+AND a.county_parish_verbatim<>''
+;
+
 -- standard name ascii
 UPDATE user_data a
 SET 
@@ -42,6 +60,24 @@ AND a.state_province_id=c.state_province_id
 AND a.county_parish_verbatim<>''
 ;
 
+-- standard name ascii lower case
+UPDATE user_data a
+SET 
+county_parish_id=b.county_parish_id,
+county_parish=b.county_parish_std,
+match_method_county_parish='exact ascii name'
+FROM county_parish b JOIN state_province c
+ON b.state_province_id=c.state_province_id
+JOIN country d
+ON c.country_id=d.country_id
+WHERE job=:'job'
+AND LOWER(unaccent(a.county_parish_verbatim))=LOWER(b.county_parish_ascii)
+AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.country_id=d.country_id
+AND a.state_province_id=c.state_province_id
+AND a.county_parish_verbatim<>''
+;
+
 -- short name ascii
 UPDATE user_data a
 SET 
@@ -54,6 +90,24 @@ JOIN country d
 ON c.country_id=d.country_id
 WHERE job=:'job'
 AND unaccent(a.county_parish_verbatim)=b.county_parish_std 
+AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.country_id=d.country_id
+AND a.state_province_id=c.state_province_id
+AND a.county_parish_verbatim<>''
+;
+
+-- short name ascii lower case
+UPDATE user_data a
+SET 
+county_parish_id=b.county_parish_id,
+county_parish=b.county_parish_std,
+match_method_county_parish='exact ascii short name'
+FROM county_parish b JOIN state_province c
+ON b.state_province_id=c.state_province_id
+JOIN country d
+ON c.country_id=d.country_id
+WHERE job=:'job'
+AND LOWER(unaccent(a.county_parish_verbatim))=LOWER(b.county_parish_std) 
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.country_id=d.country_id
 AND a.state_province_id=c.state_province_id

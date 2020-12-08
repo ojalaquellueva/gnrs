@@ -1,5 +1,7 @@
 -- ------------------------------------------------------------
---  Resolve country by exact matching
+-- Resolve country by exact matching
+-- Use of LOWER will be slow; consider adding extra lower case
+-- version in databASe
 -- ------------------------------------------------------------
 
 -- standard name
@@ -14,7 +16,19 @@ AND a.country_id IS NULL AND match_status IS NULL
 AND a.country_verbatim=b.country
 ;
 
--- standard name
+-- standard name case-insensitive
+UPDATE user_data a
+SET 
+country_id=b.country_id,
+country=b.country,
+match_method_country='exact standard name'
+FROM country b
+WHERE job=:'job'
+AND a.country_id IS NULL AND match_status IS NULL
+AND LOWER(a.country_verbatim)=LOWER(b.country)
+;
+
+-- plain ascii standard name
 UPDATE user_data a
 SET 
 country_id=b.country_id,
@@ -26,6 +40,22 @@ AND a.country_id IS NULL AND match_status IS NULL
 AND unaccent(a.country_verbatim)=b.country
 ;
 
+-- plain ascii standard name case-insensitive
+UPDATE user_data a
+SET 
+country_id=b.country_id,
+country=b.country,
+match_method_country='exact ascii name'
+FROM country b
+WHERE job=:'job'
+AND a.country_id IS NULL AND match_status IS NULL
+AND LOWER(unaccent(a.country_verbatim))=LOWER(b.country)
+;
+
+--
+-- Codes
+--
+ 
 -- iso code
 UPDATE user_data a
 SET 
@@ -61,6 +91,10 @@ WHERE job=:'job'
 AND a.country_id IS NULL AND match_status IS NULL
 AND a.country_verbatim=b.iso_alpha3
 ;
+
+--
+-- Alt names
+--
 
 -- Exact alternate name
 UPDATE user_data a

@@ -28,6 +28,8 @@ CREATE INDEX country_iso_alpha3_idx ON country USING btree (iso_alpha3);
 CREATE INDEX country_fips_idx ON country USING btree (fips);
 CREATE INDEX country_continent_code_idx ON country USING btree (continent_code);
 CREATE INDEX country_continent_idx ON country USING btree (continent);
+CREATE INDEX country_country_ci_idx ON country (LOWER(country));
+
 
 -- 
 -- country_code: all codes for a country, one row per code, duplicates flagged
