@@ -1,10 +1,8 @@
 -- ------------------------------------------------------------
 -- Resolve country by exact matching
--- Use of LOWER will be slow; consider adding extra lower case
--- version in databASe
 -- ------------------------------------------------------------
 
--- standard name
+-- standard name 
 UPDATE user_data a
 SET 
 country_id=b.country_id,

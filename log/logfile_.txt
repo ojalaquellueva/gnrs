@@ -1543,3 +1543,107 @@ Populating ISO codes...done (.14 sec)
 Populating gadm IDs...done (.07 sec)
 Populating geonames IDs...done (.07 sec)
 Updating cache...done (.07 sec)
+- Loading table user_data...done (.09 sec)
+- Populating alt state_province_verbatim column...done (3.38 sec)
+- Populating alt county_parish_verbatim_verbatim column...done (5.71 sec)
+Checking for existing results in cache...done (2.57 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (6.78 sec)
+-- fuzzy...done (1.64 sec)
+- State/province:
+-- exact...done (12.94 sec)
+-- fuzzy...done (6.33 sec)
+- County/parish:
+-- exact...done (15.52 sec)
+-- fuzzy...done (10.53 sec)
+- Summarizing results...done (.09 sec)
+Populating ISO codes...done (.12 sec)
+Populating gadm IDs...done (.13 sec)
+Populating geonames IDs...done (1.11 sec)
+Updating cache...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+- Populating alt state_province_verbatim column...done (3.20 sec)
+- Populating alt county_parish_verbatim_verbatim column...done (5.49 sec)
+Checking for existing results in cache...done (.09 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (6.83 sec)
+-- fuzzy...done (1.74 sec)
+- State/province:
+-- exact...done (13.75 sec)
+-- fuzzy...done (6.55 sec)
+- County/parish:
+-- exact...done (15.46 sec)
+-- fuzzy...done (10.41 sec)
+- Summarizing results...done (.11 sec)
+Populating ISO codes...done (.13 sec)
+Populating gadm IDs...done (.13 sec)
+Populating geonames IDs...done (1.12 sec)
+Updating cache...done (.10 sec)
+- Loading table user_data...done (.09 sec)
+- Populating alt state_province_verbatim column...done (.10 sec)
+- Populating alt county_parish_verbatim_verbatim column...done (.10 sec)
+Checking for existing results in cache...done (.09 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.18 sec)
+-- fuzzy...done (.09 sec)
+- State/province:
+-- exact...done (.11 sec)
+-- fuzzy...done (.11 sec)
+- County/parish:
+-- exact...done (.11 sec)
+-- fuzzy...done (.28 sec)
+- Summarizing results...done (.09 sec)
+Populating ISO codes...done (.10 sec)
+Populating gadm IDs...done (.10 sec)
+Populating geonames IDs...done (.09 sec)
+Updating cache...done (.09 sec)
+- Loading table user_data...done (.09 sec)
+- Populating alt state_province_verbatim column...done (.11 sec)
+- Populating alt county_parish_verbatim_verbatim column...done (.10 sec)
+Checking for existing results in cache...done (.09 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.18 sec)
+-- fuzzy...done (.09 sec)
+- State/province:
+-- exact...done (.11 sec)
+-- fuzzy...done (.11 sec)
+- County/parish:
+-- exact...done (.12 sec)
+-- fuzzy...done (.28 sec)
+- Summarizing results...done (.10 sec)
+Populating ISO codes...done (.09 sec)
+Populating gadm IDs...done (.09 sec)
+Populating geonames IDs...done (.09 sec)
+Updating cache...done (.09 sec)
+- Loading table user_data...done (.09 sec)
+- Populating alt state_province_verbatim column...done (.10 sec)
+- Populating alt county_parish_verbatim_verbatim column...done (.09 sec)
+Checking for existing results in cache...done (.09 sec)
+- All submitted political divisions already in cache!
+Populating ISO codes...done (.18 sec)
+Populating gadm IDs...done (.10 sec)
+Populating geonames IDs...done (.09 sec)
+Updating cache...done (.09 sec)
+- Loading table user_data...done (.09 sec)
+- Populating alt state_province_verbatim column...done (.10 sec)
+- Populating alt county_parish_verbatim_verbatim column...done (.10 sec)
+Checking for existing results in cache...done (.09 sec)
+Resolving political divisions:
+- Country:
+-- exact...done (.19 sec)
+-- fuzzy...done (.09 sec)
+- State/province:
+-- exact...done (.11 sec)
+-- fuzzy...done (.11 sec)
+- County/parish:
+-- exact...done (.12 sec)
+-- fuzzy...done (.26 sec)
+- Summarizing results...done (.09 sec)
+Populating ISO codes...done (.10 sec)
+Populating gadm IDs...done (.09 sec)
+Populating geonames IDs...done (.09 sec)
+Updating cache...done (.08 sec)

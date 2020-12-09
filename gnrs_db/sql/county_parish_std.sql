@@ -458,4 +458,5 @@ WHERE county_parish_ascii IN (
 ;
 
 CREATE INDEX county_parish_county_parish_std ON county_parish (county_parish_std);
+CREATE INDEX county_parish_county_parish_std_ci_idx ON county_parish USING btree (LOWER(county_parish_std));
 
