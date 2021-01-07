@@ -137,12 +137,19 @@ fclose($fp);
 ///////////////////////////////////
 
 // Compose the gnrs batch command
-$cmd="./gnrs_batch.sh -a -s -f '$file_tmp'";
+$cmd = $BATCH_DIR . "gnrs_batch.sh -a -s -f '$file_tmp'";
 //die("Command sent to gnrs_batch.sh:\r\n$cmd\r\n");
 
 // Execute gnrs batch command
 // Saves result to file in data directory
 exec($cmd, $output, $status);
+
+/*
+// For troubleshooting:
+$msg = "cmd:\n" . $cmd . "\n";
+$msg = $msg . "status: \n" . $statis . "\n";
+die($msg);
+*/
 
 if ($status) die("ERROR: gnrs_batch non-zero exit status ($status)");
 
@@ -159,7 +166,7 @@ $results_json = csvtojson($results_file, ",",100000);
 // Testing
 $cmd="whoami";
 $curr_user=shell_exec($cmd);
-$results_json = csvtojson_test($results_file, ",",100000, $curr_user);
+//$results_json = csvtojson_test($results_file, ",",100000, $curr_user);
 */
 
 ///////////////////////////////////
@@ -168,6 +175,6 @@ $results_json = csvtojson_test($results_file, ",",100000, $curr_user);
 
 header('Content-type: application/json');
 echo $results_json;
-#echo $curr_user;
+//echo $cmd;		// For troubleshooting
 
 ?>

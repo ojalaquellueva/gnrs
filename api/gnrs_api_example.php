@@ -28,7 +28,7 @@ $ppbatches=20;
 $base_url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php"; // production
 $base_url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php"; // development
 
-require_once 'server_params.php';	// server-specific parameters 
+require_once 'params.php';			// general parameters 
 require_once 'api_params.php';		// api-specific parameters
 
 // Path and name of file containing input names and political divisions

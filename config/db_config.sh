@@ -1,14 +1,13 @@
 #!/bin/bash
 
 #########################################################
-# Database connection parameters
+# Database configuration parameters 
 # 
 # After setting parameters rename this file to db_config.sh
 # For security, recommend keeping this file outside main
 # application directory. After move, change db_config_path 
 # in params.sh accordingly
 #########################################################
-
 
 # Host
 host='localhost'

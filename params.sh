@@ -3,17 +3,17 @@
 ##############################################################
 # Application parameters
 # Check and change as needed
+# MUST load config/db_config.sh first to set $BASEDIR
 ##############################################################
+
+# $BASE_DIR is server specific and therefore kept in 
+# server_config.sh in config directory outside repo
+source "../config/server_config.sh";
 
 ##########################
 # Paths, adjust according  
 # to your installation
 ##########################
-
-# Absolute path to base directory for this application
-# Install the application code (from repo) inside a 
-# subdirectory of the base directory
-BASEDIR="/home/boyle/bien/gnrs"
 
 # Path to db_config.sh
 # For production, keep outside app directory & supply absolute path

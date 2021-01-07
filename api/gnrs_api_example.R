@@ -23,7 +23,7 @@ testfile <- "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_te
 # Test data with unique ids
 testfile.ids <- "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile_ids.csv"
 
-testfile <- testfile.ids
+testfile <- testfile
 
 #################################
 # Import & prepare the raw data

@@ -1,18 +1,14 @@
 <?php
 
 /////////////////////////////////////////////////
-// Server-specific parameters
-// Keep outside repo to preserve settings
+// Paths and include files
 /////////////////////////////////////////////////
 
-// Application name
-// Use lower case to enable use in file names and paths
-// If you follow the recommended setup, this parameter and the 
-// next should be the only ones you need to change
-$APPNAME = "gnrs";
-
-// Application base directory
-$BASE_DIR = "/home/boyle/bien/$APPNAME/";
+// Server-specific parameters $APPNAME & $BASE_DIR loaded from 
+// server parameters file in config directory one
+// level above (outside) application directory (=repo). 
+// Template for this file is in src/config/server_params.php
+include "../../config/server_params.php";
 
 // API directory
 $APP_DIR = $BASE_DIR."src/api/";
@@ -25,7 +21,8 @@ $BATCH_DIR=$BASE_DIR."src/";
 $CONFIG_DIR = $BASE_DIR . "config/"; 
 
 // Input & output data directory
-$DATADIR = $BATCH_DIR."data/user/";	// For production, keep outside API directory
+// For production keep outside API directory
+$DATADIR = $BASE_DIR."data/user/";	
 
 // Path and name of log file
 $LOGFILE_NAME = "log.txt";

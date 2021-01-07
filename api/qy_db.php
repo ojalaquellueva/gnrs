@@ -4,7 +4,7 @@
 // Queries database with supplied sql ($sql)
 ////////////////////////////////////////////////////////
 
-// require_once 'server_params.php';	// server-specific parameters
+require_once 'params.php';			// general parameters 
 // require_once 'api_params.php';		// API option parameters
 
 include $CONFIG_DIR.'db_config.php';

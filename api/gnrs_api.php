@@ -13,7 +13,7 @@
 $results_file_delim = "\t";
 
 // parameters in ALL_CAPS set in the two params files
-require_once 'server_params.php';	// server-specific parameters
+require_once 'params.php';			// general parameters 
 require_once 'api_params.php';		// API option parameters
 
 // Temporary data directory
@@ -295,7 +295,7 @@ echo $results_json;
 ///////////////////////////////////
 
 err:
-http_response_code($err_code);
+//http_response_code($err_code);
 echo $err_msg;
 //echo "cmd:\n $cmd \n";	// For troubleshooting
 
