@@ -57,7 +57,7 @@ GetOptions(
 
 # The temporary folder needs to be in the /tmp directory 
 # (see the function _clean)
-# mkdir "/tmp/$APPNAME/" unless -d "/tmp/$APPNAME/"
+mkdir "$tmpfoldermaster" unless -d "$tmpfoldermaster";
 my $tmpfolder =
   $tmpfoldermaster . time() . int( rand(10000) );    #Create a temporary folder
 
