@@ -27,13 +27,13 @@ $ppbatches=20;
 // api base url 
 $base_url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php"; // production
 $base_url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php"; // development
+//$base_url = "http://paramo.cyverse.org/gnrs/gnrs_api.php";        // paramo
 
 require_once 'params.php';			// general parameters 
 require_once 'api_params.php';		// api-specific parameters
 
 // Path and name of file containing input names and political divisions
 $inputfile = $DATADIR."gnrs_testfile.csv";	// local test file
-$inputfile = "../../data/user/gnrs_testfile_noheader_ids.csv";	// local test file
 //$inputfile = "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile.csv";
 
 // Desired response format
