@@ -229,7 +229,7 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	exec($cmd, $output, $status);
 	//if ($status) die("ERROR: tnrs_batch non-zero exit status");
 	if ($status) {
-		$err_msg="Failed file conversion: dos2unix\r\n";
+		$err_msg="Failed file conversion: dos2unix for file ${file_tmp}\r\n";
 		$err_code=500; goto err;
 	}
 

@@ -2,18 +2,22 @@
 
 ##############################################################
 # Application parameters
-# Check and change as needed
 # MUST load config/db_config.sh first to set $BASEDIR
 ##############################################################
 
-# $BASE_DIR is server specific and therefore kept in 
-# server_config.sh in config directory outside repo
-source "../config/server_config.sh";
+# Relative path to server-specific configuration file.
+# Currently contains only one parameter, $BASE_DIR, which
+# is the absolute path to the immediate parent of this
+# directory (i.e., the repo). Recommend keep server_config.sh
+# in $BASE_DIR/config/
+currdir=$(dirname ${BASH_SOURCE[0]})
+source "${currdir}/../config/server_config.sh";
 
-##########################
-# Paths, adjust according  
-# to your installation
-##########################
+#################################
+# You should not need to change
+# the remaining parameters unless 
+# you alter default configuration
+#################################
 
 # Path to db_config.sh
 # For production, keep outside app directory & supply absolute path
@@ -51,18 +55,6 @@ data_dir_local=$data_dir_local_abs
 batch_size=10000;
 
 ##########################
-# Default input/output file names
-##########################
-
-# Default name of the raw data file to be imported. 
-# This name will be used if no file name supplied as command line
-# parameter. Must be located in the user_data directory
-submitted_filename="gnrs_submitted.csv" 
-
-# Default name of results file
-results_filename="gnrs_results.csv"
-
-##########################
 # Fuzzy match parameters
 ##########################
 
@@ -77,6 +69,8 @@ match_threshold=0.5
 # 't' to limit number of records imported (for testing)
 # 'f' to run full import
 use_limit='f'
+
+# Ignored if use_limit='f'
 recordlimit=1000
 
 ##########################
@@ -99,10 +93,6 @@ debug_mode='f'
 ##########################
 # Display/notification parameters
 ##########################
-
-# Destination email for process notifications
-# You must supply a valid email if you used the -m option
-email="bboyle@email.arizona.edu"
 
 # Short name for this operation, for screen echo and 
 # notification emails. Number suffix matches script suffix

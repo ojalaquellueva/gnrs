@@ -95,8 +95,7 @@ while [ "$1" != "" ]; do
                             	;;
         -n | --noheader )       header="false"
                             	;;
-        -f | --infile )        	f_custom="true"
-        						shift
+        -f | --infile )        	shift
                                 infile=$1
                                 ;;
         -o | --outfile )       	shift
@@ -115,11 +114,10 @@ while [ "$1" != "" ]; do
 done
 
 # Check input file [and directory] exists
-if [ "$f_custom" == "true" ] && [ "$infile" == "" ]; then	
-    echo "Input file name missing!"; exit 1    	
-fi
-if [ ! -f "$infile" ]; then
-    echo "Input file '$infile' does not exist!"; exit 1    
+if [ "$infile" == "" ]; then	
+    	echo "Input file name missing!"; exit 1    	
+elif [ ! -f "$infile" ]; then
+	echo "Input file '$infile' does not exist!"; exit 1    
 fi
 
 # Set header option for file import
@@ -137,11 +135,6 @@ if  [ "$delim" == "t" ]; then
 	delim_disp="TSV"
 fi
 
-# Set results file
-# data_dir=$(dirname "${infile}")
-# outfile_basename=$(basename ${infile%.*})
-# outfile=$data_dir"/"$outfile_basename"_gnrs_results.csv"
-
 # Output file path and name
 if [[ ! "$outfile" == "" ]]; then
 	# Check destination directory exists
@@ -151,7 +144,7 @@ if [[ ! "$outfile" == "" ]]; then
 		exit 1
 	fi
 else
-	# Create default results file path and name
+	# Base results file path and name on input file
 	outdir=$(dirname "${infile}")
 	filename=$(basename -- "${infile}")
 	ext="${filename##*.}"
@@ -277,7 +270,7 @@ source "$DIR/includes/check_status.sh"
 # Import the raw data
 # Note "NULL AS NA": concession to R users
 # Will make this a parameter at some point, with NULL AS NA as the default
-echoi $e -n "-- Importing '$submitted_filename' to temp table..."
+echoi $e -n "-- Importing '$infile' to temp table..."
 metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' ${opt_header};"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
 eval $cmd
