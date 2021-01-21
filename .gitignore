@@ -2,4 +2,4 @@ bak/
 gnrs/bak/
 gnrs_db/bak/
 geonames_db/bak/	
-
+log/**

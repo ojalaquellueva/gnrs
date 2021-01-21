@@ -399,7 +399,8 @@ AND county_parish_verbatim_alt IS NOT NULL AND county_parish_verbatim_alt<>''
 -- REstore errors
 UPDATE user_data
 SET county_parish_verbatim_alt=county_parish_verbatim
-WHERE county_parish_verbatim LIKE 'Comuna 1%'
+WHERE job=:'job'
+AND county_parish_verbatim LIKE 'Comuna 1%'
 OR county_parish_verbatim LIKE 'Comuna 2%'
 OR county_parish_verbatim LIKE 'Comuna 3%'
 OR county_parish_verbatim LIKE 'Comuna 4%'
@@ -411,23 +412,28 @@ OR county_parish_verbatim LIKE 'Comuna 9%'
 ;
 UPDATE user_data
 SET county_parish_verbatim_alt=county_parish_verbatim
-WHERE county_parish_verbatim='Quan 12'
+WHERE job=:'job'
+AND county_parish_verbatim='Quan 12'
 ;
 UPDATE user_data
 SET county_parish_verbatim_alt=county_parish_verbatim
-WHERE county_parish_verbatim='San Cristobal De Casas'
+WHERE job=:'job'
+AND county_parish_verbatim='San Cristobal De Casas'
 ;
 UPDATE user_data
 SET county_parish_verbatim_alt='San Jeronimo'
-WHERE county_parish_verbatim='San Jeronimo Department'
+WHERE job=:'job'
+AND county_parish_verbatim='San Jeronimo Department'
 ;
 UPDATE user_data
 SET county_parish_verbatim_alt=county_parish_verbatim
-WHERE county_parish_verbatim='San Sebastian del Oeste'
+WHERE job=:'job'
+AND county_parish_verbatim='San Sebastian del Oeste'
 ;
 UPDATE user_data
 SET county_parish_verbatim_alt=county_parish_verbatim
-WHERE county_parish_verbatim IN (
+WHERE job=:'job'
+AND county_parish_verbatim IN (
 'Santa Barbara D''Oeste',
 'Santa Barbara Do Sul',
 'Santa Fe Do Sul',

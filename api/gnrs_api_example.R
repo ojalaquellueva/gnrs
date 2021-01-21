@@ -9,8 +9,8 @@
 #################################
 
 # api url
-url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_ws.php" # production
-url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
+url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # production
+#url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
 
 # Test files of political divisions to resolve
 # Comma-delimited, first column an integer ID (can be blank), next three columns
