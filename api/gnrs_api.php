@@ -265,6 +265,13 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 		FROM meta
 		;
 		";
+	} else if ( $mode=="countrylist" ) { 
+		$sql="
+		SELECT country_id, country, iso, iso_alpha3, fips, 
+		continent_code, continent 
+		FROM country
+		;
+		";
 	} else {
 		$err_msg="ERROR: Unknown opt mode '$mode'\r\n"; 
 		$err_code=400; goto err;

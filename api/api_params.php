@@ -22,7 +22,7 @@ $err_show_sql=false;
 // API allowable options, for validation
 //////////////////////////////////////////////////
 
-$MODES = array("resolve","meta");
+$MODES = array("resolve","meta", "countrylist", "statelist", "countylist");
 
 //////////////////////////////////////////////////
 // Default option values

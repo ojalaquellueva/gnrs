@@ -111,6 +111,36 @@ results[ , c(	'country', 'state_province', 'county_parish',
 	'country_iso', 'state_province_iso', 'county_parish_iso', 
 	'gid_0', 'gid_1', 'gid_2', 'geonameid' )
 	]
+	
+#################################
+# Example 2: Get list of all countries in 
+# GNRS DB
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+# All we need to do is reset option mode.
+# all other options will be ignored
+mode <- "countrylist"		
+
+# Re-form the options json again
+# Note that only 'mode' is needed
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+
+# Make the options
+# No data needed
+input_json <- paste0('{"opts":', opts_json, '}' )
+
+# Send the request again
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results )
+
 
 #################################
 # Example 2: Get metadata for current 
