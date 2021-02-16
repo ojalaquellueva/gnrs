@@ -10,7 +10,7 @@
 
 # api url
 url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # production
-#url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
+url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
 
 # Test files of political divisions to resolve
 # Comma-delimited, first column an integer ID (can be blank), next three columns
@@ -113,8 +113,7 @@ results[ , c(	'country', 'state_province', 'county_parish',
 	]
 	
 #################################
-# Example 2: Get list of all countries in 
-# GNRS DB
+# Example 2: Get list of all countries in GNRS DB
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
 
@@ -129,9 +128,6 @@ names(opts) <- c("mode")
 opts_json <- jsonlite::toJSON(opts)
 opts_json <- gsub('\\[','',opts_json)
 opts_json <- gsub('\\]','',opts_json)
-
-# Make the options
-# No data needed
 input_json <- paste0('{"opts":', opts_json, '}' )
 
 # Send the request again
@@ -141,9 +137,44 @@ results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=head
 results <- jsonlite::fromJSON(results_json)
 print( results )
 
+#################################
+# Example 3: Get list of all states in GNRS DB
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+mode <- "statelist"		
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+input_json <- paste0('{"opts":', opts_json, '}' )
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results[1:25,] )
 
 #################################
-# Example 2: Get metadata for current 
+# Example 4: Get list of all counties in GNRS DB
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+mode <- "countylist"		
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+input_json <- paste0('{"opts":', opts_json, '}' )
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results[1:25,] )
+
+#################################
+# Example 5: Get metadata for current 
 # GNRS version
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )

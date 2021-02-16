@@ -268,8 +268,40 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	} else if ( $mode=="countrylist" ) { 
 		$sql="
 		SELECT country_id, country, iso, iso_alpha3, fips, 
-		continent_code, continent 
+		continent_code, continent,
+		gid_0 AS gadm_gid_0
 		FROM country
+		;
+		";
+	} else if ( $mode=="statelist" ) { 
+		$sql="
+		SELECT state_province_id, country_id, country_iso, country,
+		state_province, 
+		state_province_ascii, 
+		state_province_code_full AS iso_3866_1, 
+		state_province_code2_full AS iso_3866_1_alt, 
+		hasc_full AS hasc,
+		gid_0 AS gadm_gid_0,
+		gid_1 AS gadm_gid_1
+		FROM state_province
+		;
+		";
+	} else if ( $mode=="countylist" ) { 
+	// NOT READY
+	// Must filter using state_province_id as parameter
+	// otherwise too much data...crashes!
+		$sql="
+		SELECT county_parish_id, country_id, country, country_iso,
+		state_province_id, state_province_ascii,
+		county_parish, county_parish_ascii,
+		county_parish_code_full AS iso_3166_2,
+		county_parish_code2_full AS iso_3166_2_alt,
+		hasc_2_full AS hasc2,
+		gid_0 AS gadm_gid_0,
+		gid_1 AS gadm_gid_1,
+		gid_2 AS gadm_gid_2
+		FROM county_parish	
+		LIMIT 12	
 		;
 		";
 	} else {
@@ -300,6 +332,7 @@ echo $results_json;
 // Error: return http status code
 // and error message
 ///////////////////////////////////
+
 
 err:
 //http_response_code($err_code);
