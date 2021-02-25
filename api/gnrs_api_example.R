@@ -113,7 +113,9 @@ results[ , c(	'country', 'state_province', 'county_parish',
 	]
 	
 #################################
-# Example 2: Get list of all countries in GNRS DB
+# Example 2: Get list of all countries & 
+# associated information in GNRS DB
+# Parameters: none
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
 
@@ -128,6 +130,8 @@ names(opts) <- c("mode")
 opts_json <- jsonlite::toJSON(opts)
 opts_json <- gsub('\\[','',opts_json)
 opts_json <- gsub('\\]','',opts_json)
+
+# Input json requires only the option
 input_json <- paste0('{"opts":', opts_json, '}' )
 
 # Send the request again
@@ -137,10 +141,23 @@ results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=head
 results <- jsonlite::fromJSON(results_json)
 print( results )
 
+# Save list of countries for use in state query
+countries.all <- results
+	
 #################################
-# Example 3: Get list of all states in GNRS DB
+# Example 3: Get list of states & associated
+# information for subset of countries
+# Parameters: one or more value of country_id
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
+
+# Make list of countries for which you'd like to get list of states
+# Filter however you want, but value used for data_json
+# must be the integer country_id
+countries <- as.data.frame(countries.all[ countries.all$country 
+	%in% c('Costa Rica', 'Nicaragua', 'Panama'), c('country_id')])
+names(countries ) <- c("country")
+data_json <- jsonlite::toJSON(countries)
 
 mode <- "statelist"		
 opts <- data.frame(c(mode))
@@ -148,17 +165,34 @@ names(opts) <- c("mode")
 opts_json <- jsonlite::toJSON(opts)
 opts_json <- gsub('\\[','',opts_json)
 opts_json <- gsub('\\]','',opts_json)
-input_json <- paste0('{"opts":', opts_json, '}' )
+
+# Form the input json, including both options and data
+input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
 results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
 
 # Display the results
 results <- jsonlite::fromJSON(results_json)
-print( results[1:25,] )
+print( results )
+
+# Save list of states for use in county query
+states.all <- results
 
 #################################
-# Example 4: Get list of all counties in GNRS DB
+# Example 4: Get list of counties & associated
+# information for subset of states in one or
+# more countries
+# Parameters: one or more pairs of 
+# country_id + state_province_id
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
+
+# Make list of states for which you'd like to get list of counties
+# Here we are selecting using state_province_id, but could use other filters as well
+# Save only the integer state_province_id
+states <- as.data.frame(states.all[ states.all$state_province_id 
+	%in% c(3624953, 3624368, 3830308, 3620673), c('state_province_id')])
+names(states ) <- c("state_province_id")
+data_json <- jsonlite::toJSON(states)
 
 mode <- "countylist"		
 opts <- data.frame(c(mode))
@@ -166,12 +200,14 @@ names(opts) <- c("mode")
 opts_json <- jsonlite::toJSON(opts)
 opts_json <- gsub('\\[','',opts_json)
 opts_json <- gsub('\\]','',opts_json)
-input_json <- paste0('{"opts":', opts_json, '}' )
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Form the input json, including both options and data
+input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
+results_json <- postForm(url, .opts=list(postfields=input_json, httpheader=headers))
 
 # Display the results
 results <- jsonlite::fromJSON(results_json)
-print( results[1:25,] )
+print( results )
 
 #################################
 # Example 5: Get metadata for current 

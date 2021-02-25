@@ -74,6 +74,69 @@ function file_to_array_assoc($filepath, $delim) {
 	return $array;
 }
 
+////////////////////////////////////////////////////////
+// Convert a 2-level nested array to SQL IN-list
+// of the 2nd-level elements
+// Assumes:
+// * Level 2 has one element & no further nesting
+// * Each element is a number not requiring quotes
+////////////////////////////////////////////////////////
+
+function make_inlist(array $in) {
+		$inlist = "";
+		foreach ($in as $row) {
+			$inlist .= implode(array_values($row)) . ",";
+		}
+		// Remove trailing comma
+		$inlist = rtrim($inlist, ",");
+		return $inlist;
+}
+
+////////////////////////////////////////////////////////
+// Convert a 2-level nested array to SQL IN-list
+// of the 2nd-level elements
+// Assumes:
+// * Level 2 has one element & no further nesting
+// * Each element is a string that must be quoted
+// Not currently used but keep for future use
+////////////////////////////////////////////////////////
+
+function make_inlist_quoted(array $in) {
+		$inlist = "'";
+		foreach ($in as $row) {
+			$inlist .= implode(array_values($row)) . "','";
+		}
+		// Remove trailing comma + opening single quote
+		// For some reason need to re-add closing quote
+		$inlist = rtrim($inlist, ",'") . "'";
+		return $inlist;
+}
+
+////////////////////////////////////////////////////////
+// Convert a 2-level nested array to SQL AND...OR
+// component of WHERE clause
+//
+// Assumes level 2 has two elements & no further nesting
+// * The 2 elements are joined with AND surrounded by parentheses
+// * Each 2-element pair separated from the next by OR
+// * Each element is a number that does not require quotes
+//
+// Parameters:
+//	$vals: Values of the two elements
+//	$col1: SQL column name of the 1st element
+//	$col2: SQL column name of the 2nd element
+////////////////////////////////////////////////////////
+
+function make_sql_andor (array $vals, $col1, $col2) {
+		$andor = "(${col1}=";
+		foreach ($vals as $row) {
+			$andor .= implode(" AND ${col2}=", array_values($row)) . ") OR (${col1}=";
+		}
+		// Remove trailing OR
+		$andor = rtrim($andor, " OR (${col1}=");
+		return $andor;
+}
+
 ////////////////////////////////////////
 // Receive & validate the POST request
 ////////////////////////////////////////
@@ -123,13 +186,6 @@ if (!is_array($input_array)) {
 	$err_code=400; goto err;
 }
 
-///////////////////////////////////
-// Inspect the JSON data and run 
-// safety/security checks
-///////////////////////////////////
-
-// UNDER CONSTRUCTION!
-
 ///////////////////////////////////////////
 // Extract & validate options
 ///////////////////////////////////////////
@@ -139,6 +195,12 @@ if ( ! ( $opt_arr = isset($input_array['opts'])?$input_array['opts']:false ) ) {
 	$err_msg="ERROR: No API options (see element 'opts' in JSON request)\r\n";	
 	$err_code=400; goto err;
 }
+
+///////////////////////////////////
+// Sanitize the JSON options
+///////////////////////////////////
+
+// UNDER CONSTRUCTION!
 
 ///////////////////////////////////////////
 // Validate options and assign each to its 
@@ -155,7 +217,7 @@ if ($err) goto err;
 // continue processing TNRSbatch request
 ///////////////////////////////////////////
 
-if ( $mode=="resolve" ) { 	// BEGIN mode_if
+if ( $mode=="resolve" || $mode=="statelist"|| $mode=="countylist") {
 
 	///////////////////////////////////////////
 	// Extract & validate data
@@ -176,20 +238,52 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	}
 
 	# Validate data array structure
-	# Should have 1 or more rows of exactly 4 elements each
+	# Should have 1 or more rows of exactly $ncols elements each
 	$rows=0;
+	if ( $mode=="resolve" ) {
+		$ncols=4;
+	} else if ( $mode=="statelist" || $mode=="countylist" ) {
+		$ncols=1;	// country_id or state_province_id
+	}
+	
 	foreach ($data_arr as $row) {
 		$rows++;
 		$values=0;
 		foreach($row as $value) $values++;
-		if ($values<>4) {
-			$err_msg="ERROR: Data has wrong number of columns in one or more rows, should be exactly 4\r\n"; $err_code=400; goto err;
+		if ($values<>$ncols) {
+			$err_msg="ERROR: Data has wrong number of columns in one or more rows, should be exactly $ncols for mode='$mode'\r\n"; $err_code=400; goto err;
 		}
 	}
 	if ($rows==0) {
 		$err_msg="ERROR: No data rows!\r\n"; $err_code=400; goto err; 
 	}
+}
+
+///////////////////////////////////
+// Sanitize the JSON data
+///////////////////////////////////
+
+if ( $mode=="resolve" ) {
+
+	// UNDER CONSTRUCTION
 	
+} else if ( $mode=="statelist" || $mode=="countylist") {
+	// Check that all input values are integer ids
+	$filtered = array();
+	foreach($data_arr as $row) {
+		foreach($row as $key=>$value) {
+			if (!filter_var($value, FILTER_VALIDATE_INT) === true) {
+			  $err_msg="ERROR: Value $key=$value not a valid integer ID!\n"; $err_code=400; goto err;
+			}
+		}
+	}
+}
+
+if ( $mode == 'resolve' ) { 	// BEGIN mode_if
+	///////////////////////////////////
+	// Process the CSV file in parallel mode
+	///////////////////////////////////
+
 	# Get parallel batch size, if set, otherwise use default
 	if ( isset($batches) ) {
 		$nbatches = $batches;
@@ -224,7 +318,7 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	}
 	fclose($fp);
 
-	// Run dos2unix to fix stupid DOS/Mac/Excel/UTF-16 issues, if any
+	// Run dos2unix to fix stupid DOS/Mac/Excel/UTF-16 issues
 	$cmd = "dos2unix $file_tmp";
 	exec($cmd, $output, $status);
 	//if ($status) die("ERROR: tnrs_batch non-zero exit status");
@@ -233,15 +327,11 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 		$err_code=500; goto err;
 	}
 
-	///////////////////////////////////
-	// Process the CSV file in batch mode
-	///////////////////////////////////
-
 	$data_dir_tmp_full = $data_dir_tmp . "/";
 	// Form the final command
 	$cmd = $BATCH_DIR . "gnrspar.pl -in '$file_tmp'  -out '$results_file' -nbatch $nbatches ";
 	
-	// Execute the TNRSBatch command
+	// Process the data in parallel batches with the core application
 	exec($cmd, $output, $status);
 	if ($status) {
 		$err_msg="ERROR: $APPNAME exit status: $status\r\n";
@@ -257,7 +347,8 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 	$results_array = file_to_array_assoc($results_file, $results_file_delim);
 
 } else {	// CONTINUE mode_if 
-	// Metadaa requests
+	// Metadaa & other requests that query DB directly
+	// No need for parallel processing
 
 	if ( $mode=="meta" ) { 
 		$sql="
@@ -266,6 +357,7 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 		;
 		";
 	} else if ( $mode=="countrylist" ) { 
+		// Retrieve complete list of all countries
 		$sql="
 		SELECT country_id, country, iso, iso_alpha3, fips, 
 		continent_code, continent,
@@ -274,6 +366,10 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 		;
 		";
 	} else if ( $mode=="statelist" ) { 
+		// Turn rows of countries into SQL "IN" clause
+		$countries = make_inlist($data_arr);
+				
+		// Form the final SQL
 		$sql="
 		SELECT state_province_id, country_id, country_iso, country,
 		state_province, 
@@ -284,12 +380,15 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 		gid_0 AS gadm_gid_0,
 		gid_1 AS gadm_gid_1
 		FROM state_province
+		WHERE country_id in ($countries)
+		ORDER BY country, state_province
 		;
 		";
 	} else if ( $mode=="countylist" ) { 
-	// NOT READY
-	// Must filter using state_province_id as parameter
-	// otherwise too much data...crashes!
+		// Turn country-state parameters into SQL WHERE clause
+		$states = make_inlist($data_arr);
+
+		// Form the final SQL
 		$sql="
 		SELECT county_parish_id, country_id, country, country_iso,
 		state_province_id, state_province_ascii,
@@ -301,7 +400,8 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 		gid_1 AS gadm_gid_1,
 		gid_2 AS gadm_gid_2
 		FROM county_parish	
-		LIMIT 12	
+		WHERE state_province_id IN ($states)
+		ORDER BY country, state_province, county_parish
 		;
 		";
 	} else {
@@ -315,6 +415,7 @@ if ( $mode=="resolve" ) { 	// BEGIN mode_if
 }	// END mode_if
 
 $results_json = json_encode($results_array);
+//$results_json = "sql:\n $sql \n";	// For troubleshooting
 
 ///////////////////////////////////
 // Send the response
@@ -333,10 +434,10 @@ echo $results_json;
 // and error message
 ///////////////////////////////////
 
-
 err:
 //http_response_code($err_code);
 echo $err_msg;
 //echo "cmd:\n $cmd \n";	// For troubleshooting
+//echo "sql:\n $sql \n";	// For troubleshooting
 
 ?>
