@@ -19,6 +19,9 @@
 
 // Processing mode
 $mode="resolve";		// Resolve names
+$mode="countrylist";	// Return information on all countries
+$mode="statelist";		// Return info on all states; country_id param required
+$mode="countylist";		// Return info on all counties; state_id param required
 $mode="meta";			// Return metadata on application & sources
 
 // Number of batches for parallel processing
@@ -51,6 +54,16 @@ $format="json";
 // Set to number > # of lines in file to import entire file
 $lines = 10000000000;
 //$lines = 5;
+
+//////////////////////////////////////////
+// Test data from routes statelist & countylist
+//////////////////////////////////////////
+
+// List of country_ids 'Costa Rica, Nicaragua, Panama)
+$country_ids="3624060,3617476,3703430";
+
+// List of example state_province IDs
+$state_ids="3624953,3624368,3830308,3620673";
 
 /////////////////////////////////////////
 // Display options
@@ -93,8 +106,10 @@ echo "\n";
 $opts_arr = array(
 	"mode"=>$mode
 	);
-if ( ! $batches=="" ) $opts_arr += array("batches"=>$batches);
-
+if ( $mode=="resolve" && (! $batches=="" ) ) {
+	$opts_arr += array("batches"=>$batches);
+}
+	
 ///////////////////////////////
 // Display options and confirm
 ///////////////////////////////
@@ -125,19 +140,19 @@ if ( $confirmation !== 'y' ) {
    exit (0);
 }
 
-
 ///////////////////////////////
 // Make data array
 ///////////////////////////////
 
-// Import csv data and convert to array
-$data_arr = array_map('str_getcsv', file($inputfile));
-
-# Get subset
-$data_arr = array_slice($data_arr, 0, $lines);
-
-$lines_in = 0;
 if ( $mode=="resolve" ) {
+	// Import csv data and convert to array
+	$data_arr = array_map('str_getcsv', file($inputfile));
+
+	# Get subset
+	$data_arr = array_slice($data_arr, 0, $lines);
+
+	$lines_in = 0;
+
 	// Echo raw data
 	echo "The raw data:\r\n";
 	foreach($data_arr as $row) {
@@ -154,6 +169,16 @@ if ( $mode=="resolve" ) {
 		var_dump($data_arr);
 		echo "\r\n";
 	}
+} else if ( $mode=="statelist" ) {
+	$val_arr=explode(",",$country_ids);
+	foreach($val_arr as $value) {
+		$data_arr[] = array('country_id' => $value);
+	}	
+} else if ( $mode=="countylist" ) {
+	$val_arr=explode(",",$state_ids);
+	foreach($val_arr as $value) {
+		$data_arr[] = array('state_id' => $value);
+	}	
 }
 
 ///////////////////////////////
@@ -162,7 +187,7 @@ if ( $mode=="resolve" ) {
 ///////////////////////////////
 
 // Convert to JSON
-if ($mode=='resolve') {
+if ($mode=='resolve' || $mode=='statelist' || $mode=='countylist' ) {
 	# Options + data
 	$json_data = json_encode(array('opts' => $opts_arr, 'data' => $data_arr));	
 } else {
