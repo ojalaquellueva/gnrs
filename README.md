@@ -245,4 +245,11 @@ Component service options:
 
 ### <a name="api"></a>API
 
-See API documentation in separate repository `http://bien.nceas.ucsb.edu/bien/tools/gnrs/gnrs-api/`
+For up-to-date examples of API usage in php and R, see the following example files in the `api/` subdirectory of this reposotory:
+
+```
+gnrs_api_example.php
+gnrs_api_example.R
+```
+
+Also see API documentation at `http://bien.nceas.ucsb.edu/bien/tools/gnrs/gnrs-api/`
