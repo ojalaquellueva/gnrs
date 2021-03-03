@@ -61,9 +61,12 @@ $lines = 10000000000;
 
 // List of country_ids 'Costa Rica, Nicaragua, Panama)
 $country_ids="3624060,3617476,3703430";
+$country_ids="";
 
 // List of example state_province IDs
 $state_ids="3624953,3624368,3830308,3620673";
+//$state_ids="";
+$state_ids="3624953,3624368,3830308,hello world!";
 
 /////////////////////////////////////////
 // Display options

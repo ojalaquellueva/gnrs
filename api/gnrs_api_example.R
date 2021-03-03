@@ -156,7 +156,7 @@ rm( list = Filter( exists, c("results", "results_json") ) )
 # must be the integer country_id
 countries <- as.data.frame(countries.all[ countries.all$country 
 	%in% c('Costa Rica', 'Nicaragua', 'Panama'), c('country_id')])
-names(countries ) <- c("country")
+names(countries ) <- c("country_id")
 data_json <- jsonlite::toJSON(countries)
 
 mode <- "statelist"		

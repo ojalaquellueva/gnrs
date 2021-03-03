@@ -273,11 +273,13 @@ if ( $mode=="resolve" ) {
 	
 } else if ( $mode=="statelist" || $mode=="countylist") {
 	// Check that all input values are integer ids
-	$filtered = array();
-	foreach($data_arr as $row) {
-		foreach($row as $key=>$value) {
-			if (!filter_var($value, FILTER_VALIDATE_INT) === true) {
-			  $err_msg="ERROR: Value $key=$value not a valid integer ID!\n"; $err_code=400; goto err;
+	$params = implode(",", $data_arr[0]);
+	if ( ! $params=="" ) {
+		foreach($data_arr as $row) {
+			foreach($row as $key=>$value) {
+				if (!filter_var($value, FILTER_VALIDATE_INT) === true) {
+				  $err_msg="ERROR: Value $key='$value' not a valid integer ID!\n"; $err_code=400; goto err;
+				}
 			}
 		}
 	}
@@ -371,8 +373,16 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		";
 	} else if ( $mode=="statelist" ) { 
 		// Turn rows of countries into SQL "IN" clause
-		$countries = make_inlist($data_arr);
-				
+		$params = implode(",", $data_arr[0]);
+		if ( $params == "" ) {
+			// Get everything (no WHERE clause)
+			$sql_where = " ";
+		} else {
+			// Turn list of IDs into SQL "IN" clause
+			$countries = make_inlist($data_arr);
+			$sql_where = "WHERE country_id in ($countries) ";
+		}
+		
 		// Form the final SQL
 		$sql="
 		SELECT state_province_id, country_id, country_iso, country,
@@ -385,13 +395,20 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		gid_0 AS gadm_gid_0,
 		gid_1 AS gadm_gid_1
 		FROM state_province
-		WHERE country_id in ($countries)
+		$sql_where
 		ORDER BY country, state_province
 		;
 		";
 	} else if ( $mode=="countylist" ) { 
-		// Turn country-state parameters into SQL WHERE clause
-		$states = make_inlist($data_arr);
+		$params = implode(",", $data_arr[0]);
+		if ( $params == "" ) {
+			// Get everything (no WHERE clause)
+			$sql_where = " ";
+		} else {
+			// Turn list of IDs into SQL "IN" clause
+			$states = make_inlist($data_arr);
+			$sql_where = "WHERE state_province_id IN ($states) ";
+		}
 
 		// Form the final SQL
 		$sql="
@@ -406,7 +423,7 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		gid_1 AS gadm_gid_1,
 		gid_2 AS gadm_gid_2
 		FROM county_parish	
-		WHERE state_province_id IN ($states)
+		$sql_where
 		ORDER BY country, state_province, county_parish
 		;
 		";
