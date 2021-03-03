@@ -9,6 +9,10 @@
 // Parameters
 ///////////////////////////////////
 
+// Increase memory limit for this script only
+// Allows sending of larger reponses
+ini_set('memory_limit','1000M');
+
 # Delimiter of results file returned by core application
 $results_file_delim = "\t";
 

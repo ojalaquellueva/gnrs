@@ -71,7 +71,7 @@ match_threshold=0.5
 use_limit='f'
 
 # Ignored if use_limit='f'
-recordlimit=1000
+recordlimit=100000
 
 ##########################
 # Set debug mode

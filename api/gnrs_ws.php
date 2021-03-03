@@ -1,5 +1,8 @@
 <?php
 
+// DEPRECATED. DON'T USE. 
+// Keeping for now as I may recycle some code
+
 ////////////////////////////////////////////////////////
 // Legacy gnrs batch api. Runs non-parallel gnrs_batch.sh
 //
