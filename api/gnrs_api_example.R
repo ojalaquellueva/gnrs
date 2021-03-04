@@ -1,5 +1,5 @@
 ###############################################
-# GNRS API Example
+# GNRS API Examples
 #
 # Invokes parallel processing GNRS interface (gnrspar.sh)
 ###############################################
@@ -10,7 +10,7 @@
 
 # api url
 url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # production
-url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
+#url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
 
 # Test files of political divisions to resolve
 # Comma-delimited, first column an integer ID (can be blank), next three columns
@@ -156,6 +156,8 @@ rm( list = Filter( exists, c("results", "results_json") ) )
 # must be the integer country_id
 countries <- as.data.frame(countries.all[ countries.all$country 
 	%in% c('Costa Rica', 'Nicaragua', 'Panama'), c('country_id')])
+# Or set to empty string ("") to get everything:
+#countries <- as.data.frame("")	
 names(countries ) <- c("country_id")
 data_json <- jsonlite::toJSON(countries)
 
@@ -170,9 +172,10 @@ opts_json <- gsub('\\]','',opts_json)
 input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
 results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
 
-# Display the results
+# Display total rows returns and a sample of the results
 results <- jsonlite::fromJSON(results_json)
-print( results )
+print( results[ 1:50,] )		# Just a sample
+print( paste0( "Total rows returned: ", nrow(results) ) )
 
 # Save list of states for use in county query
 states.all <- results
@@ -187,10 +190,12 @@ states.all <- results
 rm( list = Filter( exists, c("results", "results_json") ) )
 
 # Make list of states for which you'd like to get list of counties
-# Here we are selecting using state_province_id, but could use other filters as well
-# Save only the integer state_province_id
+# Filter however you want, but value used for data_json parameters
+# must be the integer state_province_id
 states <- as.data.frame(states.all[ states.all$state_province_id 
 	%in% c(3624953, 3624368, 3830308, 3620673), c('state_province_id')])
+# Or set to empty string ("") to get everything:
+#states <- as.data.frame("")	
 names(states ) <- c("state_province_id")
 data_json <- jsonlite::toJSON(states)
 
@@ -205,9 +210,10 @@ opts_json <- gsub('\\]','',opts_json)
 input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
 results_json <- postForm(url, .opts=list(postfields=input_json, httpheader=headers))
 
-# Display the results
+# Display total rows returns and a sample of the results
 results <- jsonlite::fromJSON(results_json)
-print( results )
+print( results[ 1:50,] )		# Just a sample
+print( paste0( "Total rows returned: ", nrow(results) ) )
 
 #################################
 # Example 5: Get metadata for current 
