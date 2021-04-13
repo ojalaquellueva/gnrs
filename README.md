@@ -116,8 +116,21 @@ The input file for the TNRS must be utf-8 plain text file name with the followin
 
 Header `user_id,country,state_province,county_parish` must be the first line of the file. Place this file in the GNRS user data directory (`data/user/`; path and directory name set in file params.sh). 
 
+#### Example tab-delimited data
+* Numeric IDs optional but must include header & all tabs 
+
+```
+user_id<tab>country<tab>state_province<tab>county_parish  
+1<tab>Russia<tab>Lipetsk<tab>Dobrovskiy rayon  
+2<tab>Mexico<tab>Sonora, Estado de<tab>Huépac  
+3<tab>Guatemala<tab>Izabal<tab>  
+4<tab>USA<tab>Arizona<tab>Pima County  
+5<tab>U.S.A<tab>Arizona<tab>Pima<tab>  
+6<tab>Mexico<tab>Quintana Roo<tab>Lázaro Cárdenas
+``` 
+
 <a name="input-file-type"></a>
-### Input File Type
+#### Input File Type
 * `gnrspar.pl`: must be tab delimited
 * `gnrs_batch.sh`: tab delimited or comma delimited. Specify on command line (see below).
 
