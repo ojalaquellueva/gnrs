@@ -13,6 +13,10 @@
 currdir=$(dirname ${BASH_SOURCE[0]})
 source "${currdir}/../config/server_config.sh";
 
+# Purge user_data after each call of gnrs_batch?
+# Generally good idea to avoid bloat & slow performance
+clear_user_data='t'
+
 #################################
 # You should not need to change
 # the remaining parameters unless 
