@@ -251,6 +251,11 @@ cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_
 eval $cmd
 source "$DIR/includes/check_status.sh" 
 
+echoi $e -n "Updating match scores..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_match_scores.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
+
 ############################################
 # Updating cache
 ############################################

@@ -15,7 +15,7 @@ source "${currdir}/../config/server_config.sh";
 
 # Purge user_data after each call of gnrs_batch?
 # Generally good idea to avoid bloat & slow performance
-clear_user_data='t'
+clear_user_data='f'
 
 #################################
 # You should not need to change
