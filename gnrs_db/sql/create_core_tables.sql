@@ -52,6 +52,7 @@ overall_score NUMERIC(4,2) DEFAULT NULL,
 poldiv_submitted VARCHAR(50) DEFAULT NULL, 
 poldiv_matched VARCHAR(50) DEFAULT NULL,
 match_status VARCHAR(50) DEFAULT NULL,
+is_in_cache SMALLINT DEFAULT 0,
 user_id text DEFAULT NULL
 ) 
 ;
@@ -74,6 +75,10 @@ county_parish_id INTEGER DEFAULT NULL,
 country_iso VARCHAR(50)  DEFAULT NULL,
 state_province_iso VARCHAR(50)  DEFAULT NULL,
 county_parish_iso VARCHAR(50)  DEFAULT NULL,
+geonameid text DEFAULT NULL,
+gid_0 text DEFAULT NULL,
+gid_1 text DEFAULT NULL,
+gid_2 text DEFAULT NULL,
 match_method_country VARCHAR(50) DEFAULT NULL,
 match_method_state_province VARCHAR(50) DEFAULT NULL,
 match_method_county_parish VARCHAR(50) DEFAULT NULL,

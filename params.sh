@@ -13,10 +13,6 @@
 currdir=$(dirname ${BASH_SOURCE[0]})
 source "${currdir}/../config/server_config.sh";
 
-# Purge user_data after each call of gnrs_batch?
-# Generally good idea to avoid bloat & slow performance
-clear_user_data='f'
-
 #################################
 # You should not need to change
 # the remaining parameters unless 
@@ -57,6 +53,17 @@ data_dir_local=$data_dir_local_abs
 # Default batch size. Recommend 10000. Input files smaller than this number
 # (I.e., fewer lines) will be processed as single batch.
 batch_size=10000;
+
+##########################
+# Replace user_data
+##########################
+
+# Purge user_data after each call of gnrs_batch?
+# Generally good idea to avoid bloat & slow performance
+clear_user_data='f'
+
+# Clear entire user_data_table
+clear_user_data_all='f'
 
 ##########################
 # Fuzzy match parameters

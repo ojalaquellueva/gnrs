@@ -76,22 +76,25 @@ if [ -z ${e+x} ]; then
 fi
 
 # Set defaults
+# See other defaults in params file
 e="true"	# Echo/interactive mode on by default
 i="true"	# Interactive mode on by default
 f_custom="false"	# Use default input/output files and data directory
-api="false"		# Assume not an api call
-infile=""
-outfile=""
-delim=","		# Output file delimiter; default=csv
+api="false"			# Assume not an api call
+infile=""			# Input file
+outfile=""			# Output file
+delim=","			# Output file delimiter; default=csv
 mailme="false"
-header="true"	# Assume input file has header
+header="true"		# Assume input file has header
+replace_cache="f"	# Replace records for this job in cache?
+clear_cache="f"		# Clear entire cache?
 
 while [ "$1" != "" ]; do
     case $1 in
         -s | --silent )         e="false"
         						i="false"
                             	;;
-        -a | --api )        api="true"
+        -a | --api )        	api="true"
                             	;;
         -n | --noheader )       header="false"
                             	;;
@@ -103,6 +106,12 @@ while [ "$1" != "" ]; do
                                 ;;
         -d | --delim )      	shift
                                 delim=$1
+                                ;;
+        -c | --clear-cache )  	shift
+								clear_cache="t"
+								;;
+        -r | --replace-cache )  shift
+                                replace_cache="t"
                                 ;;
         -m | --mailme )       	mailme="true"
         						shift
@@ -188,6 +197,8 @@ if [ "$i" = "true" ]; then
         Has header:	$header
         Output file: 	$outfile
         Output file delimiter: $delim_disp
+        Clear cache: 	$clear_cache
+        Replace cache: 	$replace_cache
         Notify: 	$mailme
         Notify email:	$email
         Job id:		$job
@@ -267,7 +278,7 @@ cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
-# Import the raw data
+# Import the raw data to temp data table
 # Note "NULL AS NA": concession to R users
 # Will make this a parameter at some point, with NULL AS NA as the default
 echoi $e -n "-- Importing '$infile' to temp table..."
@@ -276,27 +287,85 @@ cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $d
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
-# Import the raw data
+# Load the raw data to table user_data_raw
 echoi $e -n "-- Inserting from temp table to user_data_raw..."
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/import_user_data.sql"
+cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v raw_data_tbl_temp=\"${raw_data_tbl_temp}\" -f $DIR_LOCAL/sql/load_user_data_raw.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh"
+
+# echoi $e -n "- Dropping indexes on table user_data..."
+# cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_indexes_user_data.sql"
+# eval $cmd
+# source "$DIR/includes/check_status.sh" 
+
+# Load raw data to table user_data and populate Fk poldiv_full
+echoi $e -n "- Loading table user_data..."
+cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/load_user_data.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
 ############################################
-# Insert raw data into table user_data and
-# process with GNRS
+# Mark submitted political divisions already
+# in cache. Purge from cache if requested.
 ############################################
 
-# Run the main GNRS app
-if  [ "$api" == "true" ]; then
-	# API call (use password) also turn off echo
-	$DIR/gnrs.sh -a -s -j $job
+all_in_cache="f"
+if [ "$clear_cache" == "t" ]; then
+	echoi $e -n "- Clearing cache..."
+	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/clear_cache.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh"
+elif [ "$replace_cache" == "t" ]; then
+	echoi $e -n "- Removing previous observations from cache..."
+	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/remove_from_cache.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh"
 else
-	if [ "$e" == "false" ]; then
-		$DIR/gnrs.sh -s -j $job
+	echoi $e -n "Marking results already in cache..."
+	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/mark_in_cache.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh"
+
+	# Check if all rows already in cache
+	sql_all_in_cache="SELECT NOT EXISTS ( SELECT id FROM user_data WHERE job='$job' AND is_in_cache=0)"
+	all_in_cache=`psql $opt_user -d $db_gnrs -qt -c "$sql_all_in_cache" | tr -d '[[:space:]]'`
+fi
+
+############################################
+# Update from cache (if not cleared)
+############################################
+
+if [ "$clear_cache" == "f" ] && [ "$replace_cache" == "f" ]; then
+	echoi $e -n "Updating from cache..."
+	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_user_data_from_cache.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh"
+fi
+
+#echo "all_in_cache='"$all_in_cache"'"
+
+############################################
+# Process user data with GNRS
+############################################
+
+# Can skip this step entirely if all rows already in cache
+if [ "$all_in_cache" == "f" ] || [ "$api" == "true" ]; then
+	# Scrub non-cached records with GNRS
+	# NOTE: all_in_cache command not working for API
+	echoi $e "Resolving with GNRS:"
+
+	if  [ "$api" == "true" ]; then
+		# API call (use password) also turn off echo
+		$DIR/gnrs.sh -a -s -j $job
 	else
-		$DIR/gnrs.sh -j $job
+		if [ "$e" == "false" ]; then
+			$DIR/gnrs.sh -s -j $job
+		else
+			$DIR/gnrs.sh -j $job
+		fi
 	fi
+else 
+	echoi $e "Note: Skipping GNRS, all results already in cache"
 fi
 
 ############################################

@@ -112,18 +112,10 @@ fi
 # Main
 #########################################################################
 
-############################################
-# Load raw data to table user_data
-############################################
-
-# echoi $e -n "- Dropping indexes on table user_data..."
-# cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -f $DIR_LOCAL/sql/drop_indexes_user_data.sql"
-# eval $cmd
-# source "$DIR/includes/check_status.sh" 
-
-# Assumes table user_data_raw has been populated
-echoi $e -n "- Loading table user_data..."
-cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/load_user_data.sql"
+# Detect political division submitted
+# Flag bad records to omit from further processing 
+echoi $e -n "- Flagging political divisions submitted..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/detect_poldiv_submitted.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh" 
 
