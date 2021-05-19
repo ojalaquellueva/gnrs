@@ -10,7 +10,7 @@
 
 # api url
 url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # production
-#url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
+url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
 
 # Test files of political divisions to resolve
 # Comma-delimited, first column an integer ID (can be blank), next three columns
@@ -224,6 +224,35 @@ rm( list = Filter( exists, c("results", "results_json") ) )
 # All we need to do is reset option mode.
 # all other options will be ignored
 mode <- "meta"		
+
+# Re-form the options json again
+# Note that only 'mode' is needed
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+
+# Make the options
+# No data needed
+input_json <- paste0('{"opts":', opts_json, '}' )
+
+# Send the request again
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results )
+
+#################################
+# Example 6: Get data dictionary of GNRS 
+# output
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+# All we need to do is reset option mode.
+# all other options will be ignored
+mode <- "dd"		
 
 # Re-form the options json again
 # Note that only 'mode' is needed

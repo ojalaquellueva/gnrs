@@ -23,6 +23,7 @@ $mode="countrylist";	// Return information on all countries
 $mode="statelist";		// Return info on all states; country_id param required
 $mode="countylist";		// Return info on all counties; state_id param required
 $mode="meta";			// Return metadata on application & sources
+$mode="dd";				// Return GNRS output data dictionary
 
 // Number of batches for parallel processing
 $ppbatches=20;

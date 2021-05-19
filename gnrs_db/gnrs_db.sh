@@ -499,7 +499,7 @@ source "$includes_dir/check_status.sh"
 echoi $e -n "Creating output data dictionary...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/dd_output.sql
 source "$includes_dir/check_status.sh"
-
+dd
 ############################################
 # Set ownership and permissions
 # 

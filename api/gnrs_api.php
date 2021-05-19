@@ -362,6 +362,14 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		FROM meta
 		;
 		";
+	} else if ( $mode=="dd" ) { 
+		// Retrieve output data dictionary
+		$sql="
+		SELECT col_name, ordinal_position, data_type, description
+		FROM dd_output
+		ORDER BY ordinal_position
+		;
+		";
 	} else if ( $mode=="countrylist" ) { 
 		// Retrieve complete list of all countries
 		$sql="
