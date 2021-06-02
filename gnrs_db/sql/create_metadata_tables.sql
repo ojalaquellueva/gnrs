@@ -1,0 +1,35 @@
+-- -----------------------------------------------------------------
+-- Create & populate main metadata table "meta"
+-- -----------------------------------------------------------------
+
+DROP TABLE IF EXISTS meta;
+CREATE TABLE meta (
+db_version text DEFAULT NULL,
+code_version text DEFAULT NULL,
+build_date date
+);
+
+DROP TABLE IF EXISTS source;
+CREATE TABLE source (
+source_id SERIAL NOT NULL PRIMARY KEY,
+source_name TEXT NOT NULL,
+source_name_full TEXT DEFAULT NULL,
+source_url TEXT DEFAULT NULL,
+description TEXT DEFAULT NULL,
+data_url TEXT DEFAULT NULL,
+source_version TEXT DEFAULT NULL,
+source_release_date DATE DEFAULT NULL,
+date_accessed DATE DEFAULT NULL,
+citation TEXT DEFAULT NULL,
+logo_path TEXT DEFAULT NULL
+);
+
+DROP TABLE IF EXISTS collaborator;
+CREATE TABLE collaborator (
+collaborator_id SERIAL NOT NULL PRIMARY KEY,
+collaborator_name TEXT DEFAULT NULL,
+collaborator_name_full TEXT DEFAULT NULL,
+collaborator_url TEXT DEFAULT NULL,
+description TEXT DEFAULT NULL,
+logo_path TEXT DEFAULT NULL
+);

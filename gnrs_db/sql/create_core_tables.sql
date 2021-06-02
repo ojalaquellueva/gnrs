@@ -1,13 +1,9 @@
 -- -----------------------------------------------------------------
 -- Creates all remaining tables not derived from geonames
+-- 
+-- Note: Metadata tables meta, source and collaborators created 
+-- in separate script create_metadata_tables.sql
 -- -----------------------------------------------------------------
-
-DROP TABLE IF EXISTS meta;
-CREATE TABLE meta (
-db_version text DEFAULT NULL,
-code_version text DEFAULT NULL,
-build_date date
-);
 
 DROP TABLE IF EXISTS user_data_raw;
 CREATE TABLE user_data_raw (
@@ -17,7 +13,6 @@ country text DEFAULT NULL,
 state_province text DEFAULT NULL,
 county_parish text DEFAULT NULL
 );
-
 
 DROP TABLE IF EXISTS user_data;
 CREATE TABLE user_data (

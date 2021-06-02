@@ -245,16 +245,24 @@ source "$includes_dir/check_status.sh"
 
 echoi $e "Importing tables from DB $db_geonames to DB $DB_GNRS:"
 
+echoi $e -n "- Dropping existing table \"meta\" if any..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql  -d $DB_GNRS --set ON_ERROR_STOP=1 -q -c "DROP TABLE IF EXISTS meta" 
+source "$includes_dir/check_status.sh"  
+
 # Dump table from source databse
 echoi $e -n "- Creating dumpfile..."
 dumpfile="/tmp/gnrs_geonames_extract.sql"
-sudo -u postgres pg_dump --no-owner -t geoname -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
+sudo -u postgres pg_dump --no-owner -t geoname -t meta -t country -t country_name -t state_province -t state_province_name -t county_parish -t county_parish_name 'geonames' > $dumpfile
 source "$includes_dir/check_status.sh"	
 
 # Import table from dumpfile to target db & schema
 echoi $e -n "- Importing tables from dumpfile..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $DB_GNRS < $dumpfile > /dev/null >> $tmplog
 source "$includes_dir/check_status.sh"	
+
+echoi $e -n "-- Renaming \"meta\" to \"geonames_meta\"..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql  -d $DB_GNRS --set ON_ERROR_STOP=1 -q -c "ALTER TABLE meta RENAME TO geonames_meta" 
+source "$includes_dir/check_status.sh"  
 
 echoi $e -n "- Removing dumpfile..."
 rm $dumpfile
@@ -338,7 +346,7 @@ echoi $e -n "- Creating derived GADM poldiv tables in DB '$DB_GADM'..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GADM --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_gadm_poldiv_tables.sql
 source "$includes_dir/check_status.sh"	
 
-echoi $e "- Importing GADM poldiv tables:"
+echoi $e "- Importing GADM tables:"
 
 echoi $e -n "-- Dropping previous gadm tables, if any..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
@@ -346,17 +354,22 @@ PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
 DROP TABLE IF EXISTS gadm_country;
 DROP TABLE IF EXISTS gadm_admin_1;
 DROP TABLE IF EXISTS gadm_admin_2;
+DROP TABLE IF EXISTS meta;
 EOF
 echoi $i "done"
 
 echoi $e -n "-- Creating dumpfile..."
 dumpfile="/tmp/gadm_tables.sql"
-sudo -u postgres pg_dump --no-owner -t gadm_country -t gadm_admin_1 -t gadm_admin_2 "$DB_GADM"> $dumpfile
+sudo -u postgres pg_dump --no-owner -t meta -t gadm_country -t gadm_admin_1 -t gadm_admin_2 "$DB_GADM"> $dumpfile
 source "$includes_dir/check_status.sh"	
 
 echoi $e -n "-- Importing tables from dumpfile..."
 PGOPTIONS='--client-min-messages=warning' psql --set ON_ERROR_STOP=1 $DB_GNRS < $dumpfile > /dev/null >> $tmplog
 source "$includes_dir/check_status.sh"	
+
+echoi $e -n "-- Renaming \"meta\" to \"gadm_meta\"..."
+sudo -u postgres PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -c "ALTER TABLE meta RENAME TO gadm_meta" 
+source "$includes_dir/check_status.sh"  
 
 echoi $e -n "-- Removing dumpfile..."
 rm $dumpfile
@@ -449,13 +462,6 @@ echoi $e -n "- Admin 2..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/gadm_geonames_index_admin_2.sql
 source "$includes_dir/check_status.sh"
 
-
-
-
-
-COMMENT_BLOCK_1
-
-
 ######################################################
 # Add missing gadm names to gnrs-geonames tables
 ######################################################
@@ -492,14 +498,52 @@ echoi $e -n "Adding GADM IDs...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/add_gadm_ids.sql
 source "$includes_dir/check_status.sh"
 
+
+COMMENT_BLOCK_1
+
+
+
+
 ############################################
 # Create GNRS output data dictionary
 ############################################
 
-echoi $e -n "Creating output data dictionary...."
+echoi $e -n "Creating output data dictionary..."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/dd_output.sql
 source "$includes_dir/check_status.sh"
-dd
+
+###########################################
+# Populate metadata tables
+############################################
+
+echoi $e -n "Creating metadata tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/create_metadata_tables.sql
+source "$includes_dir/check_status.sh"
+
+echoi $e "Loading metadata tables:"
+
+echoi $e -n "- meta..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -v VERSION="$VERSION" -v DB_VERSION="$DB_VERSION" -f $DIR/sql/load_meta.sql
+source "$includes_dir/check_status.sh"
+
+echoi $e -n "- source..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -v VERSION="$VERSION" -v DB_VERSION="$DB_VERSION" -f $DIR/sql/load_source.sql
+source "$includes_dir/check_status.sh"
+
+echoi $e -n "- collaborator..."
+sudo -Hiu postgres PGOPTIONS='--client-min-messages=warning' psql $DB_GNRS --set ON_ERROR_STOP=1 -q <<EOT
+copy collaborator(collaborator_name, collaborator_name_full, collaborator_url, description, logo_path) from '${DATA_DIR}/${CSV_COLLABORATORS}' CSV HEADER;
+EOT
+source "$includes_dir/check_status.sh"
+
+echoi $e -n "- Dropping source-specific metadata tables..."
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS -q << EOF
+\set ON_ERROR_STOP on
+DROP TABLE IF EXISTS gadm_meta;
+DROP TABLE IF EXISTS geonames_meta;
+EOF
+echoi $i "done"
+
 ############################################
 # Set ownership and permissions
 # 

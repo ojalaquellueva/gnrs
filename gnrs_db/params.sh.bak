@@ -92,10 +92,6 @@ VERSION="1.6"
 # Database version #
 DB_VERSION="2.0"
 
-# Name of project collaborators file
-# Keep this hand-curated CSV file in data directory
-CSV_COLLABORATORS="collaborators.csv"
-
 ########################################################
 # Natural Earth crosswalk table parameters
 ########################################################
