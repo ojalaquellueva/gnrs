@@ -216,7 +216,36 @@ print( results[ 1:50,] )		# Just a sample
 print( paste0( "Total rows returned: ", nrow(results) ) )
 
 #################################
-# Example 5: Get metadata for current 
+# Example 5: Get data dictionary of GNRS 
+# output
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+# All we need to do is reset option mode.
+# all other options will be ignored
+mode <- "dd"		
+
+# Re-form the options json again
+# Note that only 'mode' is needed
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+
+# Make the options
+# No data needed
+input_json <- paste0('{"opts":', opts_json, '}' )
+
+# Send the request again
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results )
+
+#################################
+# Example 6: Get metadata for current 
 # GNRS version
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
@@ -245,14 +274,13 @@ results <- jsonlite::fromJSON(results_json)
 print( results )
 
 #################################
-# Example 6: Get data dictionary of GNRS 
-# output
+# Example 7: Get metadata for all 
+# GNRS sources
 #################################
 rm( list = Filter( exists, c("results", "results_json") ) )
 
-# All we need to do is reset option mode.
-# all other options will be ignored
-mode <- "dd"		
+# Set sources mode
+mode <- "sources"		
 
 # Re-form the options json again
 # Note that only 'mode' is needed
@@ -272,3 +300,60 @@ results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=head
 # Display the results
 results <- jsonlite::fromJSON(results_json)
 print( results )
+
+#################################
+# Example 8: Get bibtex citations for GNRS 
+# data sources and the GNRS
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+# Set citations mode
+mode <- "citations"		
+
+# Re-form the options json again
+# Note that only 'mode' is needed
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+
+# Make the options
+# No data needed
+input_json <- paste0('{"opts":', opts_json, '}' )
+
+# Send the request again
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results )
+
+#################################
+# Example 9: GNRS project contributors
+# (For acknowledgements)
+#################################
+rm( list = Filter( exists, c("results", "results_json") ) )
+
+# Set mode
+mode <- "collaborators"		
+
+# Re-form the options json again
+# Note that only 'mode' is needed
+opts <- data.frame(c(mode))
+names(opts) <- c("mode")
+opts_json <- jsonlite::toJSON(opts)
+opts_json <- gsub('\\[','',opts_json)
+opts_json <- gsub('\\]','',opts_json)
+
+# Make the options
+# No data needed
+input_json <- paste0('{"opts":', opts_json, '}' )
+
+# Send the request again
+results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+
+# Display the results
+results <- jsonlite::fromJSON(results_json)
+print( results )
+
