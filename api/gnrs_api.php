@@ -362,6 +362,32 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		FROM meta
 		;
 		";
+	} elseif ( $mode=="sources" ) { // CONTINUE mode_if 
+		$sql="
+		SELECT source_id, source_name, source_name_full, source_url,
+		description, data_url, logo_path,
+		source_version as version, source_release_date, 
+		date_accessed
+		FROM source
+		;
+		";
+	} elseif ( $mode=="citations" ) { // CONTINUE mode_if 
+		$sql="
+		SELECT 'gnrs' AS source, citation
+		FROM meta
+		UNION ALL
+		SELECT source_name AS source, citation
+		FROM source
+		WHERE citation IS NOT NULL AND TRIM(citation)<>''
+		;
+		";
+	} elseif ( $mode=="collaborators" ) { // CONTINUE mode_if 
+		$sql="
+		SELECT collaborator_name, collaborator_name_full, collaborator_url, 
+		description, logo_path
+		FROM collaborator
+		;
+		";
 	} else if ( $mode=="dd" ) { 
 		// Retrieve output data dictionary
 		$sql="

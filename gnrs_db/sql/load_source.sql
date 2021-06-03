@@ -27,7 +27,7 @@ data_version,
 date_accessed,
 date_accessed,
 CONCAT('@misc{geonames, author= {{Geonames}}, title = {Geonames}, url = {https://www.geonames.org/}, note = {Accessed ', to_char(date_accessed::date, 'Mon DD, YYYY'), '}}'),
-NULL
+'images/geonames.png'
 FROM geonames_meta
 ;
 
@@ -56,7 +56,7 @@ data_version,
 date_accessed::date,
 date_accessed::date,
 CONCAT('@misc{gadm, author= {{University of California, Berkeley, Museum of Vertebrate Zoolog}}, title = {Global Administrative Areas}, url = {https://gadm.org/}, note = {Accessed ', to_char(date_accessed::date, 'Mon DD, YYYY'), '}}'),
-NULL
+'images/gadm.png'
 FROM gadm_meta
 ;
 
@@ -85,6 +85,6 @@ VALUES (
 now()::date,
 now()::date,
 CONCAT('@misc{naturalearth, author= {Kelse, Nathaniel Vaughn and Patterson, Tom and Furno, Dick and Buckingham, Tanya and Springer, Nick and Cross, Louis}, title = {Natural Earth}, year = ', to_char(now()::date, 'YYYY'), ', url = {https://www.naturalearthdata.com/}, note = {Accessed ', to_char(now()::date, 'Mon DD, YYYY'), '}}'),
-NULL
+'images/natearth.png'
 )
 ;
