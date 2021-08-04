@@ -6,7 +6,7 @@
 
 // Maximum permitted input rows per request
 // For no limit, set to 0
-$MAX_ROWS=5000;	
+$MAX_ROWS=5001;	
 				
 // Default number of batches
 // Makeflow will default to lower number if input lines < $NBATCH
