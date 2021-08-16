@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS country CASCADE;
 CREATE TABLE country AS (
 SELECT 
 a.geonameid AS country_id,
+NULL::integer AS alt_country_id,
+NULL::integer AS alt_state_province_id,
 trim(a.country) AS country,
 trim(a.iso_alpha2) AS iso,
 trim(a.iso_alpha3) AS iso_alpha3,
@@ -30,6 +32,10 @@ CREATE INDEX country_continent_code_idx ON country USING btree (continent_code);
 CREATE INDEX country_continent_idx ON country USING btree (continent);
 CREATE INDEX country_country_ci_idx ON country (LOWER(country));
 
+ALTER TABLE ONLY country ADD CONSTRAINT fk_alt_country_id FOREIGN KEY (alt_country_id) REFERENCES country(country_id)
+;
+ALTER TABLE ONLY country ADD CONSTRAINT fk_alt_state_province_id FOREIGN KEY (alt_state_province_id) REFERENCES state_province(state_province_id) ON DELETE NO ACTION
+;
 
 -- 
 -- country_code: all codes for a country, one row per code, duplicates flagged

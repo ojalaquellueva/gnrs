@@ -16,7 +16,8 @@ trim(asciiname) AS state_province_ascii,
 trim(admin1) as state_province_code,
 CAST(NULL AS TEXT) AS state_province_code_full,
 CAST(NULL AS TEXT) AS hasc,
-CAST(NULL AS TEXT) AS hasc_full
+CAST(NULL AS TEXT) AS hasc_full,
+0::integer AS is_countryasstate,
 FROM geoname
 WHERE fclass='A' AND fcode='ADM1'
 ORDER BY country, admin1

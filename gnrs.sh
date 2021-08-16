@@ -192,6 +192,11 @@ if [ "$not_cached" == "t" ]; then
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
+	echoi $e -n "-- detecting states-as-countries:"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/statesascountries.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh" 
+
 	echoi $e "- State/province:"
 	echoi $e -n "-- exact..."
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_sp_exact.sql"

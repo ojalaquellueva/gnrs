@@ -20,7 +20,8 @@ trim(asciiname) AS county_parish_ascii,
 trim(admin2) AS county_parish_code,
 CAST(NULL AS TEXT) AS county_parish_code_full,
 CAST(NULL AS TEXT) AS hasc_2,
-CAST(NULL AS TEXT) AS hasc_2_full
+CAST(NULL AS TEXT) AS hasc_2_full,
+0::integer AS is_stateascounty
 FROM geoname
 WHERE fclass='A' AND fcode='ADM2'
 ORDER BY country, admin1, name
