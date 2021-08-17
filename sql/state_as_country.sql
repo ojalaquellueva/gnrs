@@ -1,55 +1,19 @@
 -- ------------------------------------------------------------
--- Resolve country by exact matching
+-- Detect subnational units treated as countries in reference
+-- databases
 -- ------------------------------------------------------------
 
-
---
--- standard name 
---
-
+-- Exact match to standard name
+-- lower case, plain ascii
+-- Standard name already plain ascii so no tranformation required
 UPDATE user_data a
 SET 
-country_id=b.country_id,
-country=b.country,
-match_method_country='exact standard name'
-FROM country b
+country_id=c.country_id,
+country=c.country,
+match_method_country='exact standard name, state-as-country'
+FROM country b JOIN country c
 WHERE job=:'job'
-AND a.country_id IS NULL AND match_status IS NULL
-AND a.country_verbatim=b.country
-;
-
--- standard name case-insensitive
-UPDATE user_data a
-SET 
-country_id=b.country_id,
-country=b.country,
-match_method_country='exact standard name'
-FROM country b
-WHERE job=:'job'
-AND a.country_id IS NULL AND match_status IS NULL
-AND LOWER(a.country_verbatim)=LOWER(b.country)
-;
-
--- plain ascii standard name
-UPDATE user_data a
-SET 
-country_id=b.country_id,
-country=b.country,
-match_method_country='exact ascii name'
-FROM country b
-WHERE job=:'job'
-AND a.country_id IS NULL AND match_status IS NULL
-AND unaccent(a.country_verbatim)=b.country
-;
-
--- plain ascii standard name case-insensitive
-UPDATE user_data a
-SET 
-country_id=b.country_id,
-country=b.country,
-match_method_country='exact ascii name'
-FROM country b
-WHERE job=:'job'
+AND b.alt_country_id=c.alt_country_id
 AND a.country_id IS NULL AND match_status IS NULL
 AND LOWER(unaccent(a.country_verbatim))=LOWER(b.country)
 ;
@@ -61,12 +25,12 @@ AND LOWER(unaccent(a.country_verbatim))=LOWER(b.country)
 -- iso code
 UPDATE user_data a
 SET 
-country_id=b.country_id,
-country=b.country,
-match_method_country='iso code'
-FROM country b
+country_id=c.country_id,
+country=c.country,
+match_method_country='iso code, state-as-country'
+FROM country b JOIN country c
 WHERE job=:'job'
-AND a.country_id IS NULL AND match_status IS NULL
+AND b.alt_country_id=c.alt_country_id
 AND a.country_verbatim=b.iso
 ;
 

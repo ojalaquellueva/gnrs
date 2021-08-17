@@ -210,12 +210,15 @@ Import, name resolution and export of results are run as a single operation by i
 Option | Purpose | Required? | Default value | Comments
 ------ | ------- | -------  | ---------- | ---- |
   -f | Input file and path  | Yes | |  
-  -f | Output file and path  | No | /path/to/<inputfilename>\_gnrs\_results.csv |  
+  -o | Output file and path  | No | /path/to/<inputfilename>\_gnrs\_results.csv |  
   -d | Output file delimiter  | No | c |  c=comma (CSV), t=tab (TSV)
+  -n | No header | No | FALSE | Input file does not contain header. Default value (FALSE) means file contains header as first line.
   -a | Api call  | No (yes for api) | | invokes other options such as -s and -p
   -s | Silent mode: suppress all (confirmations & progress messages)  | No | |   
-  -p | Use password authentication |No | |  for API call 
   -m | Send notification emails  | No | |  Must be followed by valid email
+  -r | Remove from cache | No | FALSE | Remove any results corresponding to submitted political divisions from cache. Forces resolution from scratch of all values in current batch.
+  -c | Clear cache | No | FALSE | Clear entire cache
+
   
 Example:
 

@@ -192,16 +192,18 @@ if [ "$not_cached" == "t" ]; then
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
-	echoi $e "- Country-as-state:"
-	echoi $e -n "-- exact..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_countryasstate_exact.sql"
+
+
+
+	echoi $e -n "-- detecting countries-as-states:"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/country_as_state.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
-	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_countryasstate_fuzzy.sql"
-	eval $cmd
-	source "$DIR/includes/check_status.sh" 
+
+
+
+
 
 	echoi $e "- State/province:"
 	echoi $e -n "-- exact..."
@@ -222,17 +224,6 @@ if [ "$not_cached" == "t" ]; then
 
 	echoi $e -n "-- fuzzy..."
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
-	eval $cmd
-	source "$DIR/includes/check_status.sh" 
-
-	echoi $e "- State-as-county:"
-	echoi $e -n "-- exact..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_stateascounty_exact.sql"
-	eval $cmd
-	source "$DIR/includes/check_status.sh" 
-
-	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_stateascounty_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
