@@ -16,7 +16,6 @@ Author: Brad Boyle (bboyle@email.arizona.edu)
 - [Usage](#Usage)
   - [GNRS (parallel processing)](#gnrs-parallel)
   - [GNRS batch (non-parallel)](#gnrs-batch)
-  - [Legacy commands](#legacy-commands)
 - [API](#api)
 
 <a name="Overview"></a>
@@ -223,41 +222,14 @@ Option | Purpose | Required? | Default value | Comments
 Example:
 
 ```
-./gnrs_batch.sh -f "../data/user/gnrs_testfile.csv"
+./gnrs_batch.sh -f "../data/user/gnrs_testfile.csv" -o "/home/boyle/testing/gnrs_testfile_scrubbed.csv"
 
 ```
-* The above assumes data directory and test file are stil inside application directory (as structured in this repo). Adjust path accordingly if you move data directory outside the repo, as recommended above under [Installation and configuration](#installation).
+* The above assumes command is being run from same directory as target script, `gnrs_batch.sh`. 
+* If running from a different directory, pre-prend the command with path to `gnrs_batch.sh`, unless you have added this path to your environment
+* In this example, path to data directory is relative to working directory. Yoiu could also use the full path.
+* Output file "gnrs_testfile_scrubbed.csv" will be dumped to directory "/home/boyle/testing/"
 
-<a name="legacy-commands"></a>
-### Legacy commands: import, resolve, export
-
-This approach has been replaced by the single file `gnrs_batch.sh`. File `gnrs.sh` is the core GNRS script invoked by `gnrs_batch.sh`. Scripts `gnrs_import.sh` and `gnrs_export.sh` are no longer needed but I am retaining now for internal use for compatibility with legacy BIEN applications. 
-
-1. Import input file "gnrs_submitted.csv" from user data directory to GNRS database.
-
-```
-$ ./gnrs_import.sh [-option1] [-option2] ...
-
-```
-
-2. Resolve the political division names. Assumes user data has already been loaded to table user_data in the GNRS database. This is the core GNRS script.
-
-```
-$ ./gnrs.sh [-option1] [-option2] ...
-
-```
-
-3. Export GNRS results from GNRS database to GNRS user data directory as file "gnrs_results.csv":
-
-```
-$ ./gnrs_export.sh [-option1] [-option2] ...
-
-```
-
-Component service options:  
-  -m: Send notification emails    
-  -n: No warnings: suppress confirmations but not progress messages  
-  -s: Silent mode: suppress all (confirmations & progress messages)  
 
 ### <a name="api"></a>API
 
