@@ -9,11 +9,11 @@
 
 UPDATE user_data u
 SET 
-state_province_id=sp.state_province_id,
-state_province=sp.state_province_std,
+state_province_id=alt.state_province_id,
+state_province=alt.state_province_std,
 match_method_state_province='wildcard alt name'
 FROM (
-SELECT a.id, b.country_id, b.state_province_id, b.state_province_std, COUNT(DISTINCT b.state_province_id)
+SELECT a.id, COUNT(DISTINCT b.state_province_id)
 FROM user_data a JOIN state_province b 
 ON a.country_id=b.country_id
 JOIN state_province_name c
@@ -26,12 +26,29 @@ c.state_province_name LIKE  '%'  || a.state_province_verbatim || '%' OR
 a.state_province_verbatim LIKE '%'  || c.state_province_name || '%'
 ) 
 AND a.state_province_verbatim IS NOT NULL AND a.state_province_verbatim<>''
-GROUP BY a.id, b.country_id, b.state_province_id, b.state_province_std
+GROUP BY a.id
 HAVING COUNT(DISTINCT b.state_province_id)=1
-) sp
+) AS uniq -- IDs of user-submitted county values returning one CAS only
+JOIN 
+(
+SELECT a.id, b.country_id, b.state_province_id, b.state_province_std
+FROM user_data a JOIN state_province b 
+ON a.country_id=b.country_id
+JOIN state_province_name c
+ON b.state_province_id=c.state_province_id
+WHERE a.job=:'job' 
+AND a.state_province_id IS NULL AND match_status IS NULL
+AND 
+(
+c.state_province_name LIKE  '%'  || a.state_province_verbatim || '%' OR 
+a.state_province_verbatim LIKE '%'  || c.state_province_name || '%'
+) 
+AND a.state_province_verbatim IS NOT NULL AND a.state_province_verbatim<>''
+) AS alt -- Retrieves standard id and name for submitted alt name
+ON uniq.id=alt.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
 AND u.state_province_id IS NULL AND match_status IS NULL
-AND u.id=sp.id
+AND u.id=alt.id
 ;
 
 -- standard name

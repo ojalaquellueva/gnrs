@@ -11,14 +11,14 @@
 
 UPDATE user_data u
 SET 
-country_id=sp.country_id,
-country=sp.country,
+country_id=cas_altname.country_id,
+country=cas_altname.country,
 match_method_country='inferred from country-as-state',
-state_province_id=sp.state_province_id,
-state_province=sp.state_province_std,
+state_province_id=cas_altname.state_province_id,
+state_province=cas_altname.state_province_std,
 match_method_state_province='wildcard alt name, country-as-state'
 FROM (
-SELECT a.id, b.country_id, b.country, b.state_province_id, b.state_province_std, COUNT(DISTINCT b.state_province_id)
+SELECT a.id, COUNT(DISTINCT b.state_province_id)
 FROM user_data a, state_province b, state_province_name c
 WHERE a.job=:'job' 
 AND b.state_province_id=c.state_province_id
@@ -30,12 +30,28 @@ c.state_province_name LIKE  '%'  || a.country_verbatim || '%' OR
 a.country_verbatim LIKE '%'  || c.state_province_name || '%'
 ) 
 AND a.country_verbatim IS NOT NULL AND a.country_verbatim<>''
-GROUP BY a.id, b.country_id, b.country, b.state_province_id, b.state_province_std
+GROUP BY a.id
 HAVING COUNT(DISTINCT b.state_province_id)=1
-) sp
+) cas_uniq -- IDs of user-submitted country values returning one CAS only
+JOIN 
+(
+SELECT DISTINCT a.id, b.country_id, b.country, b.state_province_id, b.state_province_std
+FROM user_data a, state_province b, state_province_name c
+WHERE a.job=:'job' 
+AND b.state_province_id=c.state_province_id
+AND a.country_id IS NULL AND a.match_status IS NULL
+AND b.is_countryasstate=1
+AND 
+(
+c.state_province_name LIKE  '%'  || a.country_verbatim || '%' OR 
+a.country_verbatim LIKE '%'  || c.state_province_name || '%'
+) 
+AND a.country_verbatim IS NOT NULL AND a.country_verbatim<>''
+) AS cas_altname -- Retrieves country id and name of CAS for submitted country_verbatim
+ON cas_uniq.id=cas_altname.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
-AND u.country_id IS NULL AND match_status IS NULL
-AND u.id=sp.id
+AND u.country_id IS NULL AND u.match_status IS NULL
+AND u.id=cas_altname.id
 ;
 
 --

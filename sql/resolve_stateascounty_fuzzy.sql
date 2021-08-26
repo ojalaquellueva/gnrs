@@ -9,11 +9,11 @@
 
 UPDATE user_data u
 SET 
-county_parish_id=cp.county_parish_id,
-county_parish=cp.county_parish_std,
+county_parish_id=alt.county_parish_id,
+county_parish=alt.county_parish_std,
 match_method_county_parish='wildcard alternate name, state-as-county'
 FROM (
-SELECT a.id, b.state_province_id, b.county_parish_id, b.county_parish_std, COUNT(DISTINCT b.county_parish_id)
+SELECT a.id, COUNT(DISTINCT b.county_parish_id)
 FROM user_data a JOIN county_parish b
 ON a.state_province_id=b.state_province_id
 JOIN county_parish_name c
@@ -27,16 +27,31 @@ c.county_parish_name LIKE  '%'  || a.state_province_verbatim || '%' OR
 a.state_province_verbatim LIKE '%'  || c.county_parish_name || '%'
 ) 
 AND a.state_province_verbatim IS NOT NULL AND a.state_province_verbatim<>''
-GROUP BY a.id, b.state_province_id, b.county_parish_id, b.county_parish_std
+GROUP BY a.id
 HAVING COUNT(DISTINCT b.county_parish_id)=1
-) cp
+) AS uniq -- IDs of user-submitted names returning on standard name id only
+JOIN 
+(
+SELECT a.id, b.state_province_id, b.county_parish_id, b.county_parish_std
+FROM user_data a JOIN county_parish b
+ON a.state_province_id=b.state_province_id
+JOIN county_parish_name c
+ON b.county_parish_id=c.county_parish_id
+WHERE a.job=:'job' 
+AND a.county_parish_id IS NULL AND a.match_status IS NULL
+AND b.is_stateascounty=1
+AND 
+(
+c.county_parish_name LIKE  '%'  || a.state_province_verbatim || '%' OR 
+a.state_province_verbatim LIKE '%'  || c.county_parish_name || '%'
+) 
+AND a.state_province_verbatim IS NOT NULL AND a.state_province_verbatim<>''
+) AS alt -- Retrieves standard id and name for submitted alt name
+ON uniq.id=alt.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
 AND u.county_parish_id IS NULL AND match_status IS NULL
-AND u.id=cp.id
+AND u.id=alt.id
 ;
-
-
-
 
 --
 -- standard name

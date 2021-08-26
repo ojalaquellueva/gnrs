@@ -59,6 +59,7 @@ AND a.state_province_id IS NULL
 AND a.country_id=c.country_id
 AND (
 LOWER(a.state_province_verbatim)=LOWER(d.country_name)
-OR a.state_province_verbatim=d.country_name
+OR -- In case non-Latin languages corrupted by LOWER():
+a.state_province_verbatim=d.country_name 
 )
 ;

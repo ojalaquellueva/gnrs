@@ -237,7 +237,6 @@ if [ "$not_cached" == "t" ]; then
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
-
 	echoi $e "- County/parish:"
 	echoi $e -n "-- exact..."
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_cp_exact.sql"
@@ -257,6 +256,17 @@ if [ "$not_cached" == "t" ]; then
 
 	echoi $e -n "-- fuzzy..."
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_stateascounty_fuzzy.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh" 
+
+	echoi $e "- County-as-state:"
+	echoi $e -n "-- exact..."
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_countyasstate_exact.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh" 
+
+	echoi $e -n "-- fuzzy..."
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_countyasstate_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 

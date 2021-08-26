@@ -300,6 +300,15 @@ FROM country AS alt
 WHERE child.country='Swaziland'
 AND alt.country='South Africa'
 ;
+-- Definitely not taking a stance, simply recognizing
+-- that Taiwan appears as an administrative subdivision of China
+-- in some biodiversity databases
+UPDATE country AS child
+SET alt_country_id=alt.country_id
+FROM country AS alt
+WHERE child.country='Taiwan'
+AND alt.country='China'
+;
 UPDATE country AS child
 SET alt_country_id=alt.country_id
 FROM country AS alt
