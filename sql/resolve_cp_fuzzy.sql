@@ -102,7 +102,7 @@ ON q.county_parish_verbatim=p.county_parish_verbatim
 AND q.country_id=p.country_id
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
@@ -180,7 +180,7 @@ ON q.county_parish_verbatim=p.county_parish_verbatim
 AND q.country_id=p.country_id
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
@@ -256,7 +256,7 @@ ON q.county_parish_verbatim=p.county_parish_verbatim
 AND q.country_id=p.country_id
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
@@ -335,7 +335,7 @@ ON q.county_parish_verbatim=p.county_parish_verbatim
 AND q.country_id=p.country_id
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim

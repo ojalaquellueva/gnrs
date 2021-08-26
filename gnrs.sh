@@ -16,9 +16,21 @@
 # Authors: Brad Boyle (bboyle@email.arizona.edu)
 #########################################################################
 
-: <<'COMMENT_BLOCK_x'
-COMMENT_BLOCK_x
-#echo "EXITING script `basename "$BASH_SOURCE"`"; exit 0
+# Comment-block tags - Use for all temporary comment blocks
+
+#### TEMP ####
+# echo "WARNING: portions of script `basename "$BASH_SOURCE"` commented out!"
+## Other temporary code to be executed before comment block
+## Start comment block
+# : <<'COMMENT_BLOCK_xxx'
+
+## End comment block
+# COMMENT_BLOCK_xxx
+## Temporary code to be executed after comment block
+#### TEMP ####
+
+## Exit all scripts
+# echo "EXITING script `basename "$BASH_SOURCE"`"; exit 0
 
 ######################################################
 # Set basic parameters, functions and options
@@ -213,6 +225,18 @@ if [ "$not_cached" == "t" ]; then
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
+
+	echoi $e "- State-as-country:"
+	echoi $e -n "-- exact..."
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_stateascountry_exact.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh" 
+
+	echoi $e -n "-- fuzzy..."
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_stateascountry_fuzzy.sql"
+	eval $cmd
+	source "$DIR/includes/check_status.sh" 
+
 
 	echoi $e "- County/parish:"
 	echoi $e -n "-- exact..."

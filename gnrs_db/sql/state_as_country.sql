@@ -231,6 +231,12 @@ AND alt.country='United Kingdom'
 UPDATE country AS child
 SET alt_country_id=alt.country_id
 FROM country AS alt
+WHERE child.country='Puerto Rico'
+AND alt.country='United States'
+;
+UPDATE country AS child
+SET alt_country_id=alt.country_id
+FROM country AS alt
 WHERE child.country='Reunion'
 AND alt.country='France'
 ;

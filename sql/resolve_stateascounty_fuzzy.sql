@@ -11,7 +11,7 @@ UPDATE user_data u
 SET 
 county_parish_id=cp.county_parish_id,
 county_parish=cp.county_parish_std,
-match_method_county_parish='wildcard alt name, state-as-county'
+match_method_county_parish='wildcard alternate name, state-as-county'
 FROM (
 SELECT a.id, b.state_province_id, b.county_parish_id, b.county_parish_std, COUNT(DISTINCT b.county_parish_id)
 FROM user_data a JOIN county_parish b
@@ -113,7 +113,7 @@ WHERE a.state_province_id=b.state_province_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim
@@ -195,7 +195,7 @@ WHERE a.state_province_id=b.state_province_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim
@@ -277,7 +277,7 @@ WHERE a.state_province_id=b.state_province_id
 ON q.state_province_verbatim=p.state_province_verbatim
 AND q.state_province_id=p.state_province_id
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim

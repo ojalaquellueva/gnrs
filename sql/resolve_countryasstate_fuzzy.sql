@@ -110,7 +110,7 @@ WHERE b.is_countryasstate=1
 ) p
 ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.country_verbatim=fzy.country_verbatim
@@ -198,7 +198,7 @@ WHERE b.is_countryasstate=1
 ) p
 ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.country_verbatim=fzy.country_verbatim
@@ -286,7 +286,7 @@ WHERE b.is_countryasstate=1
 ) p
 ON q.country_verbatim=p.country_verbatim
 AND q.max_sim=p.similarity
-WHERE q.max_sim>:match_threshold
+WHERE q.max_sim >= :match_threshold
 ) AS fzy
 WHERE job=:'job'
 AND a.country_verbatim=fzy.country_verbatim
