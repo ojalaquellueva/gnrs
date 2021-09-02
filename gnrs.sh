@@ -164,11 +164,12 @@ not_cached=$(eval "$cmd")
 ######## For testing only ########
 if [ "$debug_mode" == "t" ]; then
 	curruser=$(whoami)
-	if [ "$curruser" == "www-data" ]; then
-		zz_dir="/tmp/gnrs"
-	else
-		zz_dir="../data/user"
-	fi
+# 	if [ "$curruser" == "www-data" ]; then
+# 		zz_dir="/tmp/gnrs"
+# 	else
+# 		zz_dir="../data/user"
+# 	fi
+	zz_dir=$data_dir_local_abs
 
 	echo "Current user: $curruser ($local)" > $zz_dir/zz_gnrs_options.txt
 	echo "e: $e" >> $zz_dir/zz_gnrs_options.txt

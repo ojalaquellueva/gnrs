@@ -96,10 +96,15 @@ recordlimit=100000
 #	* Turns off echo-params-to-file
 #	* Clears user data for current run from DB after operation complete
 #
-# Make sure debug_mode='f' for production!!!
+# Make sure debug_clear_all='f' for production!!!
 ##########################
 
-debug_mode='f'
+# Save debugging file of key parameters
+debug_mode='t'
+
+# Clear all user data and cache to avoid confusion with previous jobs
+# TURN OFF FOR PRODUCTION!!!
+debug_clear_all='f'
 
 ##########################
 # Display/notification parameters

@@ -202,6 +202,7 @@ if [ "$i" = "true" ]; then
         Notify: 	$mailme
         Notify email:	$email
         Job id:		$job
+        
         "
         read -p "Continue? (Y/N): " -r
         
@@ -235,10 +236,28 @@ fi
 #########################################################################
 # Main
 #########################################################################
-
-
+        						
 ####### For testing only #######
 if [ "$debug_mode" == "t" ]; then
+	# Create debugging file
+	curruser=$(whoami)
+	
+# 	if [ "$curruser" == "www-data" ]; then
+# 		zz_dir="/tmp/gnrs"
+# 	else
+# 		zz_dir="../data/user"
+# 	fi
+	zz_dir=$data_dir_local_abs
+
+	echo "Current user: $curruser ($local)" > $zz_dir/zz_gnrs_batch_options.txt
+	echo "e: $e" >> $zz_dir/zz_gnrs_batch_options.txt
+	echo "silent: $silent" >> $zz_dir/zz_gnrs_batch_options.txt
+	echo "api: $api" >> $zz_dir/zz_gnrs_batch_options.txt
+	echo "DB: $db_gnrs" >> $zz_dir/zz_gnrs_batch_options.txt
+	echo "DB user: $user" >> $zz_dir/zz_gnrs_batch_options.txt
+fi
+
+if [ "$debug_clear_all" == "t" ]; then
 	# Clear everything, cache & user data
 	
 	echoi $e -n "Clearing all user_data..."
@@ -326,9 +345,11 @@ else
 	eval $cmd
 	source "$DIR/includes/check_status.sh"
 
-	# Check if all rows already in cache
+	# Check if all rows already in cache & reset variable all_in_cache 
 	sql_all_in_cache="SELECT NOT EXISTS ( SELECT id FROM user_data WHERE job='$job' AND is_in_cache=0)"
-	all_in_cache=`psql $opt_user -d $db_gnrs -qt -c "$sql_all_in_cache" | tr -d '[[:space:]]'`
+	cmd="$opt_pgpassword psql $opt_user -d $db_gnrs -qt -c \"$sql_all_in_cache\" | tr -d '[[:space:]]'"
+	all_in_cache=$(eval $cmd)
+	#all_in_cache=$(eval $opt_pgpassword psql $opt_user -d $db_gnrs -qt -c '$sql_all_in_cache' | tr -d '[[:space:]]')
 fi
 
 ############################################
@@ -378,29 +399,19 @@ echoi $e -n "Exporting CSV file of results to data directory..."
 set -f
 sql="\copy (SELECT poldiv_full, country_verbatim, state_province_verbatim, state_province_verbatim_alt, county_parish_verbatim, county_parish_verbatim_alt, country, state_province, county_parish, country_id, state_province_id, county_parish_id, country_iso, state_province_iso, county_parish_iso, geonameid, gid_0, gid_1, gid_2, match_method_country, match_method_state_province, match_method_county_parish, match_score_country, match_score_state_province, match_score_county_parish, overall_score, poldiv_submitted, poldiv_matched, match_status, user_id FROM user_data WHERE job='$job') TO '$outfile' csv header $opt_delim"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
-eval $cmd
-set +f
-source "$DIR/includes/check_status.sh"
 
 ####### For testing only #######
 if [ "$debug_mode" == "t" ]; then
-	curruser=$(whoami)
-	if [ "$curruser" == "www-data" ]; then
-		# Write current options to file, for testing only
-		currdatadir="/tmp/gnrs"
-	else
-		currdatadir="../data/user"
-	fi
-
-	echo "current user: $curruser ($local)" > $currdatadir/zz_gnrs_batch_options.txt
-	echo "api: $api" > $currdatadir/zz_gnrs_batch_options.txt
-	echo "sql: $sql" >> $currdatadir/zz_gnrs_batch_options.txt
-	echo "cmd: $cmd" >> $currdatadir/zz_gnrs_batch_options.txt
-	echo "db user: $user" >> $currdatadir/zz_gnrs_batch_options.txt
-	echo "db: $db_gnrs" >> $currdatadir/zz_gnrs_batch_options.txt
-	#echo ""; echo "Stopping after \copy command"; exit 0
+	# Append SQL and full command to debugging file
+	echo "sql: $sql" >> $zz_dir/zz_gnrs_batch_options.txt
+	echo "cmd: $cmd" >> $zz_dir/zz_gnrs_batch_options.txt
 fi
 ####### END: For testing only #######
+
+# Run the command
+eval $cmd
+set +f
+source "$DIR/includes/check_status.sh"
 
 ############################################
 # Clear user data tables
