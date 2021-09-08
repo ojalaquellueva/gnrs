@@ -46,13 +46,16 @@ my $nbatch  = '';   # Number of batches
 my $mf_opt  = '';   # makeflow options - optional
 my $d = '';         # Output file delimiter
 my $d_def = "t";	# Default output file delimiter
+my $c = '';     	# Clear cache option (c|r) - optional
+my $clear_opt = ''; # Clear cache option as passed to batch app
 
 GetOptions(
 	'in=s'      => \$infile,
 	'out:s'     => \$outfile,
 	'nbatch=i'  => \$nbatch,
 	'opt:s'     => \$mf_opt,
-	'd:s'     => \$d
+	'd:s'     => \$d,
+	'c:s'     => \$c	
 );
 
 # The temporary folder needs to be in the /tmp directory 
@@ -84,6 +87,18 @@ if ( !$d ) {
 } else {
 	die("\"$d\" is not a valid output file delimiter! \n");
 }
+
+# Clear cache option
+if ( !$c ) {
+	$clear_opt = "";
+} elsif ( $c eq "c" ) {
+	$clear_opt = "-c";
+} elsif ( $c eq "r" ) {
+	$clear_opt = "-r";
+} else {
+	die("\"-c $c\" is not a valid option! \n");
+}
+
 
 # Correct windows/mac line endings, if any
 my $finfo = `file $infile`;
@@ -251,10 +266,9 @@ sub _generate_mfconfig {
 		#Line 2: main application command
 		# GNRS options: 
 		#	-a: api mode, no echo, use password
-		#	-n: no header; critical or will lose one line per batch
 		# 	-d: outfile delimiter. MUST be t (tab) to avoid frame shift errors
 		$operation .=
-"\t\$APPBIN -a -n -d t -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
+"\t\$APPBIN -a -d t $clear_opt -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
 		$cmd = $cmd . $operation;
 		$filelist .= "$tmpfolder/out_$i.txt ";
 	}
