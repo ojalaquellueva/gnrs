@@ -85,7 +85,6 @@ infile=""			# Input file
 outfile=""			# Output file
 delim=","			# Output file delimiter; default=csv
 mailme="false"
-header="true"		# Assume input file has header
 replace_cache="f"	# Replace records for this job in cache?
 clear_cache="f"		# Clear entire cache?
 
@@ -96,8 +95,6 @@ while [ "$1" != "" ]; do
                             	;;
         -a | --api )        	api="true"
                             	;;
-        -n | --noheader )       header="false"
-                            	;;
         -f | --infile )        	shift
                                 infile=$1
                                 ;;
@@ -107,11 +104,9 @@ while [ "$1" != "" ]; do
         -d | --delim )      	shift
                                 delim=$1
                                 ;;
-        -c | --clear-cache )  	shift
-								clear_cache="t"
+        -c | --clear-cache )  	clear_cache="t"
 								;;
-        -r | --replace-cache )  shift
-                                replace_cache="t"
+        -r | --replace-cache )  replace_cache="t"
                                 ;;
         -m | --mailme )       	mailme="true"
         						shift
@@ -127,12 +122,6 @@ if [ "$infile" == "" ]; then
     	echo "Input file name missing!"; exit 1    	
 elif [ ! -f "$infile" ]; then
 	echo "Input file '$infile' does not exist!"; exit 1    
-fi
-
-# Set header option for file import
-opt_header=""
-if  [ "$header" == "true" ]; then
-	opt_header="HEADER"
 fi
 
 # Set delimiter option for file export
@@ -194,7 +183,6 @@ if [ "$i" = "true" ]; then
 
         Database: 	$db_gnrs
         Input file: 	$infile
-        Has header:	$header
         Output file: 	$outfile
         Output file delimiter: $delim_disp
         Clear cache: 	$clear_cache
@@ -282,7 +270,7 @@ fi
 echoi $e "Importing user data:"
 
 echoi $e -n "- Clearing table user_data_raw..."
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c 'DELETE FROM user_data_raw' WHERE job='$job'"
+cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"DELETE FROM user_data_raw WHERE job='$job'\""
 eval $cmd
 source "$DIR/includes/check_status.sh"  
 
@@ -301,10 +289,17 @@ source "$DIR/includes/check_status.sh"
 # Note "NULL AS NA": concession to R users
 # Will make this a parameter at some point, with NULL AS NA as the default
 echoi $e -n "-- Importing '$infile' to temp table..."
-metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV NULL AS 'NA' ${opt_header};"
+metacmd="\COPY $raw_data_tbl_temp FROM '${infile}' DELIMITER ',' CSV;"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user $db_gnrs --set ON_ERROR_STOP=1 -q -c \"${metacmd}\""
 eval $cmd
 source "$DIR/includes/check_status.sh"
+
+# Remove header line if included as data
+# This removes the need for option "-n | --noheader" and $header
+echoi $e -n "-- Removing header line from data (if any)..."
+cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"DELETE FROM ${raw_data_tbl_temp} WHERE user_id IN ('user_id','id') OR country IN ('country','country_verbatim')\""
+eval $cmd
+source "$DIR/includes/check_status.sh"  
 
 # Load the raw data to table user_data_raw
 echoi $e -n "-- Inserting from temp table to user_data_raw..."

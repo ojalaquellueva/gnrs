@@ -19,7 +19,7 @@ ON a.country_id=b.country_id
 JOIN state_province_name c
 ON b.state_province_id=c.state_province_id
 WHERE a.job=:'job' 
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL 
 AND 
 (
 c.state_province_name LIKE  '%'  || a.state_province_verbatim || '%' OR 
@@ -37,7 +37,7 @@ ON a.country_id=b.country_id
 JOIN state_province_name c
 ON b.state_province_id=c.state_province_id
 WHERE a.job=:'job' 
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL 
 AND 
 (
 c.state_province_name LIKE  '%'  || a.state_province_verbatim || '%' OR 
@@ -47,7 +47,7 @@ AND a.state_province_verbatim IS NOT NULL AND a.state_province_verbatim<>''
 ) AS alt -- Retrieves standard id and name for submitted alt name
 ON uniq.id=alt.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
-AND u.state_province_id IS NULL AND match_status IS NULL
+AND u.state_province_id IS NULL AND match_method_state_province IS NULL 
 AND u.id=alt.id
 ;
 
@@ -117,7 +117,7 @@ WHERE q.max_sim >= :match_threshold
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL AND match_status IS NULL
+AND a.state_province IS NULL AND match_method_state_province IS NULL 
 ;
 
 -- standard ascii name
@@ -185,7 +185,7 @@ WHERE q.max_sim >= :match_threshold
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL AND match_status IS NULL
+AND a.state_province IS NULL AND match_method_state_province IS NULL 
 ;
 
 -- short ascii name
@@ -253,7 +253,7 @@ WHERE q.max_sim >= :match_threshold
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL AND match_status IS NULL
+AND a.state_province IS NULL AND match_method_state_province IS NULL 
 ;
 
 -- alternate name
@@ -322,7 +322,7 @@ WHERE q.max_sim >= :match_threshold
 WHERE job=:'job'
 AND a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
-AND a.state_province IS NULL AND match_status IS NULL
+AND a.state_province IS NULL AND match_method_state_province IS NULL 
 ;
 
 --
@@ -342,7 +342,7 @@ ON a.country_id=b.country_id
 JOIN state_province_name c
 ON b.state_province_id=c.state_province_id
 WHERE a.job=:'job' 
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL 
 AND 
 (
 c.state_province_name LIKE  '%'  || a.state_province_verbatim_alt || '%' OR 
@@ -353,7 +353,7 @@ GROUP BY a.id, b.country_id, b.state_province_id, b.state_province_std
 HAVING COUNT(DISTINCT b.state_province_id)=1
 ) sp
 WHERE u.job=:'job' 
-AND u.state_province_id IS NULL AND match_status IS NULL
+AND u.state_province_id IS NULL AND match_method_state_province IS NULL 
 AND u.id=sp.id
 ;
 

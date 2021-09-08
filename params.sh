@@ -100,7 +100,7 @@ recordlimit=100000
 ##########################
 
 # Save debugging file of key parameters
-debug_mode='t'
+debug_mode='f'
 
 # Clear all user data and cache to avoid confusion with previous jobs
 # TURN OFF FOR PRODUCTION!!!

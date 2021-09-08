@@ -125,7 +125,7 @@ WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.county_parish_id IS NULL AND match_method_county_parish IS NULL 
 ;
 
 -- standard ascii name
@@ -203,7 +203,7 @@ WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.county_parish_id IS NULL AND match_method_county_parish IS NULL 
 ;
 
 -- short ascii name
@@ -279,7 +279,7 @@ WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.county_parish_id IS NULL AND match_method_county_parish IS NULL 
 ;
 
 -- alternate name
@@ -358,7 +358,7 @@ WHERE job=:'job'
 AND a.county_parish_verbatim=fzy.county_parish_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province_id=fzy.state_province_id
-AND a.county_parish_id IS NULL AND match_status IS NULL
+AND a.county_parish_id IS NULL AND match_method_county_parish IS NULL 
 ;
 
 

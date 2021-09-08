@@ -15,7 +15,7 @@ match_method_state_province='exact name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.state_province
 AND a.country_id=c.country_id
 ;
@@ -29,7 +29,7 @@ match_method_state_province='exact name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND LOWER(a.state_province_verbatim)=LOWER(b.state_province)
 AND a.country_id=c.country_id
 ;
@@ -43,7 +43,7 @@ match_method_state_province='exact ascii name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND unaccent(a.state_province_verbatim)=b.state_province_ascii
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -58,7 +58,7 @@ match_method_state_province='exact ascii name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND LOWER(unaccent(a.state_province_verbatim))=LOWER(b.state_province_ascii)
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -73,7 +73,7 @@ match_method_state_province='exact ascii short name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND unaccent(a.state_province_verbatim)=b.state_province_std
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -88,7 +88,7 @@ match_method_state_province='exact ascii short name'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND LOWER(unaccent(a.state_province_verbatim))=LOWER(b.state_province_std)
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -107,7 +107,7 @@ match_method_state_province='full iso code'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.state_province_code_full
 AND a.country_id=c.country_id
 AND b.state_province<>''
@@ -123,7 +123,7 @@ match_method_state_province='full hasc code'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.hasc_full
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -139,7 +139,7 @@ match_method_state_province='full alternate code'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.state_province_code2_full
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -155,7 +155,7 @@ match_method_state_province='iso code'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.state_province_code
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -171,7 +171,7 @@ match_method_state_province='hasc code'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.hasc
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -187,7 +187,7 @@ match_method_state_province='alternate code'
 FROM state_province b JOIN country c
 ON b.country_id=c.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=b.state_province_code2
 AND a.country_id=c.country_id
 AND a.state_province_verbatim<>''
@@ -208,7 +208,7 @@ ON b.state_province_id=c.state_province_id
 JOIN country d
 ON b.country_id=d.country_id
 WHERE job=:'job'
-AND a.state_province_id IS NULL AND match_status IS NULL
+AND a.state_province_id IS NULL AND match_method_state_province IS NULL
 AND a.state_province_verbatim=c.state_province_name
 AND a.country_id=d.country_id
 AND c.name_type='original from geonames'
