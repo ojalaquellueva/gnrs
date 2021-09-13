@@ -9,29 +9,36 @@
 #################################
 
 # api url
-url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # production
-url = "http://vegbiendev.nceas.ucsb.edu:9875/gnrs_api.php" # development
+url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # Public development
+url = "https://gnrsapi.xyz/gnrs_api.php" # Production
 
-# Test files of political divisions to resolve
-# Comma-delimited, first column an integer ID (can be blank), next three columns
-# are country, state, county
-# Choose one
-
-# Test data, no ids
-testfile <- "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile.csv"
+# Test files of political divisions to resolve (choose one)
+# Format: comma-delimited UTF-8 text
+# Columns:
+#   user_id: optional unique identifier. Can be blank but comma placeholder required
+#   country: required
+#   state: optional, country required if included
+#   county: optional, country and state required if included
 
 # Test data with unique ids
 testfile.ids <- "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile_ids.csv"
 
-testfile <- testfile
+# Test data, no ids
+testfile.noids <- "https://bien.nceas.ucsb.edu/bien/wp-content/uploads/2020/11/gnrs_testfile.csv"
+
+# Set the input file
+testfile <- testfile.ids
+
+# Load libraries
+library(httr)		# API requests
+library(jsonlite) # JSON coding/decoding
+
+# Header for api call
+headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
 
 #################################
 # Import & prepare the raw data
 #################################
-
-# Load libraries
-library(RCurl) # API requests
-library(jsonlite) # JSON coding/decoding
 
 # Read in example file of taxon names
 data <- read.csv(testfile, header=TRUE)
@@ -66,23 +73,18 @@ opts_json <- gsub('\\]','',opts_json)
 # Combine the options and data into single JSON object
 input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
 
-# Construct the request
-headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
-
-# Start timer
-start_time <- Sys.time()
-
 # Send the API request
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
-
-# Report processing time
-end_time <- Sys.time()
-ptime <- end_time - start_time
-print(paste0("Batches: ", batches))
-print(paste0("Processing time: ", ptime))
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
 
 # Convert JSON results to a data frame
-results <-  jsonlite::fromJSON(results_json)
+results_raw <- fromJSON(rawToChar(results_json$content)) 
+results <- as.data.frame(results_raw)
 
 # Inspect the results
 head(results, 10)
@@ -134,11 +136,19 @@ opts_json <- gsub('\\]','',opts_json)
 # Input json requires only the option
 input_json <- paste0('{"opts":', opts_json, '}' )
 
-# Send the request again
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
 
 # Display the results
-results <- jsonlite::fromJSON(results_json)
 print( results )
 
 # Save list of countries for use in state query
@@ -170,11 +180,21 @@ opts_json <- gsub('\\]','',opts_json)
 
 # Form the input json, including both options and data
 input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
 
-# Display total rows returns and a sample of the results
-results <- jsonlite::fromJSON(results_json)
-print( results[ 1:50,] )		# Just a sample
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
+
+# Display the results
+print( results )		
 print( paste0( "Total rows returned: ", nrow(results) ) )
 
 # Save list of states for use in county query
@@ -208,11 +228,21 @@ opts_json <- gsub('\\]','',opts_json)
 
 # Form the input json, including both options and data
 input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
-results_json <- postForm(url, .opts=list(postfields=input_json, httpheader=headers))
 
-# Display total rows returns and a sample of the results
-results <- jsonlite::fromJSON(results_json)
-print( results[ 1:50,] )		# Just a sample
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
+
+# Display the results
+print( results )
 print( paste0( "Total rows returned: ", nrow(results) ) )
 
 #################################
@@ -237,11 +267,19 @@ opts_json <- gsub('\\]','',opts_json)
 # No data needed
 input_json <- paste0('{"opts":', opts_json, '}' )
 
-# Send the request again
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
 
 # Display the results
-results <- jsonlite::fromJSON(results_json)
 print( results )
 
 #################################
@@ -266,11 +304,19 @@ opts_json <- gsub('\\]','',opts_json)
 # No data needed
 input_json <- paste0('{"opts":', opts_json, '}' )
 
-# Send the request again
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
 
 # Display the results
-results <- jsonlite::fromJSON(results_json)
 print( results )
 
 #################################
@@ -294,11 +340,19 @@ opts_json <- gsub('\\]','',opts_json)
 # No data needed
 input_json <- paste0('{"opts":', opts_json, '}' )
 
-# Send the request again
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
 
 # Display the results
-results <- jsonlite::fromJSON(results_json)
 print( results )
 
 #################################
@@ -322,11 +376,19 @@ opts_json <- gsub('\\]','',opts_json)
 # No data needed
 input_json <- paste0('{"opts":', opts_json, '}' )
 
-# Send the request again
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
 
 # Display the results
-results <- jsonlite::fromJSON(results_json)
 print( results )
 
 #################################
@@ -350,10 +412,18 @@ opts_json <- gsub('\\]','',opts_json)
 # No data needed
 input_json <- paste0('{"opts":', opts_json, '}' )
 
-# Send the request again
-results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+# Send the API request
+results_json <- POST(url = url,
+                  add_headers('Content-Type' = 'application/json'),
+                  add_headers('Accept' = 'application/json'),
+                  add_headers('charset' = 'UTF-8'),
+                  body = input_json,
+                  encode = "json"
+                  )
+
+# Convert JSON results to a data frame
+results <- as.data.frame( fromJSON( rawToChar( results_json$content ) ) )
 
 # Display the results
-results <- jsonlite::fromJSON(results_json)
 print( results )
 

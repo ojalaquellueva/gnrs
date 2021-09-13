@@ -141,13 +141,25 @@ function make_sql_andor (array $vals, $col1, $col2) {
 		return $andor;
 }
 
+/////////////////////////////////////////////////////
+// Send the POST response, with either data or error 
+// message in body. Body MUST be json.
+/////////////////////////////////////////////////////
+
+function send_response($status, $body) {
+	header("Access-Control-Allow-Origin: *");
+	header('Content-type: application/json');
+	http_response_code($status); 
+	echo $body;
+}
+
 ////////////////////////////////////////
 // Receive & validate the POST request
 ////////////////////////////////////////
 
 // Start by assuming no errors
 // Any run time errors and this will be set to true
-$err_code=0;
+$err_code=200;	// =OK
 $err_msg="";
 $err=false;
 
@@ -204,7 +216,8 @@ if ( ! ( $opt_arr = isset($input_array['opts'])?$input_array['opts']:false ) ) {
 // Sanitize the JSON options
 ///////////////////////////////////
 
-// UNDER CONSTRUCTION!
+
+
 
 ///////////////////////////////////////////
 // Validate options and assign each to its 
@@ -327,7 +340,6 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 	// Run dos2unix to fix stupid DOS/Mac/Excel/UTF-16 issues
 	$cmd = "dos2unix $file_tmp";
 	exec($cmd, $output, $status);
-	//if ($status) die("ERROR: tnrs_batch non-zero exit status");
 	if ($status) {
 		$err_msg="Failed file conversion: dos2unix for file ${file_tmp}\r\n";
 		$err_code=500; goto err;
@@ -468,23 +480,18 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 	
 	// Run the query and save results as $results_array
 	include("qy_db.php"); 
+	if ( $err_code!=200 ) goto err;
 
 }	// END mode_if
 
+///////////////////////////////////
+// Send the results
+///////////////////////////////////
+
 $results_json = json_encode($results_array);
-//$results_json = "sql:\n $sql \n";	// For troubleshooting
-
-///////////////////////////////////
-// Send the response
-///////////////////////////////////
-
-// Send the header
-header("Access-Control-Allow-Origin: *");
-header('Content-type: application/json');
-
-// Send data
-echo $results_json;
-//echo "cmd:\n $cmd \n";	// For troubleshooting
+// Status ($err_code) should be 200
+send_response($err_code, $results_json);
+exit;
 
 ///////////////////////////////////
 // Error: return http status code
@@ -492,9 +499,7 @@ echo $results_json;
 ///////////////////////////////////
 
 err:
-//http_response_code($err_code);
-echo $err_msg;
-//echo "cmd:\n $cmd \n";	// For troubleshooting
-//echo "sql:\n $sql \n";	// For troubleshooting
+$err_json = json_encode($err_msg);
+send_response($err_code, $err_json);
 
 ?>

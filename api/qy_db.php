@@ -20,27 +20,24 @@ if ( $err_show_sql ) {
 $conn_string = "host=$HOST port=5432 dbname=$DB user=$USER_W password=$PWD_USER_W";
 $dbconn = pg_connect($conn_string);
 
-// check connection
 if (!$dbconn) {
-	echo "Database connection failed\n";
-	exit();
-}
-
-// Execute the query
-if (!$qy_results = pg_query($dbconn, $sql)) {
-	die("Cannot execute query: '$sql_disp'\n"); 
-} 
-
-// Create associative array of the query results
-$results_array = array();
-if(pg_num_rows($qy_results)) {
-	while($result = pg_fetch_assoc($qy_results)) {
-		//$results_array[] = array($mode=>$result); // Include $mode
-		$results_array[] = $result;					// Omit $mode
+	$err_msg="ERROR: Failed to connect to database\r\n";
+	$err_code=500;	
+} elseif (!$qy_results = pg_query($dbconn, $sql)) {
+	pg_close($dbconn); 
+	$err_msg="ERROR: Query failed (mode '$mode')\r\n";
+	$err_code=400;	
+} else {
+	// Create associative array of the query results
+	$results_array = array();
+	if(pg_num_rows($qy_results)) {
+		while($result = pg_fetch_assoc($qy_results)) {
+			//$results_array[] = array($mode=>$result); // Include $mode
+			$results_array[] = $result;					// Omit $mode
+		}
 	}
+	pg_close($dbconn); 
 }
 
-// Close the connection
-pg_close($dbconn); 
 
 ?>
