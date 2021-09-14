@@ -55,6 +55,7 @@ ON cas_uniq.id=cas_altname.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
 AND u.state_province_id IS NULL
 AND u.id=cas_altname.id
+AND u.match_method_country LIKE '%state-as-country%' -- Critical!
 ;
 
 --

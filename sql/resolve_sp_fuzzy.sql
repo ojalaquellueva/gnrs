@@ -357,3 +357,29 @@ AND u.state_province_id IS NULL AND match_method_state_province IS NULL
 AND u.id=sp.id
 ;
 
+--
+-- Wildcard match on *exact* state name in county field
+-- Done only if state_province_verbatim is null so as not to
+-- confuse with true county-as-state
+--
+
+UPDATE user_data u
+SET 
+state_province_id=stateincounty.state_province_id,
+state_province=stateincounty.state_province_std,
+match_method_state_province='wildcard state-in-county-field'
+FROM 
+(
+SELECT DISTINCT u.id, sp.state_province_id, sp.state_province_std
+FROM user_data AS u JOIN state_province sp 
+ON u.country_id=sp.country_id
+WHERE u.job=:'job' 
+AND (
+unaccent(u.county_parish_verbatim) ILIKE  '%'  || sp.state_province_std || '%'
+) 
+) AS stateincounty 
+WHERE u.job=:'job' 
+AND u.state_province_id IS NULL
+AND u.id=stateincounty.id
+AND trim(coalesce(u.state_province_verbatim,''))='' -- Critical!
+;
