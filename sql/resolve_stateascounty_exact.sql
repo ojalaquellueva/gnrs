@@ -19,6 +19,8 @@ lower(c.county_parish),
 lower(c.county_parish_ascii),
 lower(c.county_parish_std)
 )
+AND a.state_province_id IS NOT NULL AND b.is_countryasstate=1 -- Critical!
+AND a.country_id=b.country_id -- Critical!
 ;
 
 -- hasc, fips and iso codes
@@ -41,6 +43,8 @@ c.county_parish_code2,
 c.county_parish_code2_full
 )
 AND trim(a.state_province_verbatim)<>''
+AND a.state_province_id IS NOT NULL AND b.is_countryasstate=1 -- Critical!
+AND a.country_id=b.country_id -- Critical!
 ;
 
 -- Exact alternate name
@@ -57,4 +61,6 @@ WHERE job=:'job'
 AND c.is_stateascounty=1
 AND a.county_parish_id IS NULL AND match_status IS NULL
 AND a.state_province_verbatim=d.county_parish_name
+AND a.state_province_id IS NOT NULL AND b.is_countryasstate=1 -- Critical!
+AND a.country_id=b.country_id -- Critical!
 ;
