@@ -153,6 +153,21 @@ function send_response($status, $body) {
 	echo $body;
 }
 
+///////////////////////////////////////////////////
+// Calculate optimum number of batches
+// UNDER CONSTRUCTION 
+///////////////////////////////////////////////////
+
+function nbatches($datarows, $CORES, $OPT_BATCH_SIZE) {
+	if ($datarows<=100) {
+		$nbatches=1;
+	} elseif ($datarows>100 && $datarows<$OPT_BATCH_SIZE) {
+		$nbatches=max($datarows/$CORES,1);
+	} else {	// $datarows>$OPT_BATCH_SIZE
+		$nbatches=ceil($datarows/$OPT_BATCH_SIZE);
+	}
+}
+
 ////////////////////////////////////////
 // Receive & validate the POST request
 ////////////////////////////////////////
@@ -247,8 +262,8 @@ if ( $mode=="resolve" || $mode=="statelist"|| $mode=="countylist") {
 	}
 
 	# Check payload size
-	$rows = count($data_arr);
-	if ( $rows>$MAX_ROWS && $MAX_ROWS>0 ) {
+	$datarows = count($data_arr);
+	if ( $datarows>$MAX_ROWS && $MAX_ROWS>0 ) {
 		$err_msg="ERROR: Requested $rows rows exceeds $MAX_ROWS row limit\r\n";	
 		$err_code=413;	# 413 Payload Too Large
 		goto err; 
@@ -307,11 +322,16 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 	if ( isset($batches) ) {
 		$nbatches = $batches;
 	} else {
-		$nbatches = $NBATCH;
+		// Set using function nbatch() when ready.
+		if ( $datarows<100) {
+			$nbatches = 1;
+		} else {
+			$nbatches = max(min($datarows,$NBATCH), 10);
+		}
 	}
 	
 	# Reset batches to 2 if 1 (b=1 failing for some reason)
-	if ( $nbatches==1 ) $nbatches=2;
+	//if ( $nbatches==1 ) $nbatches=2;
 
 	///////////////////////////////////////////
 	// Save data array to temp directory as 
