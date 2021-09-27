@@ -523,7 +523,7 @@ source "$includes_dir/check_status.sh"
 echoi $e "Loading metadata tables:"
 
 echoi $e -n "- meta..."
-PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -v VERSION="$VERSION" -v DB_VERSION="$DB_VERSION" -f $DIR/sql/load_meta.sql
+PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -v VERSION="$VERSION" -v DB_VERSION="$DB_VERSION" -v VERSION_COMMENTS="$VERSION_COMMENTS" -f $DIR/sql/load_meta.sql
 source "$includes_dir/check_status.sh"
 
 echoi $e -n "- source..."

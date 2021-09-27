@@ -390,7 +390,7 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 
 	if ( $mode=="meta" ) { 
 		$sql="
-		SELECT db_version, build_date, code_version 
+		SELECT db_version, build_date, code_version, version_comments 
 		FROM meta
 		;
 		";

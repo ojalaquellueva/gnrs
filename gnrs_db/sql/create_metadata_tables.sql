@@ -1,11 +1,12 @@
 -- -----------------------------------------------------------------
--- Create & populate main metadata table "meta"
+-- Create & populate metadata tables
 -- -----------------------------------------------------------------
 
 DROP TABLE IF EXISTS meta;
 CREATE TABLE meta (
 db_version TEXT DEFAULT NULL,
 code_version TEXT DEFAULT NULL,
+version_comments TEXT DEFAULT NULL,
 build_date date,
 citation TEXT DEFAULT NULL,
 publication TEXT DEFAULT NULL,

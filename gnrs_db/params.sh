@@ -96,6 +96,8 @@ DB_VERSION="2.0"
 # Keep this hand-curated CSV file in data directory
 CSV_COLLABORATORS="collaborators.csv"
 
+VERSION_COMMENTS=''
+
 ########################################################
 # Natural Earth crosswalk table parameters
 ########################################################
