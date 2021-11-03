@@ -10,7 +10,7 @@ WHERE a.gid_0=b.iso_alpha3
 
 -- Fix screwed-up iso3 code for south sudan
 UPDATE gadm_country a
-SET gid_0='SDS'
+SET gid_0='SSD'
 WHERE name_0='South Sudan'
 ;
 

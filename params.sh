@@ -60,7 +60,7 @@ batch_size=10000;
 
 # Purge user_data after each call of gnrs_batch?
 # Generally good idea to avoid bloat & slow performance
-clear_user_data='f'
+clear_user_data='t'
 
 # Clear entire user_data_table
 clear_user_data_all='f'
