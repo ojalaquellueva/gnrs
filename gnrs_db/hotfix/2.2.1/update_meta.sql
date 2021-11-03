@@ -20,3 +20,4 @@ version_comments='Minor update: fix incorrect values of gid_0 for South Sudan'
 
 DROP TABLE meta;
 ALTER TABLE meta_temp RENAME TO meta;
+
