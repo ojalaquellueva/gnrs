@@ -1,33 +1,34 @@
-user_id,country,state_province,county_parish
-,Canadá,,
-,Canada,Province of Nova Scotia,
-,Colombia,Cundinamarca,Medina
-,Germany,Niedersachsen,Emden
-,Guatemala,Izabal,
-,México,,
-,Mexico,Chiapas,Villa Corzo
-,Mexico,Guanajuato,Jerécuaro
-,Mexico,Nuevo León,Los Aldamas
-,México,Oaxaca,
-,México,Oaxaca,Ixtlán
-,México,Oaxaca,Municipio de Ixtlán
-,Mexico,Quintana Roo,Lázaro Cárdenas
-,Mexico,Quintana Roo,Municipio de Lázaro Cárdenas
-,Mexico,"Sonora, Estado de",Huépac
-,USA,,
-,U.S.A.,,
-,US,,
-,United States,,
-,United States of America,,
-,United States,Kansas,Jewell
-,U.S.A,Arizona,
-,U.S.A,Arizona,Pima
-,USA,Arizona,Pima County
-,United States,Arkansas,Greene
-,USA,Arizona,Pima County
-,Romania,Covasna,Intorsura Buzaului
-,Romania,Cluj,Marisel
-,Russia,Lipetsk,Dobrovskiy rayon
-,South Korea,Busan,Haeundae
-,Thailand,Chaiyaphum,Nong Bua Daeng
-,Ukraine,Kharkiv,Novovodolaz'kyi
+﻿user_id,country,state_province,county_parish
+1,Canada,British Columbia,
+2,Canada,British Colombia,
+3,Canada,"Nova Scotia, Province of",
+4,Colombia,Cundinamarca,Medina
+5,Germany,Niedersachsen,Emden
+6,Guatemala,Departamento de Izabal,Los Amates
+7,Guatemala,Izabal,Los Amates
+8,Mexico,Chiapas,Municipio de Villa Corzo
+9,Mexico,Chiapas,Municipio de Vila Corzo
+10,Mexico,Chiapas,Villa Corzo
+11,Mexico,Chiapas,Vila Corzo
+12,Mexico,Guanajuato,Jerécuaro
+13,Mexico,Nuevo León,Los Aldamas
+14,Mexico,Oaxaca,Ixtlan de Juarez
+15,Mexico,Oaxaca,Ixtlam
+16,Mexico,Quintana Roo,Lázaro Cárdenas
+17,Mexico,Quintana Roo,Municipio de Lázaro Cárdenas
+18,Mexico,"Sonora, Estado de",Huépac
+19,Romania,Cluj,Marisel
+20,Romania,Covasna,Intorsura Buzaului
+21,Russia,Lipetsk,Dobrovskiy rayon
+22,South Korea,Busan,Haeundae
+23,Thailand,Chaiyaphum,Nong Bua Daeng
+24,Ukraine,Kharkiv,Novovodolaz'kyi
+25,United States,Arkansas,Greene
+26,United States,Kansas,Jewell
+27,USA,Arizona,Pima County
+28,U.S.A,Arizona,Pima
+29,USA,Puerto Rico,Mayagüez
+30,United States,Puerto Rico,Mayagüez
+31,Puerto Rico,Mayagüez,
+32,UK,Scotland,Aberdeenshire
+33,Scotland,Aberdeenshire,
