@@ -228,6 +228,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e "- State-as-country:"
+
 	echoi $e -n "-- exact..."
 	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/resolve_stateascountry_exact.sql"
 	eval $cmd

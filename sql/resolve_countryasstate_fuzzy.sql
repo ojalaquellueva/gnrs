@@ -52,6 +52,9 @@ ON cas_uniq.id=cas_altname.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
 AND u.country_id IS NULL AND u.match_status IS NULL
 AND u.id=cas_altname.id
+AND TRIM(u.country_verbatim)<>''  -- Can match to anything so filter
+AND u.country_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
+AND u.country_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
 ;
 
 --

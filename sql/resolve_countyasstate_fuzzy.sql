@@ -56,6 +56,9 @@ WHERE u.job=:'job'
 AND u.state_province_id IS NULL
 AND u.id=cas_altname.id
 AND u.match_method_country LIKE '%state-as-country%' -- Critical!
+AND TRIM(u.county_parish_verbatim)<>''  -- Can match to anything so filter
+AND u.county_parish_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
+AND u.county_parish_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
 ;
 
 --

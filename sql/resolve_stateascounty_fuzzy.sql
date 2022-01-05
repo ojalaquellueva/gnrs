@@ -51,6 +51,9 @@ ON uniq.id=alt.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
 AND u.county_parish_id IS NULL AND match_status IS NULL
 AND u.id=alt.id
+AND TRIM(u.state_province_verbatim)<>''  -- Can match to anything so filter
+AND u.state_province_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
+AND u.state_province_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
 ;
 
 --

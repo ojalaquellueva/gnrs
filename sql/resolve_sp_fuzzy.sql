@@ -49,6 +49,9 @@ ON uniq.id=alt.id -- Join ensures only unambiguous results used
 WHERE u.job=:'job' 
 AND u.state_province_id IS NULL AND match_method_state_province IS NULL 
 AND u.id=alt.id
+AND TRIM(u.state_province_verbatim)<>''  -- Can match to anything so filter
+AND u.state_province_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
+AND u.state_province_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
 ;
 
 -- standard name
@@ -324,6 +327,7 @@ AND a.state_province_verbatim=fzy.state_province_verbatim
 AND a.country_id=fzy.country_id
 AND a.state_province IS NULL AND match_method_state_province IS NULL 
 ;
+
 
 --
 -- Alternate names - simple wildcard match
