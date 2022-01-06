@@ -51,6 +51,7 @@ AND u.id=cp_altname.id
 AND TRIM(u.county_parish_verbatim)<>''  -- Can match to anything so filter
 AND u.county_parish_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
 AND u.county_parish_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
+AND LENGTH(u.county_parish_verbatim)>3  -- Reduce spurious matches, esp. to ISO codes
 ;
 
 -- standard name

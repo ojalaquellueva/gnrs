@@ -54,6 +54,7 @@ AND u.id=alt.id
 AND TRIM(u.state_province_verbatim)<>''  -- Can match to anything so filter
 AND u.state_province_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
 AND u.state_province_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
+AND LENGTH(u.state_province_verbatim)>3  -- Reduce spurious matches, esp. to ISO codes
 ;
 
 --

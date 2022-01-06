@@ -53,8 +53,9 @@ WHERE u.job=:'job'
 AND u.country_id IS NULL AND u.match_status IS NULL
 AND u.id=cas_altname.id
 AND TRIM(u.country_verbatim)<>''  -- Can match to anything so filter
-AND u.country_verbatim NOT LIKE '%\_%'  -- Filter underscores (=wildcard)
-AND u.country_verbatim<>'-'	-- Filter lone hyphen, matches any hyphenated name
+AND u.country_verbatim NOT LIKE '%\_%'  -- No underscores (=single char wildcard)
+AND u.country_verbatim<>'-'	-- No lone hyphen --> matches any hyphenated name
+AND LENGTH(u.country_verbatim)>3  -- Reduce spurious matches, especially to ISO codes
 ;
 
 --
