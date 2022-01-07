@@ -5,9 +5,11 @@
 DROP TABLE IF EXISTS meta;
 CREATE TABLE meta (
 db_version TEXT DEFAULT NULL,
+db_version_comments TEXT DEFAULT NULL,
+db_version_build_date date,
 code_version TEXT DEFAULT NULL,
-version_comments TEXT DEFAULT NULL,
-build_date date,
+code_version_comments TEXT DEFAULT NULL,
+code_version_release_date date,
 citation TEXT DEFAULT NULL,
 publication TEXT DEFAULT NULL,
 logo_path TEXT DEFAULT NULL 
