@@ -4,6 +4,7 @@
 
 DROP TABLE IF EXISTS meta;
 CREATE TABLE meta (
+id SERIAL NOT NULL PRIMARY KEY,
 db_version TEXT DEFAULT NULL,
 db_version_comments TEXT DEFAULT NULL,
 db_version_build_date date,
