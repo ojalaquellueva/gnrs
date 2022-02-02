@@ -69,9 +69,10 @@ clear_user_data_all='f'
 # Fuzzy match parameters
 ##########################
 
-# Fuzzy match threshold (trigram similarity score)
+# Default fuzzy match threshold (trigram similarity score)
 # [0-1], recommend at least 0.5 to avoid false positives
 match_threshold=0.5
+DEF_MATCH_THRESHOLD=0.5
 
 ##########################
 # Input subsample parameters

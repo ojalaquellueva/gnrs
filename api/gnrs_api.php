@@ -330,6 +330,17 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		}
 	}
 	
+	# Get custom match threshold, if set
+	if ( isset($tfuzzy) ) {
+		if ( $tfuzzy == "" ) {
+			$opt_mt = "";			# No option; use default
+		} else {
+			$opt_mt = "-t $tfuzzy";	# Set custom threshold
+		}
+	} else {
+		$opt_mt = "";				# No option; use default
+	}
+
 	# Reset batches to 2 if 1 (b=1 failing for some reason)
 	//if ( $nbatches==1 ) $nbatches=2;
 
@@ -367,7 +378,7 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 
 	$data_dir_tmp_full = $data_dir_tmp . "/";
 	// Form the final command
-	$cmd = $BATCH_DIR . "gnrspar.pl -in '$file_tmp'  -out '$results_file' -nbatch $nbatches ";
+	$cmd = $BATCH_DIR . "gnrspar.pl -in '$file_tmp'  -out '$results_file' -nbatch $nbatches $opt_mt";
 	
 	// Process the data in parallel batches with the core application
 	exec($cmd, $output, $status);
@@ -390,7 +401,8 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 
 	if ( $mode=="meta" ) { 
 		$sql="
-		SELECT db_version, build_date, code_version, version_comments 
+		SELECT db_version, db_version_build_date, db_version_comments,
+		code_version, code_version_release_date, code_version_comments 
 		FROM meta
 		;
 		";

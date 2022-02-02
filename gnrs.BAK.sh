@@ -85,16 +85,10 @@ fi
 api="false"		# Assume not an api call
 pgpassword=""	# Not needed if not an api call
 silent="false"	# Assume echo & interactive are on
-threshold=$DEF_MATCH_THRESHOLD	# Use default (from params.sh)
-threshold_type="default"
 
 while [ "$1" != "" ]; do
     case $1 in
         -a | --api )         	api="true"
-                            	;;
-        -t | --threshold )     	shift
-        						threshold=$1
-        						threshold_type="custom"
                             	;;
         -s | --silent )         silent="true"
                             	;;
@@ -105,16 +99,6 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
-
-# Check fuzzy match threshold set correctly
-if [[ $threshold =~ ^[+-]?[0-9]+$ ]] || [[ $threshold =~ ^[+-]?[0-9]*\.?[0-9]+$ ]]; then
-	# Value is integer or float; check in range [0:1]
-	if [ $(echo "($threshold < 0) || ($threshold > 1)" | bc -l) -eq 1 ]; then
-		echo "ERROR: Match threshold not in range [0:1]"; exit 1
-	fi 
-else
-	echo "ERROR: Match threshold not a number"; exit 1
-fi
 
 # Set PGPASSWORD for api access
 # Parameter $pgpwd set in config file
@@ -167,20 +151,15 @@ source "$DIR/includes/check_status.sh"
 # Check against existing results in cache
 ############################################
 
-# Start by assuming all records not in cache
-not_cached="t"
-if [ "$threshold_type" == "default" ]; then
-	# Only check cache if using default match threshold
-	echoi $e -n "Checking for existing results in cache..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/check_cache.sql"
-	eval $cmd
-	source "$DIR/includes/check_status.sh" 
+echoi $e -n "Checking for existing results in cache..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/check_cache.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
 
-	# If all records already in cache, skip resolution
-	sql_not_cached="SELECT EXISTS ( SELECT id FROM user_data WHERE job='$job' AND match_status IS NULL) AS a"
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -qt -c \"$sql_not_cached\" | tr -d '[[:space:]]'"
-	not_cached=$(eval "$cmd")
-fi
+# If all records already in cache, skip resolution
+sql_not_cached="SELECT EXISTS ( SELECT id FROM user_data WHERE job='$job' AND match_status IS NULL) AS a"
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs -qt -c \"$sql_not_cached\" | tr -d '[[:space:]]'"
+not_cached=$(eval "$cmd")
 
 ######## For testing only ########
 if [ "$debug_mode" == "t" ]; then
@@ -222,7 +201,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$threshold -v job=$job -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_country_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -233,7 +212,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$threshold -f $DIR_LOCAL/sql/resolve_countryasstate_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_countryasstate_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -244,7 +223,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$threshold -v job=$job -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_sp_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -256,7 +235,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$threshold -f $DIR_LOCAL/sql/resolve_stateascountry_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_stateascountry_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -267,7 +246,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$threshold -v job=$job -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v match_threshold=$match_threshold -v job=$job -f $DIR_LOCAL/sql/resolve_cp_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -278,7 +257,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$threshold -f $DIR_LOCAL/sql/resolve_stateascounty_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_stateascounty_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -289,7 +268,7 @@ if [ "$not_cached" == "t" ]; then
 	source "$DIR/includes/check_status.sh" 
 
 	echoi $e -n "-- fuzzy..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$threshold -f $DIR_LOCAL/sql/resolve_countyasstate_fuzzy.sql"
+	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job  -v match_threshold=$match_threshold -f $DIR_LOCAL/sql/resolve_countyasstate_fuzzy.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh" 
 
@@ -332,13 +311,10 @@ source "$DIR/includes/check_status.sh"
 ############################################
 
 # Add new results to cache
-# Only do if use default match threshold
-if [ "$threshold_type" == "default" ]; then
-	echoi $e -n "Updating cache..."
-	cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_cache.sql"
-	eval $cmd
-	source "$DIR/includes/check_status.sh" 
-fi
+echoi $e -n "Updating cache..."
+cmd="$pgpassword PGOPTIONS='--client-min-messages=warning' psql -U $user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_cache.sql"
+eval $cmd
+source "$DIR/includes/check_status.sh" 
 
 ######################################################
 # Report total elapsed time and exit if running solo

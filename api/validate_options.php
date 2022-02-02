@@ -65,6 +65,26 @@ if (array_key_exists('maxdistrel', $opt_arr)) {
 }
 
 
+// Fuzzy match threshold parameter $tfuzzy
+if (array_key_exists('tfuzzy', $opt_arr)) {
+	$tfuzzy = $opt_arr['tfuzzy'];
+	
+	if ( trim($tfuzzy) == "" ) {
+		$tfuzzy = ""; // Core app will use defalt value
+	} else {
+		$valid = false;
+		if ( is_numeric($tfuzzy) )  {
+			$tfuzzy= (float) $tfuzzy;
+			if ( $tfuzzy>=0 && $tfuzzy<=1 ) $valid=true;
+		} 
+	
+		if ( $valid === false ) {
+			$err_msg="ERROR: Option 'tfuzzy' must number over range [0:1] \r\n"; 
+			$err_code=400; $err=true;
+		}
+	}
+}
+
 
 /////////////////////////////////////////////
 // Other options

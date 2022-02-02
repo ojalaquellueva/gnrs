@@ -26,6 +26,7 @@
 use strict;
 use POSIX;
 use Getopt::Long;
+use Scalar::Util qw(looks_like_number);
 
 my $APPNAME	= "gnrs";
 my $binpath = $0;
@@ -48,6 +49,8 @@ my $d = '';         # Output file delimiter
 my $d_def = "t";	# Default output file delimiter
 my $c = '';     	# Clear cache option (c|r) - optional
 my $clear_opt = ''; # Clear cache option as passed to batch app
+my $t = '';         # Match threshold ('': use default)
+my $t_opt = '';     # match threshold as passed to batch app
 
 GetOptions(
 	'in=s'      => \$infile,
@@ -55,7 +58,8 @@ GetOptions(
 	'nbatch=i'  => \$nbatch,
 	'opt:s'     => \$mf_opt,
 	'd:s'     => \$d,
-	'c:s'     => \$c	
+	'c:s'     => \$c,
+    't:s'     => \$t
 );
 
 # The temporary folder needs to be in the /tmp directory 
@@ -99,6 +103,20 @@ if ( !$c ) {
 	die("\"-c $c\" is not a valid option! \n");
 }
 
+# Set match threshold option
+if ( !$t ) {
+    $t_opt = "";
+} elsif ( $t == "" ) {
+    $t_opt = "";
+} elsif ( looks_like_number( $t ) ) {
+    if ( $t >= 0 && $t <= 1 ) {
+        $t_opt = "-t $t";
+    } else {
+        die("Match threshold \"-t $t\" not in range [0:1]! \n");
+    }
+} else {
+    die("Match threshold \"-t $t\" not a number! \n");
+}
 
 # Correct windows/mac line endings, if any
 my $finfo = `file $infile`;
@@ -268,7 +286,7 @@ sub _generate_mfconfig {
 		#	-a: api mode, no echo, use password
 		# 	-d: outfile delimiter. MUST be t (tab) to avoid frame shift errors
 		$operation .=
-"\t\$APPBIN -a -d t $clear_opt -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
+"\t\$APPBIN -a -d t $clear_opt $t_opt -f $tmpfolder/input/in_$i.txt -o $tmpfolder/out_$i.txt \n\n"; 
 		$cmd = $cmd . $operation;
 		$filelist .= "$tmpfolder/out_$i.txt ";
 	}

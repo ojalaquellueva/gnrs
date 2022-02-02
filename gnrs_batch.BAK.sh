@@ -87,8 +87,6 @@ delim=","			# Output file delimiter; default=csv
 mailme="false"
 replace_cache="f"	# Replace records for this job in cache?
 clear_cache="f"		# Clear entire cache?
-threshold=$DEF_MATCH_THRESHOLD
-threshold_type="default"
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -105,10 +103,6 @@ while [ "$1" != "" ]; do
                                 ;;
         -d | --delim )      	shift
                                 delim=$1
-                                ;;
-        -t | --threshold )     	shift
-                                threshold_type="custom"
-                                threshold=$1
                                 ;;
         -c | --clear-cache )  	clear_cache="t"
 								;;
@@ -137,27 +131,6 @@ delim_disp="CSV"
 if  [ "$delim" == "t" ]; then
 	opt_delim="DELIMITER E'\t'"
 	delim_disp="TSV"
-fi
-
-# Check fuzzy match threshold
-if [[ $threshold =~ ^[+-]?[0-9]+$ ]] || [[ $threshold =~ ^[+-]?[0-9]*\.?[0-9]+$ ]]; then
-	# Value is integer or float; check in range [0:1]
-	if [ $(echo "($threshold < 0) || ($threshold > 1)" | bc -l) -eq 1 ]; then
-		echo "ERROR: Match threshold not in range [0:1]"; exit 1
-	else
-		# Valid threshold value; check if same as default
-		if [ $(echo "($threshold == $DEF_MATCH_THRESHOLD)" | bc -l) -eq 1 ]; then
-			threshold_type="default"
-		fi
-	fi 
-else
-	echo "ERROR: Match threshold not a number"; exit 1
-fi
-
-if  [ "$threshold_type" == "custom" ]; then
-	# Never check, clear or replace cache if using custom match threshold
-	replace_cache="f"
-	clear_cache="f"
 fi
 
 # Output file path and name
@@ -212,7 +185,6 @@ if [ "$i" = "true" ]; then
         Input file: 	$infile
         Output file: 	$outfile
         Output file delimiter: $delim_disp
-        Match threshold: 	$threshold ($threshold_type)
         Clear cache: 	$clear_cache
         Replace cache: 	$replace_cache
         Notify: 	$mailme
@@ -342,7 +314,7 @@ source "$DIR/includes/check_status.sh"
 
 # Load raw data to table user_data and populate Fk poldiv_full
 echoi $e -n "- Loading table user_data..."
-cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -v match_threshold=$threshold -f $DIR_LOCAL/sql/load_user_data.sql"
+cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/load_user_data.sql"
 eval $cmd
 source "$DIR/includes/check_status.sh"
 
@@ -350,8 +322,6 @@ source "$DIR/includes/check_status.sh"
 # Mark submitted political divisions already
 # in cache. Purge from cache if requested.
 ############################################
-
-echoi $e "Checking cache:"
 
 all_in_cache="f"
 if [ "$clear_cache" == "t" ]; then
@@ -364,9 +334,8 @@ elif [ "$replace_cache" == "t" ]; then
 	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/remove_from_cache.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh"
-#else
-elif [ "$threshold_type" == "default" ]; then
-	echoi $e -n "- Marking results already in cache..."
+else
+	echoi $e -n "Marking results already in cache..."
 	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/mark_in_cache.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh"
@@ -376,16 +345,14 @@ elif [ "$threshold_type" == "default" ]; then
 	cmd="$opt_pgpassword psql $opt_user -d $db_gnrs -qt -c \"$sql_all_in_cache\" | tr -d '[[:space:]]'"
 	all_in_cache=$(eval $cmd)
 	#all_in_cache=$(eval $opt_pgpassword psql $opt_user -d $db_gnrs -qt -c '$sql_all_in_cache' | tr -d '[[:space:]]')
-else
-	echoi $e "- Ignoring cache (custom match threshold)"
 fi
 
 ############################################
 # Update from cache (if not cleared)
 ############################################
 
-if [ "$clear_cache" == "f" ] && [ "$replace_cache" == "f" ] && [ "$threshold_type" == "default" ]; then
-	echoi $e -n "- Updating from cache..."
+if [ "$clear_cache" == "f" ] && [ "$replace_cache" == "f" ]; then
+	echoi $e -n "Updating from cache..."
 	cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -v job=$job -f $DIR_LOCAL/sql/update_user_data_from_cache.sql"
 	eval $cmd
 	source "$DIR/includes/check_status.sh"
@@ -397,12 +364,6 @@ fi
 # Process user data with GNRS
 ############################################
 
-if [ "$threshold_type" == "default" ]; then
-	opt_threshold=""
-else
-	opt_threshold="-t $threshold"
-fi
-
 # Can skip this step entirely if all rows already in cache
 if [ "$all_in_cache" == "f" ] || [ "$api" == "true" ]; then
 	# Scrub non-cached records with GNRS
@@ -411,12 +372,12 @@ if [ "$all_in_cache" == "f" ] || [ "$api" == "true" ]; then
 
 	if  [ "$api" == "true" ]; then
 		# API call (use password) also turn off echo
-		$DIR/gnrs.sh -a -s -j $job $opt_threshold
+		$DIR/gnrs.sh -a -s -j $job
 	else
 		if [ "$e" == "false" ]; then
-			$DIR/gnrs.sh -s -j $job $opt_threshold
+			$DIR/gnrs.sh -s -j $job
 		else
-			$DIR/gnrs.sh -j $job $opt_threshold
+			$DIR/gnrs.sh -j $job
 		fi
 	fi
 else 
@@ -431,7 +392,7 @@ fi
 echoi $e -n "Exporting CSV file of results to data directory..."
 # "set -f" turns off globbing to prevent expansion of asterisk to unix wildcard
 set -f
-sql="\copy (SELECT poldiv_full, country_verbatim, state_province_verbatim, state_province_verbatim_alt, county_parish_verbatim, county_parish_verbatim_alt, country, state_province, county_parish, country_id, state_province_id, county_parish_id, country_iso, state_province_iso, county_parish_iso, geonameid, gid_0, gid_1, gid_2, match_method_country, match_method_state_province, match_method_county_parish, match_score_country, match_score_state_province, match_score_county_parish, threshold_fuzzy, overall_score, poldiv_submitted, poldiv_matched, match_status, user_id FROM user_data WHERE job='$job') TO '$outfile' csv header $opt_delim"
+sql="\copy (SELECT poldiv_full, country_verbatim, state_province_verbatim, state_province_verbatim_alt, county_parish_verbatim, county_parish_verbatim_alt, country, state_province, county_parish, country_id, state_province_id, county_parish_id, country_iso, state_province_iso, county_parish_iso, geonameid, gid_0, gid_1, gid_2, match_method_country, match_method_state_province, match_method_county_parish, match_score_country, match_score_state_province, match_score_county_parish, overall_score, poldiv_submitted, poldiv_matched, match_status, user_id FROM user_data WHERE job='$job') TO '$outfile' csv header $opt_delim"
 cmd="$opt_pgpassword PGOPTIONS='--client-min-messages=warning' psql $opt_user -d $db_gnrs --set ON_ERROR_STOP=1 -q -c \"$sql\""
 
 ####### For testing only #######

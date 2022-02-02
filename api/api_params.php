@@ -28,6 +28,6 @@ $MODES = array("resolve","meta", "sources", "citations", "collaborators", "dd", 
 // Default option values
 //////////////////////////////////////////////////
 
-$DEF_MODE = "resolve";		// Processing mode
+$DEF_MODE = "resolve";			// Processing mode
 
 ?>

@@ -50,6 +50,7 @@ overall_score NUMERIC(4,2) DEFAULT NULL,
 poldiv_submitted VARCHAR(50) DEFAULT NULL, 
 poldiv_matched VARCHAR(50) DEFAULT NULL,
 match_status VARCHAR(50) DEFAULT NULL,
+threshold_fuzzy NUMERIC(4,2) DEFAULT NULL, 
 is_in_cache SMALLINT DEFAULT 0,
 user_id text DEFAULT NULL
 ) 
