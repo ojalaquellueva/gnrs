@@ -28,6 +28,8 @@ DROP INDEX IF EXISTS user_data_country_id_idx;
 DROP INDEX IF EXISTS user_data_state_province_id_idx;
 DROP INDEX IF EXISTS user_data_county_parish_id_idx;
 DROP INDEX IF EXISTS user_data_match_status_idx;
+DROP INDEX IF EXISTS user_data_threshold_fuzzy_idx;
+
 
 -- Create indexes
 CREATE INDEX user_data_job_idx ON user_data(job);
@@ -41,6 +43,7 @@ CREATE INDEX user_data_country_id_idx ON user_data(country_id);
 CREATE INDEX user_data_state_province_id_idx ON user_data(state_province_id);
 CREATE INDEX user_data_county_parish_id_idx ON user_data(county_parish_id);
 CREATE INDEX user_data_match_status_idx ON user_data(match_status);
+CREATE INDEX user_data_threshold_fuzzy_idx ON user_data(threshold_fuzzy);
 
 --
 -- cache

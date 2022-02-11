@@ -23,6 +23,7 @@ if (array_key_exists('mode', $opt_arr)) {
 	$mode = $TNRS_DEF_MODE;
 }
 
+/* GVS parameters, not needed
 // Threshold parameter $maxdist
 if (array_key_exists('maxdist', $opt_arr)) {
 	$maxdist = $opt_arr['maxdist'];
@@ -63,6 +64,7 @@ if (array_key_exists('maxdistrel', $opt_arr)) {
 		}
 	}
 }
+*/
 
 
 // Fuzzy match threshold parameter $tfuzzy
@@ -84,7 +86,6 @@ if (array_key_exists('tfuzzy', $opt_arr)) {
 		}
 	}
 }
-
 
 /////////////////////////////////////////////
 // Other options
