@@ -4,13 +4,14 @@
 # Invokes parallel processing GNRS interface (gnrspar.sh)
 ###############################################
 
+rm(list=ls())
+
 #################################
 # Parameters
 #################################
 
 # api url
-url = "http://vegbiendev.nceas.ucsb.edu:8875/gnrs_api.php" # Public development
-url = "https://gnrsapi.xyz/gnrs_api.php" # Production
+url = "https://gnrsapi.xyz/gnrs_api.php" 
 
 # Test files of political divisions to resolve (choose one)
 # Format: comma-delimited UTF-8 text
@@ -32,9 +33,6 @@ testfile <- testfile.ids
 # Load libraries
 library(httr)		# API requests
 library(jsonlite) # JSON coding/decoding
-
-# Header for api call
-headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
 
 #################################
 # Import & prepare the raw data
@@ -58,7 +56,7 @@ data_json <- jsonlite::toJSON(unname(data))
 
 # Set API options
 mode <- "resolve"			# Processing mode
-batches <- 3					# Number of batches, for parallel processing
+batches <- 10					# Number of batches, for parallel processing
 										# input file will be divided into this many batches
 
 # Convert the options to data frame and then JSON
@@ -113,7 +111,7 @@ results[ , c(	'country', 'state_province', 'county_parish',
 	'country_iso', 'state_province_iso', 'county_parish_iso', 
 	'gid_0', 'gid_1', 'gid_2', 'geonameid' )
 	]
-	
+
 #################################
 # Example 2: Get list of all countries & 
 # associated information in GNRS DB

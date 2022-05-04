@@ -15,7 +15,7 @@ if (array_key_exists('mode', $opt_arr)) {
 	} else {
 		$valid = in_array($mode, $MODES);
 		if ( $valid === false ) {
-			$err_msg="ERROR: Invalid option '$mode' for 'mode'\r\n"; 
+			$err_msg="ERROR:  Invalid option '$mode' for 'mode'\r\n"; 
 			$err_code=400; $err=true;
 		}
 	}

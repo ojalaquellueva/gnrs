@@ -2,7 +2,6 @@
 
 ##############################################################
 # Application parameters
-# MUST load config/db_config.sh first to set $BASEDIR
 ##############################################################
 
 # Relative path to server-specific configuration file.

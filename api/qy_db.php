@@ -21,11 +21,13 @@ $conn_string = "host=$HOST port=5432 dbname=$DB user=$USER_W password=$PWD_USER_
 $dbconn = pg_connect($conn_string);
 
 if (!$dbconn) {
-	$err_msg="ERROR: Failed to connect to database\r\n";
+	$err_msg="ERROR: Failed to connect to database\n";
 	$err_code=500;	
 } elseif (!$qy_results = pg_query($dbconn, $sql)) {
 	pg_close($dbconn); 
-	$err_msg="ERROR: Query failed (mode '$mode')\r\n";
+	$err_msg="ERROR: Query failed (mode '$mode')\n";
+	if ( $err_show_sql ) $err_msg = $err_msg . " " .$sql;
+
 	$err_code=400;	
 } else {
 	// Create associative array of the query results
@@ -38,6 +40,5 @@ if (!$dbconn) {
 	}
 	pg_close($dbconn); 
 }
-
 
 ?>
