@@ -20,7 +20,7 @@ if (array_key_exists('mode', $opt_arr)) {
 		}
 	}
 } else {
-	$mode = $TNRS_DEF_MODE;
+	$mode = $DEF_MODE;
 }
 
 /* GVS parameters, not needed

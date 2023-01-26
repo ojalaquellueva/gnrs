@@ -4,6 +4,12 @@
 // Queries database with supplied sql ($sql)
 ////////////////////////////////////////////////////////
 
+// // For testing 
+// $err_show_sql=TRUE;
+// $sql="SELECT db_version, db_version_build_date, db_version_comments, code_version, code_version_release_date, code_version_comments FROM meta WHERE id=(SELECT MAX(id) FROM meta)";
+// $mode="meta";
+
+
 require_once 'params.php';			// general parameters 
 // require_once 'api_params.php';		// API option parameters
 
@@ -20,14 +26,21 @@ if ( $err_show_sql ) {
 $conn_string = "host=$HOST port=5432 dbname=$DB user=$USER_W password=$PWD_USER_W";
 $dbconn = pg_connect($conn_string);
 
+
+
+
+$results_array="Howdy from qy_db.php!";
+/*
+
+
+
+
 if (!$dbconn) {
 	$err_msg="ERROR: Failed to connect to database\n";
 	$err_code=500;	
 } elseif (!$qy_results = pg_query($dbconn, $sql)) {
 	pg_close($dbconn); 
 	$err_msg="ERROR: Query failed (mode '$mode')\n";
-	if ( $err_show_sql ) $err_msg = $err_msg . " " .$sql;
-
 	$err_code=400;	
 } else {
 	// Create associative array of the query results
@@ -40,5 +53,11 @@ if (!$dbconn) {
 	}
 	pg_close($dbconn); 
 }
+
+
+// // For testing
+// var_dump($results_array);
+
+*/
 
 ?>

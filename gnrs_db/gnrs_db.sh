@@ -98,15 +98,6 @@ source "$includes_dir/start_process.sh"
 # sudo commands in this script, regardless of sudo timeout
 sudo pwd >/dev/null
 
-
-
-
-echo "WARNING: Some code commented out for development!"
-: <<'COMMENT_BLOCK_1'
-
-
-
-
 ############################################
 # Create database in admin role & reassign
 # to principal non-admin user of database
@@ -497,12 +488,6 @@ source "$includes_dir/check_status.sh"
 echoi $e -n "Adding GADM IDs...."
 PGOPTIONS='--client-min-messages=warning' psql -d $DB_GNRS --set ON_ERROR_STOP=1 -q -f $DIR/sql/add_gadm_ids.sql
 source "$includes_dir/check_status.sh"
-
-
-COMMENT_BLOCK_1
-
-
-
 
 ############################################
 # Create GNRS output data dictionary

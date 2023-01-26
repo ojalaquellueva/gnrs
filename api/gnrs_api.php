@@ -377,10 +377,12 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 	}
 
 	$data_dir_tmp_full = $data_dir_tmp . "/";
-	// Form the final command
-	$cmd = $BATCH_DIR . "gnrspar.pl -in '$file_tmp'  -out '$results_file' -nbatch $nbatches $opt_mt";
+
+	/////////////////////////////////////////
+	// Execute the API call
+	/////////////////////////////////////////	
 	
-	// Process the data in parallel batches with the core application
+	$cmd = $BATCH_DIR . "gnrspar.pl -in '$file_tmp'  -out '$results_file' -nbatch $nbatches $opt_mt";
 	exec($cmd, $output, $status);
 	if ($status) {
 		$err_msg="ERROR: $APPNAME exit status: $status\r\n";
@@ -404,6 +406,7 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		SELECT db_version, db_version_build_date, db_version_comments,
 		code_version, code_version_release_date, code_version_comments 
 		FROM meta
+		WHERE id=(SELECT MAX(id) FROM meta)
 		;
 		";
 	} elseif ( $mode=="sources" ) { // CONTINUE mode_if 
@@ -509,10 +512,20 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		$err_msg="ERROR: Unknown opt mode '$mode'\r\n"; 
 		$err_code=400; goto err;
 	}
+
+
+
+	$results_array="Howdy from gnrs_api.php";
+
 	
 	// Run the query and save results as $results_array
 	include("qy_db.php"); 
 	if ( $err_code!=200 ) goto err;
+
+
+
+		
+
 
 }	// END mode_if
 

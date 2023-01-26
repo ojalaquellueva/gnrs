@@ -5,8 +5,6 @@
 #
 # Usage:	./gnrs_export.sh
 #
-# Warning: Requires database geonames on local filesystem
-#
 # Authors: Brad Boyle (bboyle@email.arizona.edu)
 # Date created: 12 June 2017
 #########################################################################
@@ -71,9 +69,11 @@ COMMENT_BLOCK_1
 
 echoi $e -n "Dumping gnrs results to data directory as file '$results_filename'..."
 gnrs_results_file=$data_dir_local"/"$results_filename
+rm "${gnrs_results_file}"
+sql_results="SELECT * FROM user_data WHERE job='${job}' ORDER BY user_id, poldiv_full"
 PGOPTIONS='--client-min-messages=warning' psql -d gnrs -q << EOF
 \set ON_ERROR_STOP on
-\copy user_data TO '${gnrs_results_file}' csv header
+\copy '${sql_results}' TO '${gnrs_results_file}' csv header
 EOF
 echoi $i "done"
 
