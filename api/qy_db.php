@@ -29,10 +29,7 @@ $dbconn = pg_connect($conn_string);
 
 
 
-$results_array="Howdy from qy_db.php!";
-/*
-
-
+//$results_array="Howdy from qy_db.php!";
 
 
 if (!$dbconn) {
@@ -57,7 +54,5 @@ if (!$dbconn) {
 
 // // For testing
 // var_dump($results_array);
-
-*/
 
 ?>

@@ -261,10 +261,11 @@ if ( $mode=="resolve" || $mode=="statelist"|| $mode=="countylist") {
 		$err_code=400; goto err;
 	}
 
-	# Check payload size
+	# Check payload size, but only for resolve mode
 	$datarows = count($data_arr);
 	if ( $datarows>$MAX_ROWS && $MAX_ROWS>0 ) {
-		$err_msg="ERROR: Requested $rows rows exceeds $MAX_ROWS row limit\r\n";	
+//	if ( $mode=="resolve" && $datarows>$MAX_ROWS && $MAX_ROWS>0 ) {
+		$err_msg="ERROR: Request exceeds $MAX_ROWS row limit";	
 		$err_code=413;	# 413 Payload Too Large
 		goto err; 
 	}
@@ -394,7 +395,7 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 	// file and convert to JSON
 	///////////////////////////////////
 	
-	// Import the results file (tab-delimitted) to array
+	// Import the results file (tab-delimited) to array
 	$results_array = file_to_array_assoc($results_file, $results_file_delim);
 
 } else {	// CONTINUE mode_if 
