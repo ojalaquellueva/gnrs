@@ -421,8 +421,13 @@ if ( $mode == 'resolve' ) { 	// BEGIN mode_if
 		";
 	} elseif ( $mode=="citations" ) { // CONTINUE mode_if 
 		$sql="
-		SELECT 'gnrs' AS source, citation
+		SELECT 'gnrs.app' AS source, citation
 		FROM meta
+		WHERE id=(SELECT MAX(id) FROM meta)
+		UNION ALL
+		SELECT 'gnrs.pub' AS source, publication AS citation
+		FROM meta
+		WHERE id=(SELECT MAX(id) FROM meta)
 		UNION ALL
 		SELECT source_name AS source, citation
 		FROM source
