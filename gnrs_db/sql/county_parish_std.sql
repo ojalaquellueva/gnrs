@@ -74,9 +74,10 @@ WHEN county_parish_std ILIKE 'Qada'' ar %' THEN regexp_replace(county_parish_std
 WHEN county_parish_std ILIKE 'Qada'' as %' THEN regexp_replace(county_parish_std, 'Qada'' as ', '', 'i')
 WHEN county_parish_std ILIKE 'Qada'' at %' THEN regexp_replace(county_parish_std, 'Qada'' at ', '', 'i')
 WHEN county_parish_std ILIKE 'Qada'' `%' THEN regexp_replace(county_parish_std, 'Qada'' `', '', 'i')
-WHEN county_parish_std ILIKE 'Regional District of %' THEN regexp_replace(county_parish_std, 'Regional District of ', '', 'i')
 WHEN county_parish_std ILIKE 'Qarku i%' THEN regexp_replace(county_parish_std, 'Qarku i', '', 'i')
-WHEN county_parish_std ILIKE 'Region del%' THEN regexp_replace(county_parish_std, 'Region del', '', 'i')
+WHEN county_parish_std ILIKE 'Regional District of %' THEN regexp_replace(county_parish_std, 'Regional District of ', '', 'i')
+WHEN county_parish_std ILIKE '% Regional District' THEN regexp_replace(county_parish_std, '% Regional District', '', 'i')
+WHEN county_parish_std ILIKE 'Region del%' THEN regexp_replace(county_parish_std, 'Region del ', '', 'i')
 WHEN county_parish_std ILIKE 'Region du %' THEN regexp_replace(county_parish_std, 'Region du ', '', 'i')
 WHEN county_parish_std ILIKE 'Region de %' THEN regexp_replace(county_parish_std, 'Region de ', '', 'i')
 WHEN county_parish_std ILIKE 'San Agustin del %' THEN regexp_replace(county_parish_std, 'San Agustin del ', '', 'i')
@@ -288,6 +289,7 @@ ELSE county_parish_std
 END;
 
 -- Prefixes without articles
+-- This must come after the above command
 UPDATE county_parish
 SET county_parish_std=
 CASE

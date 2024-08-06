@@ -1,13 +1,12 @@
 -- -----------------------------------------------------------------------
--- Add updated citations. Not yet added to pipeline, although bibtex files
--- have been added to ../data/db/gnrs/
+-- Add new metadata record with update DB minor version
 -- -----------------------------------------------------------------------
 
 /*
 Make changes to all instances:
 Private development: gnrs_dev on vegbiendev
 Public development: gnrs_2_2 on vegbiendev
-Production: gnrs_2_2 on paramo
+Production: gnrs_2_2_3 on paramo
 */
 
 INSERT INTO meta (
@@ -22,8 +21,8 @@ publication,
 logo_path
 ) 
 VALUES (
-'2.2.4',
-'Minor updates to GNRS citations',
+'2.2.5',
+'Fix erroneous standard names (county_parish_std) of admin_2 political divisions with <Regional District> in full name',
 '2024-04-02',
 '1.7.4',
 'Update API call citations to distinguish between gnrs.app and gnrs.pub',

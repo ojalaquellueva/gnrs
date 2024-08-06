@@ -5,9 +5,9 @@
 // (gnrspar.sh: parallel version)
 ////////////////////////////////////////////////////////
 
-///////////////////////////////////
+//////////////////////////////////////////////////////////////
 // Parameters
-///////////////////////////////////
+//////////////////////////////////////////////////////////////
 
 // Increase memory limit for this script only
 // Allows sending of larger reponses
@@ -40,9 +40,9 @@ $results_filename = $basename . "_out.csv";
 $results_file = $data_dir_tmp . $results_filename;
 //$results_file = "/tmp/" . $results_filename;
 
-///////////////////////////////////
+//////////////////////////////////////////////////////////////
 // Functions
-///////////////////////////////////
+//////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////
 // Loads results file as an asociative array
@@ -168,6 +168,10 @@ function nbatches($datarows, $CORES, $OPT_BATCH_SIZE) {
 	}
 }
 
+//////////////////////////////////////////////////////////////
+// Main
+//////////////////////////////////////////////////////////////
+
 ////////////////////////////////////////
 // Receive & validate the POST request
 ////////////////////////////////////////
@@ -183,10 +187,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 	// Send pre-flight response and quit
 	//header("Access-Control-Allow-Origin: http://localhost:3000");	// Dev
 	header("Access-Control-Allow-Origin: *"); // Production
+	# Testing additional directives to solve CORS blocking of test 
+	# names stored as file on the requestion GNRSweb server
+	//header("Access-Control-Allow-Origin: http://mint-pheasant.nceas.ucsb.edu:3001");
+	//header("Access-Control-Allow-Origin: https://gnrs.biendata.org");
 	header("Access-Control-Allow-Methods: POST, OPTIONS");
 	header("Access-Control-Allow-Headers: Content-type");
 	header("Access-Control-Max-Age: 86400");
 	exit;
+/* 
+} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	header("Access-Control-Allow-Origin: *");
+	header("Access-Control-Allow-Methods: POST, OPTIONS");
+	header("Access-Control-Allow-Headers: Content-type");
+	
+ */
 } else if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') != 0) {
 	$err_msg="ERROR: Request method must be POST\r\n"; 
 	$err_code=400; goto err;
